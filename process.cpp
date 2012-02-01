@@ -416,6 +416,131 @@ void Process::Draw_strategy_primitive_square()
 }
 
 
+void Process::Draw_strategy_background()
+{
+
+    boost::python::object game = boost::python::extract<boost::python::object>(self_.attr("game"));
+    boost::python::object core = boost::python::extract<boost::python::object>(game.attr("core"));
+    Media* media = boost::python::extract<Media*>(core.attr("media"));
+
+    string nebula_image = boost::python::extract<string>(self_.attr("draw_strategy_nebula_image"));
+
+    // If we need to regenerate verticies
+    if(vertex_list_1.size() == 0)
+    {
+
+        float draw_x;
+        float draw_y;
+        float texture_x_from;
+        float texture_x_to;
+
+        int screen_width = boost::python::extract<float>(self_.attr("draw_strategy_screen_width"));
+        int screen_height = boost::python::extract<float>(self_.attr("draw_strategy_screen_height"));
+
+        for(int i = 0; i < 5; i++)
+        {
+
+            for(int layer = 0; layer < BACKGROUND_NUM_NEBULA_ITEMS; layer++)
+            {
+
+                draw_x = (float)randint(-256, screen_width + 256);
+                draw_y = (float)randint(-256, screen_height + 256);
+
+                for(int junk = 0; junk < 2; junk++)
+                {
+
+                    vertex_list_1.push_back(draw_x + 512.0f);
+                    vertex_list_1.push_back(draw_y);
+
+                    vertex_list_1.push_back(draw_x);
+                    vertex_list_1.push_back(draw_y);
+
+                    vertex_list_1.push_back(draw_x);
+                    vertex_list_1.push_back(draw_y + 512.0f);
+
+                    vertex_list_1.push_back(draw_x + 512.0f);
+                    vertex_list_1.push_back(draw_y + 512.0f);
+
+                    texture_x_to = (
+                        (512.0 * layer) / media->gfx["background_nebula" + nebula_image]->surface_width
+                        );
+                    texture_x_from = (
+                        (512.0 * (layer + 1)) / media->gfx["background_nebula" + nebula_image]->surface_width
+                        );
+
+                    texture_coord_list_1.push_back(texture_x_to);
+                    texture_coord_list_1.push_back(0.0f);
+                    
+                    texture_coord_list_1.push_back(texture_x_from);
+                    texture_coord_list_1.push_back(0.0f);
+
+                    texture_coord_list_1.push_back(texture_x_from);
+                    texture_coord_list_1.push_back(1.0f);
+                
+                    texture_coord_list_1.push_back(texture_x_to);
+                    texture_coord_list_1.push_back(1.0f);
+
+                }
+
+            }
+
+        }
+
+        // star verticies and texture coords
+        vertex_list_2.push_back(screen_width);
+        vertex_list_2.push_back(0.0f);
+
+        vertex_list_2.push_back(0.0f);
+        vertex_list_2.push_back(0.0f);
+
+        vertex_list_2.push_back(0.0f);
+        vertex_list_2.push_back(screen_height);
+
+        vertex_list_2.push_back(screen_width);
+        vertex_list_2.push_back(screen_height);
+
+        float tex_coords_x = (float)screen_width / (float)media->gfx["background_stars"]->width;
+        float tex_coords_y = (float)screen_height / (float)media->gfx["background_stars"]->height;
+
+        texture_coord_list_2.push_back(tex_coords_x);
+        texture_coord_list_2.push_back(0.0f);
+
+        texture_coord_list_2.push_back(0.0f);
+        texture_coord_list_2.push_back(0.0f);
+
+        texture_coord_list_2.push_back(0.0f);
+        texture_coord_list_2.push_back(tex_coords_y);
+
+        texture_coord_list_2.push_back(tex_coords_x);
+        texture_coord_list_2.push_back(tex_coords_y);
+
+    }
+
+    // Draw the nebulas
+    glPushMatrix();
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, media->gfx["background_nebula" + nebula_image]->texture);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
+    glTexCoordPointer(2, GL_FLOAT, 0, &texture_coord_list_1[0]);
+    glVertexPointer(2, GL_FLOAT, 0, &vertex_list_1[0]);
+    glDrawArrays(GL_QUADS, 0, vertex_list_1.size() / 2);
+
+    // Draw the stars
+    glBindTexture(GL_TEXTURE_2D, media->gfx["background_stars"]->texture);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.3f);
+    glTexCoordPointer(2, GL_FLOAT, 0, &texture_coord_list_2[0]);
+    glVertexPointer(2, GL_FLOAT, 0, &vertex_list_2[0]);
+    glDrawArrays(GL_QUADS, 0, vertex_list_2.size() / 2);
+
+    // Reset matrix
+    glPopMatrix();
+    Process::current_bound_texture = -1;
+    glTexCoordPointer(2, GL_FLOAT, 0, &Process::default_texture_coords[0]);
+
+}
+
+
 /*
  *
  */
@@ -719,5 +844,4 @@ TextWrapper::TextWrapper(PyObject* _self, Font* _font, float _x, float _y, int _
     self_ = boost::python::object(boost::python::handle<>(boost::python::borrowed(self)));
     Process::internal_list.append(self_);
 }
-
 

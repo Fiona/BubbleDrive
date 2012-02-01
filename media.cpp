@@ -21,10 +21,20 @@ Media::Media()
     fonts.insert(pair<string,Font*>("fixed_small", new Font("fnt/bitmap1.ttf", 8)));
 
     // Visuals
-/*
     gfx.insert(pair<string, Image*>("gui_stompyblondie_logo", new Image("gfx/gui/stompyblondie_logo.png")));
     gfx.insert(pair<string, Image*>("gui_stompyblondie_logo_text", new Image("gfx/gui/stompyblondie_logo_text.png")));
 
+    gfx.insert(pair<string, Image*>("gui_cursor", new Image("gfx/gui/cursor.png")));
+    gfx.insert(pair<string, Image*>("gui_crosshair", new Image("gfx/gui/crosshair.png")));
+
+    gfx.insert(pair<string, Image*>("background_stars", new Image("gfx/background/stars.png", True)));
+    gfx.insert(pair<string, Image*>("background_nebula1", new Image("gfx/background/nebula1.png", False, 8)));
+    gfx.insert(pair<string, Image*>("background_nebula2", new Image("gfx/background/nebula2.png", False, 8)));
+    gfx.insert(pair<string, Image*>("background_nebula3", new Image("gfx/background/nebula3.png", False, 8)));
+
+    gfx.insert(pair<string, Image*>("ships_ship2", new Image("gfx/ships/ship2.png")));
+
+/*
     gfx.insert(pair<string, Image*>("gui_button_generic_background", new Image("gfx/gui/button_generic_background.png", True, 4)));
     gfx.insert(pair<string, Image*>("gui_button_spinner_down", new Image("gfx/gui/button_spinner_down.png", False, 3)));
     gfx.insert(pair<string, Image*>("gui_button_spinner_up", new Image("gfx/gui/button_spinner_up.png", False, 3)));

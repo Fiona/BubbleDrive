@@ -40,9 +40,17 @@
 #define DEFAULT_SETTING_SCREEN_WIDTH 1024
 #define DEFAULT_SETTING_SCREEN_HEIGHT 768
 #define DEFAULT_SETTING_FULL_SCREEN "0"
+#define DEFAULT_SETTING_KEY_SHIP_FORWARD SDLK_w
+#define DEFAULT_SETTING_KEY_SHIP_BACK SDLK_s
+#define DEFAULT_SETTING_KEY_SHIP_LEFT SDLK_a
+#define DEFAULT_SETTING_KEY_SHIP_RIGHT SDLK_d
+#define DEFAULT_SETTING_KEY_ZOOM_IN SDLK_PAGEUP
+#define DEFAULT_SETTING_KEY_ZOOM_OUT SDLK_PAGEDOWN
 
 // Misc defines
 #define FILE_SETTINGS "settings.json"
+#define BACKGROUND_NUM_NEBULA_TYPES 3
+#define BACKGROUND_NUM_NEBULA_ITEMS 8
 
 // STD and boost includes
 #include <vector>
@@ -58,10 +66,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/string_generator.hpp>
-#include <boost/uuid/random_generator.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/variate_generator.hpp>
 
 // GL and SDL
 #include <GL/gl.h>
@@ -125,6 +132,15 @@ public:
     bool Keyboard_key_down(SDLKey Key);
     bool Keyboard_key_released(SDLKey Key);
 
+    // Game specific
+    float camera_x;
+    float camera_y;
+    float global_scale;
+
+    tuple<float, float> screen_to_world(float x, float y);
+    tuple<float, float> world_to_screen(float x, float y);
+    tuple<int, int> world_to_in_universe_coords(float x, float y);
+
 };
 
 
@@ -162,6 +178,12 @@ public:
     float screen_width;
     float screen_height;
     bool full_screen;
+    int key_ship_forward;
+    int key_ship_back;
+    int key_ship_left;
+    int key_ship_right;
+    int key_zoom_in;
+    int key_zoom_out;
 
     bool save();
 };
@@ -169,5 +191,6 @@ public:
 
 bool hasattr(boost::python::object obj, std::string const &attr_name);
 
+int randint(int min, int max);
 
 #endif

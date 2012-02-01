@@ -69,6 +69,12 @@ BOOST_PYTHON_MODULE(core)
         .add_property("screen_width", make_getter(&Settings::screen_width), make_setter(&Settings::screen_width))
         .add_property("screen_height", make_getter(&Settings::screen_height), make_setter(&Settings::screen_height))
         .add_property("full_screen", make_getter(&Settings::full_screen), make_setter(&Settings::full_screen))
+        .add_property("key_ship_forward", make_getter(&Settings::key_ship_forward), make_setter(&Settings::key_ship_forward))
+        .add_property("key_ship_back", make_getter(&Settings::key_ship_back), make_setter(&Settings::key_ship_back))
+        .add_property("key_ship_left", make_getter(&Settings::key_ship_left), make_setter(&Settings::key_ship_left))
+        .add_property("key_ship_right", make_getter(&Settings::key_ship_right), make_setter(&Settings::key_ship_right))
+        .add_property("key_zoom_in", make_getter(&Settings::key_zoom_in), make_setter(&Settings::key_zoom_in))
+        .add_property("key_zoom_out", make_getter(&Settings::key_zoom_out), make_setter(&Settings::key_zoom_out))
         ;
 
     // Expose common vectors
@@ -124,6 +130,30 @@ BOOST_PYTHON_MODULE(core)
         .def("Kill", &TextWrapper::Kill)
         ;
 
+    class_<World_object, World_objectWrapper, boost::noncopyable, boost::shared_ptr<World_objectWrapper> >
+("World_object", init<>())
+        .add_property("x", make_getter(&World_object::x), make_setter(&World_object::x))
+        .add_property("y", make_getter(&World_object::y), make_setter(&World_object::y))
+        .add_property("z", make_getter(&World_object::z), &World_object::Set_z)
+        .add_property("colour", make_getter(&World_object::colour), &World_object::Set_colour)
+        .add_property("alpha", make_getter(&World_object::alpha), make_setter(&World_object::alpha))
+        .add_property("scale", make_getter(&World_object::scale), make_setter(&World_object::scale))
+        .add_property("rotation", make_getter(&World_object::rotation), make_setter(&World_object::rotation))
+        .add_property("image_sequence", make_getter(&World_object::image_sequence), make_setter(&World_object::image_sequence))
+        .add_property("scale_pos", make_getter(&World_object::scale_pos), &World_object::Set_scale_pos)
+        .add_property("draw_strategy", make_getter(&World_object::draw_strategy), make_setter(&World_object::draw_strategy))
+
+        .add_property(
+            "image",
+            make_getter(&World_object::image, return_value_policy<reference_existing_object>()),
+            make_setter(&World_object::image)
+            )
+
+        .def("Execute", &World_object::Execute, &World_objectWrapper::Execute_default)
+        .def("get_screen_draw_position", &World_object::get_screen_draw_position, &World_objectWrapper::get_screen_draw_position_default)
+        .def("Kill", &World_objectWrapper::Kill)
+        ;
+
     // Expose the mouse class
     class_<Mouse>("Mouse")
         .add_property("x", make_getter(&Mouse::x))
@@ -153,6 +183,14 @@ BOOST_PYTHON_MODULE(core)
         .def("Keyboard_key_down", &Main_App::Keyboard_key_down)
         .def("Keyboard_key_released", &Main_App::Keyboard_key_released)
         .def("Quit", &Main_App::Quit)
+
+        .add_property("camera_x", make_getter(&Main_App::camera_x), make_setter(&Main_App::camera_x))
+        .add_property("camera_y", make_getter(&Main_App::camera_y), make_setter(&Main_App::camera_y))
+        .add_property("global_scale", make_getter(&Main_App::global_scale), make_setter(&Main_App::global_scale))
+ 
+        .def("screen_to_world", &Main_App::screen_to_world)
+        .def("world_to_screen", &Main_App::world_to_screen)
+        .def("world_to_in_universe_coords", &Main_App::world_to_in_universe_coords)
         ;
 
     // Expose the framework constants
@@ -166,7 +204,8 @@ BOOST_PYTHON_MODULE(core)
     scope().attr("TEXT_ALIGN_BOTTOM") = TEXT_ALIGN_BOTTOM;
     scope().attr("TEXT_ALIGN_BOTTOM_RIGHT") = TEXT_ALIGN_BOTTOM_RIGHT;
 
-    // Expose some pixelpics constants
+    // Expose some Bubble Drive constants
+    scope().attr("BACKGROUND_NUM_NEBULA_TYPES") = BACKGROUND_NUM_NEBULA_TYPES;
 
     // Expose all the SDL Keybinding constants
     enum_<SDLKey>("key")

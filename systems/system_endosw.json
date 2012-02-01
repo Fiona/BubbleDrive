@@ -1,0 +1,1 @@
+{"py/object": "galaxy.Solar_system", "name": "Endos West", "short_name": "endosw", "galaxy_pos": {"py/tuple": [213, 318]}, "colour": "green", "background_objects": [{"y": 50000, "x": 50000, "scale": 0.5, "type": "star1", "uuid": "1"}], "background_seed": 0}

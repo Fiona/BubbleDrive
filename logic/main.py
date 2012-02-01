@@ -13,8 +13,12 @@ from core import *
 # Game imports
 sys.path.append(os.path.join(os.getcwd(), "logic"))
 from consts import *
-#from gui import GUI, Mouse
-#from puzzle import Puzzle_manager
+from gui import GUI
+from galaxy import Galaxy
+from game_objects import Test
+#from game_objects import Camera, Player_ship, Background, Background_object, Asteroid, Mouse_object, AI_ship
+from game_objects import Background
+#from particles import ParticleSystem
 
 
 class Game(Process):
@@ -26,7 +30,14 @@ class Game(Process):
     settings = {
         'screen_width' : 1,
         'screen_height' : 1,
-        'full_screen' : 1
+        'full_screen' : 1,
+        
+        'key_ship_forward' : 1,
+        'key_ship_back' : 1,
+        'key_ship_left' : 1,
+        'key_ship_right' : 1,
+        'key_zoom_in' : 1,
+        'key_zoom_out' : 1
         }
 
     # Value between 0 an 1 representing the current zoom level
@@ -60,6 +71,7 @@ class Game(Process):
         self.settings['screen_width'] = self.core.settings.screen_width
         self.settings['screen_height'] = self.core.settings.screen_height
         self.settings['full_screen'] = self.core.settings.full_screen
+        self.settings['key_ship_forward'] = self.core.settings.key_ship_forward
 
         # Debug display
         if DEBUG_SHOW_FPS:
@@ -72,8 +84,8 @@ class Game(Process):
             self.num_process_text.colour = (1.0, 1.0, 1.0)
             self.num_process_text.z = -2000
             
-        #self.gui = GUI(self)
-        #self.switch_game_state_to(GAME_STATE_LOGO)
+        self.gui = GUI(self)
+        self.switch_game_state_to(GAME_STATE_LOGO)
 
 
     def Execute(self):
@@ -94,6 +106,104 @@ class Game(Process):
         """
         self.core.Quit()
 
+
+    def switch_game_state_to(self, state, gui_state = None):
+        """
+        Pass in a state and this will switch to it.
+        It will also clean up everying necessary to go out of the
+        previous game state.
+        """
+        # Undo and destroy everything in the current state
+        if self.game_state == GAME_STATE_LOGO:
+            self.gui.destroy_current_gui_state()
+        elif self.game_state == GAME_STATE_IN_GAME:
+            self.galaxy.Kill()
+            self.galaxy = None
+            #self.camera.signal(S_KILL)
+            #self.camera = None
+            self.background.Kill()
+            self.background = None
+            #self.player_ship = None
+
+            #for x in self.world_objects:
+            #    self.world_objects[x].kill()
+            #self.world_objects = []
+
+            self.world_objects_by_faction = {
+                FACTION_NEUTRAL : [],
+                FACTION_PLAYER : []
+                }
+
+        # Switch to new state
+        self.game_state = state
+
+        # Create everything we require
+        if state == GAME_STATE_LOGO:
+            self.gui.switch_gui_state_to(GUI_STATE_LOGO if gui_state is None else gui_state)
+
+        elif state == GAME_STATE_IN_GAME:            
+            self.galaxy = Galaxy(self)
+            Test(self)
+            #self.camera = Camera(self)
+            
+            #self.particle_emitters = {}
+            #self.particles = ParticleSystem(self, Z_PARTICLES)
+            #self.create_emitters()
+                    
+            #self.player_ship = Player_ship(self)
+            #self.camera.x, self.camera.y = self.player_ship.x, self.player_ship.y
+            
+            self.background = Background(self)
+                            
+            #for x in range(50):
+            #    Asteroid(self)
+            #AI_ship(self, {'type' : SHIP_TYPE_PROSPERO_FIGHTER, 'x' : 50500, 'y' : 50500})
+ 
+            #self.camera.set_anchor_to(self.player_ship, instant = True)
+
+            self.gui.fade_toggle()
+            self.gui.switch_gui_state_to(GUI_STATE_WORLD_VIEW)
+
+
+    def game_event(self, event_code, param_1 = None):
+        """
+        I'll write this docstring later
+        """
+        if event_code == EVENT_WORLD_OBJECT_DIED:
+            ship = param_1
+            if self.player_ship.target == ship:
+                self.player_ship.change_target(None)
+
+
+    def pause_game(self):
+        if self.paused:
+
+            return
+
+        for x in self.world_objects:
+            x.Stop_logic(tree = True)
+            x.Stop_drawing(tree = True)
+
+        self.particles.Stop_logic(tree = True)
+        self.background.Stop_logic(tree = True)
+        self.gui.pause_game()
+
+        self.paused = True
+                
+
+    def unpause_game(self):
+        if not self.paused:
+            return
+
+        for x in self.world_objects:
+            x.Start_logic(tree = True)
+            x.Start_drawing(tree = True)
+
+        self.particles.Start_logic(tree = True)
+        self.background.Start_logic(tree = True)
+        self.gui.unpause_game()
+
+        self.paused = False
 
 
 Game(core)

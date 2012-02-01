@@ -194,12 +194,24 @@ Settings::Settings(string _filename)
         pt.put("screen_width", DEFAULT_SETTING_SCREEN_WIDTH);
         pt.put("screen_height", DEFAULT_SETTING_SCREEN_HEIGHT);
         pt.put("full_screen", DEFAULT_SETTING_FULL_SCREEN);
+        pt.put("key_ship_forward", DEFAULT_SETTING_KEY_SHIP_FORWARD);
+        pt.put("key_ship_back", DEFAULT_SETTING_KEY_SHIP_BACK);
+        pt.put("key_ship_left", DEFAULT_SETTING_KEY_SHIP_LEFT);
+        pt.put("key_ship_right", DEFAULT_SETTING_KEY_SHIP_RIGHT);
+        pt.put("key_zoom_in", DEFAULT_SETTING_KEY_ZOOM_IN);
+        pt.put("key_zoom_out", DEFAULT_SETTING_KEY_ZOOM_OUT);
 		write_json(filename, pt);
     }
 
     screen_width = pt.get<float>("screen_width");
     screen_height = pt.get<float>("screen_height");
     full_screen = pt.get<bool>("full_screen");
+    key_ship_forward = pt.get<int>("key_ship_forward");
+    key_ship_back = pt.get<int>("key_ship_back");
+    key_ship_left = pt.get<int>("key_ship_left");
+    key_ship_right = pt.get<int>("key_ship_right");
+    key_zoom_in = pt.get<int>("key_zoom_in");
+    key_zoom_out = pt.get<int>("key_zoom_out");
 
 }
 
@@ -212,6 +224,12 @@ bool Settings::save()
     pt.put("screen_width", screen_width);
     pt.put("screen_height", screen_height);
     pt.put("full_screen", full_screen);
+    pt.put("key_ship_forward", key_ship_forward);
+    pt.put("key_ship_back", key_ship_back);
+    pt.put("key_ship_left", key_ship_left);
+    pt.put("key_ship_right", key_ship_right);
+    pt.put("key_zoom_in", key_zoom_in);
+    pt.put("key_zoom_out", key_zoom_out);
     try
     {
         write_json(filename, pt);
@@ -244,3 +262,45 @@ bool hasattr(boost::python::object obj, std::string const &attr_name)
 {
      return PyObject_HasAttrString(obj.ptr(), attr_name.c_str());
 } 
+
+
+boost::mt19937 gen(std::time(0));
+
+int randint(int min, int max)
+{
+    boost::random::uniform_int_distribution<> dist(min, max);
+    return dist(gen);
+}
+
+
+/**
+ * Handy method for transforming coords from screen to world.
+ */
+tuple<float, float> Main_App::screen_to_world(float x, float y)
+{
+    return tuple<float, float>(
+        camera_x + (x - (settings->screen_width/2) / global_scale),
+        camera_y + (y - (settings->screen_height/2) / global_scale)
+        );
+}
+
+
+/**
+ * Handy method for transforming coords from world to screen.
+ */
+tuple<float, float> Main_App::world_to_screen(float x, float y)
+{
+    return tuple<float, float>(
+        (x - camera_x) * global_scale + (settings->screen_width/2),
+        (y - camera_y) * global_scale + (settings->screen_height/2)
+        );
+}
+
+
+/**
+ * The world (pixel) coords are different to the locational coords in-universe, fiction wise. This translates.
+ */
+tuple<int, int> Main_App::world_to_in_universe_coords(float x, float y)
+{
+    return tuple<int, int>((int)(x / 1000), (int)(y / 1000));
+}          

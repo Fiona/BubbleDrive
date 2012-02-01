@@ -1,0 +1,1 @@
+{"py/object": "galaxy.Solar_system", "name": "Caminda", "short_name": "caminda", "galaxy_pos": {"py/tuple": [1441, 489]}, "colour": "white", "background_objects": [{"y": 50000, "x": 50000, "scale": 0.5, "type": "star1", "uuid": "1"}], "background_seed": 0}

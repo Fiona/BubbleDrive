@@ -81,9 +81,15 @@ public:
     virtual tuple<float, float> get_screen_draw_position();
 
     // Draw strategies
+    vector<float>vertex_list_1;
+    vector<float>vertex_list_2;
+    vector<float>texture_coord_list_1;
+    vector<float>texture_coord_list_2;
+
     void Draw_strategy_primitive_square();
     void Draw_strategy_gui_button();
     void Draw_strategy_gui_window_frame();
+    void Draw_strategy_background();
 
 };
 
@@ -168,5 +174,45 @@ struct TextWrapper : Text
 };
 
 
+/*
+ *
+ */
+class World_object : public Process
+{
+public:
+    World_object();
+    void Draw();
+
+    float   x;
+    float   y;
+    int     z;
+    Image*  image;
+    float   scale;
+    int rotation;
+    float alpha;
+    int image_sequence;
+
+    void Set_z(int new_z);
+    void Set_colour(boost::python::object list);
+    tuple<float, float> get_screen_draw_position();
+
+};
+
+
+struct World_objectWrapper : World_object
+{
+    World_objectWrapper(PyObject *p);
+
+    PyObject *self;
+    boost::python::object self_;
+
+    void Execute();
+    void Execute_default();
+    void On_Exit();
+    void On_Exit_default();
+    void Kill();
+    tuple<float, float> get_screen_draw_position();
+    tuple<float, float> get_screen_draw_position_default();
+};
 
 #endif 
