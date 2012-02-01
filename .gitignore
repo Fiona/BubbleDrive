@@ -1,0 +1,5 @@
+*.o
+bubbledrive
+*.pyc
+*.pyo
+a.out
