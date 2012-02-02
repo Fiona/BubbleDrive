@@ -94,6 +94,7 @@ class Main_App
 {
  
 private:
+    static Main_App* inst;
     bool running;
     SDL_Surface* surf_display;
     int desired_fps;
@@ -104,8 +105,11 @@ private:
 
     void Wait_till_next_frame();
 
-
 public:
+    Main_App();
+
+    static Main_App* Instance();
+
     typedef void (Process::*FuncGetter)();
     static map <string, FuncGetter> draw_strategies;
 
@@ -120,7 +124,6 @@ public:
 
     Mouse* mouse;
 
-    Main_App();
     void Quit();
     int On_Execute();
     bool On_Init();   

@@ -17,6 +17,18 @@ void Main_App::On_Cleanup()
     Py_Finalize();
 
     // Kill all the loaded media items
-    delete Main_App::media;
+    delete media;
+
+    // Delete settings
+    delete settings;
+
+    // Delete mouse
+    delete mouse;
+
+    // Delete python interface
+    delete python_interface;
+
+    // Delete self
+    delete inst;
 
 }

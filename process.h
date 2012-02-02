@@ -177,42 +177,26 @@ struct TextWrapper : Text
 /*
  *
  */
-class World_object : public Process
+class World_object : virtual public Process
 {
 public:
     World_object();
-    void Draw();
 
-    float   x;
-    float   y;
-    int     z;
-    Image*  image;
-    float   scale;
-    int rotation;
-    float alpha;
-    int image_sequence;
-
-    void Set_z(int new_z);
-    void Set_colour(boost::python::object list);
+    void Execute();
     tuple<float, float> get_screen_draw_position();
-
 };
 
 
-struct World_objectWrapper : World_object
+struct World_objectWrapper : virtual public Process, public World_object
 {
+    World_objectWrapper();
     World_objectWrapper(PyObject *p);
 
-    PyObject *self;
-    boost::python::object self_;
-
-    void Execute();
     void Execute_default();
-    void On_Exit();
-    void On_Exit_default();
-    void Kill();
-    tuple<float, float> get_screen_draw_position();
+    void Execute();
     tuple<float, float> get_screen_draw_position_default();
+    tuple<float, float> get_screen_draw_position();
+    void Kill();
 };
 
 #endif 

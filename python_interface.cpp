@@ -130,30 +130,6 @@ BOOST_PYTHON_MODULE(core)
         .def("Kill", &TextWrapper::Kill)
         ;
 
-    class_<World_object, World_objectWrapper, boost::noncopyable, boost::shared_ptr<World_objectWrapper> >
-("World_object", init<>())
-        .add_property("x", make_getter(&World_object::x), make_setter(&World_object::x))
-        .add_property("y", make_getter(&World_object::y), make_setter(&World_object::y))
-        .add_property("z", make_getter(&World_object::z), &World_object::Set_z)
-        .add_property("colour", make_getter(&World_object::colour), &World_object::Set_colour)
-        .add_property("alpha", make_getter(&World_object::alpha), make_setter(&World_object::alpha))
-        .add_property("scale", make_getter(&World_object::scale), make_setter(&World_object::scale))
-        .add_property("rotation", make_getter(&World_object::rotation), make_setter(&World_object::rotation))
-        .add_property("image_sequence", make_getter(&World_object::image_sequence), make_setter(&World_object::image_sequence))
-        .add_property("scale_pos", make_getter(&World_object::scale_pos), &World_object::Set_scale_pos)
-        .add_property("draw_strategy", make_getter(&World_object::draw_strategy), make_setter(&World_object::draw_strategy))
-
-        .add_property(
-            "image",
-            make_getter(&World_object::image, return_value_policy<reference_existing_object>()),
-            make_setter(&World_object::image)
-            )
-
-        .def("Execute", &World_object::Execute, &World_objectWrapper::Execute_default)
-        .def("get_screen_draw_position", &World_object::get_screen_draw_position, &World_objectWrapper::get_screen_draw_position_default)
-        .def("Kill", &World_objectWrapper::Kill)
-        ;
-
     // Expose the mouse class
     class_<Mouse>("Mouse")
         .add_property("x", make_getter(&Mouse::x))
@@ -191,6 +167,13 @@ BOOST_PYTHON_MODULE(core)
         .def("screen_to_world", &Main_App::screen_to_world)
         .def("world_to_screen", &Main_App::world_to_screen)
         .def("world_to_in_universe_coords", &Main_App::world_to_in_universe_coords)
+        ;
+
+    // Bubble Drive specific processes
+    class_<World_object, boost::python::bases<Process>, World_objectWrapper, boost::noncopyable>("World_object", init<>())
+        .def("Execute", &World_object::Execute, &World_objectWrapper::Execute_default)
+        .def("get_screen_draw_position", &World_object::get_screen_draw_position, &World_objectWrapper::get_screen_draw_position_default)
+        .def("Kill", &World_objectWrapper::Kill)
         ;
 
     // Expose the framework constants

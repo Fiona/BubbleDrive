@@ -16,6 +16,16 @@ using namespace std;
 map <string, Main_App::FuncGetter> Main_App::draw_strategies;
 
 
+Main_App* Main_App::inst = NULL;
+
+Main_App* Main_App::Instance()
+{
+    if(!inst)
+        inst = new Main_App;
+    return inst;
+}
+
+
 Main_App::Main_App()
 {
 
@@ -249,15 +259,6 @@ void Mouse::set_pos(int x_pos, int y_pos)
 }
 
 
-int main(int argc, char* argv[])
-{
-
-    Main_App app;
-    return app.On_Execute();
-
-}
-
-
 bool hasattr(boost::python::object obj, std::string const &attr_name)
 {
      return PyObject_HasAttrString(obj.ptr(), attr_name.c_str());
@@ -304,3 +305,12 @@ tuple<int, int> Main_App::world_to_in_universe_coords(float x, float y)
 {
     return tuple<int, int>((int)(x / 1000), (int)(y / 1000));
 }          
+
+
+int main(int argc, char* argv[])
+{
+
+    Main_App* app = Main_App::Instance();
+    return app->On_Execute();
+
+}
