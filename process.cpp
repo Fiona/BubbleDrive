@@ -11,12 +11,14 @@
 #include <math.h>
 
 std::vector<Process*> Process::Process_List;
+std::vector<Process*> Process::Priority_List;
 std::vector<Process*> Process::Processes_to_kill;
 boost::python::list Process::internal_list;
 
 vector<float> Process::default_texture_coords(8);
 
 bool Process::z_order_dirty;
+bool Process::priority_order_dirty;
 GLuint Process::current_bound_texture = -1;
 
 
@@ -25,6 +27,7 @@ Process::Process()
 {
     x = y = 0.0f;
     z = 0;
+    priority = 0;
     scale = 1.0;
     rotation = 0;
     colour.resize(3, 1.0f);
@@ -38,6 +41,8 @@ Process::Process()
 
     image = NULL;
     Process::z_order_dirty = True;
+    Process::priority_order_dirty = True;
+    Process::Priority_List.push_back(this);
     Process::Process_List.push_back(this);
 }
 
@@ -132,6 +137,13 @@ void Process::Set_z(int new_z)
 }
 
 
+void Process::Set_priority(int priority_)
+{
+    priority = priority_;
+    Process::priority_order_dirty = True;
+}
+
+
 void Process::Set_colour(boost::python::object list)
 {
     colour[0] = boost::python::extract<float>(list[0]);
@@ -202,6 +214,8 @@ void ProcessWrapper::Kill()
     boost::python::decref(self);
     boost::python::decref(self);
     self = NULL;
+    is_dead = True;
+    this->Process::is_dead = True;
 }
 
 
@@ -253,6 +267,7 @@ Text::Text(Font* _font, float _x, float _y, int _alignment, string _text): Proce
     x = _x;
     y = _y;
     z = Z_TEXT;
+    priority = 0;
     Process::z = z;
     alignment = _alignment;
     shadow = 0;

@@ -42,6 +42,8 @@ public:
 
     static std::vector<Process*> Process_List;
     static bool z_order_dirty;
+    static std::vector<Process*> Priority_List;
+    static bool priority_order_dirty;
     static GLuint current_bound_texture;
 
     static vector<float> default_texture_coords;
@@ -50,6 +52,7 @@ public:
     float   x;
     float   y;
     int     z;
+    int priority;
     Image*  image;
     float   scale;
     int rotation;
@@ -71,6 +74,7 @@ public:
     void Kill();
 
     void Set_z(int new_z);
+    void Set_priority(int priority_);
     void Set_colour(boost::python::object list);
     void Set_scale_pos(boost::python::object list);
 
@@ -129,6 +133,7 @@ public:
     float   x;
     float   y;
     int     z;
+    int     priority;
     float   scale;
     int rotation;
     float alpha;
@@ -182,7 +187,76 @@ class World_object : virtual public Process
 public:
     World_object();
 
+    /* Instead of setting .scale, it is necessary to set custom_scale
+       this is because Myrmidon uses .scale to determine the draw
+       scale of a process, but we want to set the scale in relation to
+       the world. This will allow us to do that. */
+    float custom_scale;
+
+    /* Used in rectangle collisions and working out world grid coordinates. */
+    bool recalculate_corner_vectors;
+    vector< vector<float> > corner_vectors;
+
+    /*Set to true to allow this object to colide with others in the world */
+    bool collidable;
+
+    /* Set the type of collision model this process will use */
+    int collision_type;
+
+    /* Used as an optimisation in rectangle collisions. Equals the distance between the
+       centre of the object and a corner when set. */
+    float collision_rectangle_radius;
+
+    /* Used as an optimisation in point collisions. Is the rotated point of colission. */
+    tuple<float, float> world_collision_point;
+    
+    /* Used for point collisions. The offset of the collision point as a tuple. 
+       0 will use image centre. */
+    tuple<float, float> collision_point;
+    
+    /* Used for rectangle collisions. Width/height of the object in world coordinates. 
+       -1 will use the image size. */
+    int width;
+    int height;
+
+    /* Used for circle collisions. Radius of the bounding circle in world coordinates. 
+       -1 will use the image size. */
+    int radius;
+
+    /* Player can target this object if true */
+    bool targetable;
+
+    /* Set to a prefix string for the target image. 
+       If "" it assumes the object is a ship which are all prefixed with "ship_" */
+    string target_image_prefix;
+
+    /* Set to true if we want this to appear on the minimap */
+    bool show_on_minimap;
+
+    /* We need to differenciate between ships and other world objects */
+    bool is_ship;
+    
+    /* Used to identify an object by name when targeting */
+    string object_name;
+
+    /* Faction is used for targeting and collisions to make sure the right thing
+       gets hurt. Must be set before the __init__ method. */
+    int faction;
+
+    /* structural damage of object */
+    int max_health;
+    int health;
+
+    /* shields of object. -1 is no shields. */
+    int max_shields;
+    int shields;
+
+    void init();
+    void set_rotation(int rotation_);
+    void set_x(float x_);
+    void set_y(float y_);
     void Execute();
+    void Kill();
     tuple<float, float> get_screen_draw_position();
 };
 

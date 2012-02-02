@@ -15,13 +15,99 @@
  */
 World_object::World_object(): Process()
 {
+    custom_scale = 1.0f;
+    recalculate_corner_vectors = True;
+    corner_vectors.resize(4);
+    corner_vectors[CORNER_UL].resize(2, 0.0f);
+    corner_vectors[CORNER_UR].resize(2, 0.0f);
+    corner_vectors[CORNER_LL].resize(2, 0.0f);
+    corner_vectors[CORNER_LR].resize(2, 0.0f);
+    collidable = False;
+    collision_type = COLLISION_TYPE_RECTANGLE;
+    collision_rectangle_radius = 0.0f;
+    //world_collision_point = tuple<float, float>(0.0f, 0.0f);
+    //collision_point = tuple<float, float>(0.0f, 0.0f);
+    width = -1;
+    height = -1;
+    radius = -1;
+    targetable = False;
+    target_image_prefix = "";
+    show_on_minimap = False;
+    is_ship = False;
+    object_name = "";
+    faction = FACTION_NEUTRAL;
+    max_health = 100;
+    health = 100;
+    max_shields = -1;
+    shields = -1;
+}
+
+
+void World_object::init()
+{
+
+    priority = PRIORITY_WORLD_OBJECTS;
+    recalculate_corner_vectors = True;
+
+    Main_App* core = Main_App::Instance();
+
+    if(targetable)
+        core->targetable_world_objects.push_back(this);
+
+    core->world_objects.push_back(this);
+    //self.game.world_objects_by_faction[self.faction].append(self)
+    health = max_health;
+
+}
+
+
+void World_object::Kill()
+{
+
+    vector<Process*>::iterator it;
+    Main_App* core = Main_App::Instance();
+
+    it = std::find(core->world_objects.begin(), core->world_objects.end(), this);
+    if(it != core->world_objects.end())
+        it = core->world_objects.erase(it);
+
+    if(targetable)
+    {
+        it = std::find(core->targetable_world_objects.begin(), core->targetable_world_objects.end(), this);
+        if(it != core->targetable_world_objects.end())
+            it = core->targetable_world_objects.erase(it);
+    }
 
 }
 
 
 void World_object::Execute()
 {
+//    cout << "c++ " << health << endl;
+}
 
+
+void World_object::set_rotation(int rotation_)
+{
+    if(rotation != rotation_)
+        recalculate_corner_vectors = True;
+    rotation = rotation_;    
+}
+
+
+void World_object::set_x(float x_)
+{
+    if(x != x_)
+        recalculate_corner_vectors = True;
+    x = x_;    
+}
+
+
+void World_object::set_y(float y_)
+{
+    if(y != y_)
+        recalculate_corner_vectors = True;
+    y = y_;    
 }
 
 

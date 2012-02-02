@@ -52,6 +52,22 @@
 #define BACKGROUND_NUM_NEBULA_TYPES 3
 #define BACKGROUND_NUM_NEBULA_ITEMS 8
 
+#define COLLISION_TYPE_RECTANGLE 0
+#define COLLISION_TYPE_CIRCLE 1
+#define COLLISION_TYPE_POINT 2
+
+#define CORNER_UL 0
+#define CORNER_UR 1
+#define CORNER_LL 2
+#define CORNER_LR 3
+
+#define FACTION_NEUTRAL 1
+#define FACTION_PLAYER 2
+#define FACTION_OTHER 3
+#define FACTION_ENEMY 4
+
+#define PRIORITY_WORLD_OBJECTS 900
+
 // STD and boost includes
 #include <vector>
 #include <iostream>
@@ -139,6 +155,9 @@ public:
     float camera_x;
     float camera_y;
     float global_scale;
+
+    std::vector<Process*> world_objects;
+    std::vector<Process*> targetable_world_objects;
 
     tuple<float, float> screen_to_world(float x, float y);
     tuple<float, float> world_to_screen(float x, float y);

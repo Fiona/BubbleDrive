@@ -35,6 +35,15 @@ namespace my
         }
     };
 
+
+	struct Process_to_python_object
+	{
+	    static PyObject* convert(Process* p)
+        {
+	        return boost::python::incref(p->self_.ptr());
+        }
+	};
+
 }
 
 
@@ -49,6 +58,8 @@ BOOST_PYTHON_MODULE(core)
     typedef boost::tuples::tuple<float, float> screen_pos_tuple;
     to_python_converter<screen_pos_tuple, my::tupleconverter<screen_pos_tuple> >();
     
+    boost::python::to_python_converter<Process*, my::Process_to_python_object>();
+
     // Expose all media related objects
     class_<Image>("Image")
         .def_readonly("num_of_frames", &Image::num_of_frames)
@@ -81,6 +92,12 @@ BOOST_PYTHON_MODULE(core)
     boost::python::class_<std::vector<float> >("FloatVector")
         .def(boost::python::vector_indexing_suite<std::vector<float> >());
 
+    boost::python::class_<std::vector< std::vector<float> > >("FloatVectorVector")
+        .def(boost::python::vector_indexing_suite<std::vector< std::vector<float> > >());
+
+    boost::python::class_< std::vector<Process*> >("ProcessVector")
+        .def(boost::python::vector_indexing_suite< std::vector<Process*> >());
+
     // Expose Process object
     class_<Process, ProcessWrapper, boost::noncopyable, boost::shared_ptr<ProcessWrapper> >("Process", init<>())
         .def("Execute", &Process::Execute, &ProcessWrapper::Execute_default)
@@ -90,6 +107,7 @@ BOOST_PYTHON_MODULE(core)
         .add_property("x", make_getter(&Process::x), make_setter(&Process::x))
         .add_property("y", make_getter(&Process::y), make_setter(&Process::y))
         .add_property("z", make_getter(&Process::z), &Process::Set_z)
+        .add_property("priority", make_getter(&Process::priority), &Process::Set_priority)
         .add_property("colour", make_getter(&Process::colour), &Process::Set_colour)
         .add_property("alpha", make_getter(&Process::alpha), make_setter(&Process::alpha))
         .add_property("scale", make_getter(&Process::scale), make_setter(&Process::scale))
@@ -163,6 +181,8 @@ BOOST_PYTHON_MODULE(core)
         .add_property("camera_x", make_getter(&Main_App::camera_x), make_setter(&Main_App::camera_x))
         .add_property("camera_y", make_getter(&Main_App::camera_y), make_setter(&Main_App::camera_y))
         .add_property("global_scale", make_getter(&Main_App::global_scale), make_setter(&Main_App::global_scale))
+        .add_property("world_objects", make_getter(&Main_App::world_objects))
+        .add_property("targetable_world_objects", make_getter(&Main_App::targetable_world_objects))
  
         .def("screen_to_world", &Main_App::screen_to_world)
         .def("world_to_screen", &Main_App::world_to_screen)
@@ -171,6 +191,32 @@ BOOST_PYTHON_MODULE(core)
 
     // Bubble Drive specific processes
     class_<World_object, boost::python::bases<Process>, World_objectWrapper, boost::noncopyable>("World_object", init<>())
+        .add_property("x", make_getter(&World_object::x), &World_object::set_x)
+        .add_property("y", make_getter(&World_object::y), &World_object::set_y)
+        .add_property("rotation", make_getter(&World_object::rotation), &World_object::set_rotation)
+
+        .add_property("recalculate_corner_vectors", make_getter(&World_object::recalculate_corner_vectors), make_setter(&World_object::recalculate_corner_vectors))
+        .add_property("corner_vectors", make_getter(&World_object::corner_vectors), make_setter(&World_object::corner_vectors))
+        .add_property("collidable", make_getter(&World_object::collidable), make_setter(&World_object::collidable))
+        .add_property("collision_type", make_getter(&World_object::collision_type), make_setter(&World_object::collision_type))
+        .add_property("collision_rectangle_radius", make_getter(&World_object::collision_rectangle_radius), make_setter(&World_object::collision_rectangle_radius))
+        .add_property("world_collision_point", make_getter(&World_object::world_collision_point), make_setter(&World_object::world_collision_point))
+        .add_property("collision_point", make_getter(&World_object::collision_point), make_setter(&World_object::collision_point))
+        .add_property("width", make_getter(&World_object::width), make_setter(&World_object::width))
+        .add_property("height", make_getter(&World_object::height), make_setter(&World_object::height))
+        .add_property("radius", make_getter(&World_object::radius), make_setter(&World_object::radius))
+        .add_property("targetable", make_getter(&World_object::targetable), make_setter(&World_object::targetable))
+        .add_property("target_image_prefix", make_getter(&World_object::target_image_prefix), make_setter(&World_object::target_image_prefix))
+        .add_property("show_on_minimap", make_getter(&World_object::show_on_minimap), make_setter(&World_object::show_on_minimap))
+        .add_property("is_ship", make_getter(&World_object::is_ship), make_setter(&World_object::is_ship))
+        .add_property("object_name", make_getter(&World_object::object_name), make_setter(&World_object::object_name))
+        .add_property("faction", make_getter(&World_object::faction), make_setter(&World_object::faction))
+        .add_property("max_health", make_getter(&World_object::max_health), make_setter(&World_object::max_health))
+        .add_property("health", make_getter(&World_object::health), make_setter(&World_object::health))
+        .add_property("max_shields", make_getter(&World_object::max_shields), make_setter(&World_object::max_shields))
+        .add_property("shields", make_getter(&World_object::shields), make_setter(&World_object::shields))
+
+        .def("init", &World_object::init)
         .def("Execute", &World_object::Execute, &World_objectWrapper::Execute_default)
         .def("get_screen_draw_position", &World_object::get_screen_draw_position, &World_objectWrapper::get_screen_draw_position_default)
         .def("Kill", &World_objectWrapper::Kill)
@@ -189,6 +235,13 @@ BOOST_PYTHON_MODULE(core)
 
     // Expose some Bubble Drive constants
     scope().attr("BACKGROUND_NUM_NEBULA_TYPES") = BACKGROUND_NUM_NEBULA_TYPES;
+    scope().attr("COLLISION_TYPE_RECTANGLE") = COLLISION_TYPE_RECTANGLE;
+    scope().attr("COLLISION_TYPE_CIRCLE") = COLLISION_TYPE_CIRCLE;
+    scope().attr("COLLISION_TYPE_POINT") = COLLISION_TYPE_POINT;
+    scope().attr("FACTION_NEUTRAL") = FACTION_NEUTRAL;
+    scope().attr("FACTION_PLAYER") = FACTION_PLAYER;
+    scope().attr("FACTION_OTHER") = FACTION_OTHER;
+    scope().attr("FACTION_ENEMY") = FACTION_ENEMY;
 
     // Expose all the SDL Keybinding constants
     enum_<SDLKey>("key")
