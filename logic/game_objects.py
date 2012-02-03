@@ -138,11 +138,16 @@ class Test(World_object):
         self.image = self.game.core.media.gfx['ships_ship2']
         self.colour = (1.0, 0.0, 0.0)
         self.health = 500
-
+        self.vec = Vector2D(50.0, 50.0)
+        self.vec2 = Vector2D(100.0, 100.0)
+        
     def Execute(self):
-        for x in self.game.core.world_objects:
-            print x.health
-
+        print self.vec.get_mag()
+        print self.vec.to_tuple()
+        print self.vec.dot(self.vec2)
+        print self.vec
+        print " -- "
+        
 
 #######################################
 ##### BACKGROUND OR OTHER VISUALS #####

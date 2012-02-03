@@ -166,18 +166,6 @@ void Process::move_forward(float distance_to_travel, int rotation_to_move_in)
 }
 
 
-float Process::deg_to_rad(float deg)
-{
-    return (3.1415926f / 180.0f) * deg;
-}
- 
-
-float Process::rad_to_deg(float rad)
-{
-    return rad * 180.0f / 3.1415926f;
-}
-
-
 tuple<float, float> Process::get_screen_draw_position()
 {
 

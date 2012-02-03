@@ -68,6 +68,13 @@
 
 #define PRIORITY_WORLD_OBJECTS 900
 
+#define MINIMAP_RANGE 3000
+
+// Macros
+#define deg_to_rad(x) (3.1415926f / 180.0f) * x
+#define rad_to_deg(x) x * 180.0f / 3.1415926f
+
+
 // STD and boost includes
 #include <vector>
 #include <iostream>
@@ -159,10 +166,14 @@ public:
 
     std::vector<Process*> world_objects;
     std::vector<Process*> targetable_world_objects;
+    std::vector< std::vector<Process*> > world_objects_by_faction;
+    std::vector<Process*> minimap_objects;
 
     tuple<float, float> screen_to_world(float x, float y);
     tuple<float, float> world_to_screen(float x, float y);
     tuple<int, int> world_to_in_universe_coords(float x, float y);
+    static tuple<float, float> rotate_point(float x, float y, float rotation);
+    static tuple<float, float> rotate_point_about_point(float x, float y, float rotation, float rotate_about_x, float rotate_about_y);
 
 };
 

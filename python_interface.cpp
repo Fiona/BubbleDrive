@@ -117,14 +117,17 @@ BOOST_PYTHON_MODULE(core)
         ;
 
     // Expose common vectors
-    boost::python::class_<std::vector<float> >("FloatVector")
+    boost::python::class_< std::vector<float> >("FloatVector")
         .def(boost::python::vector_indexing_suite<std::vector<float> >());
 
-    boost::python::class_<std::vector< std::vector<float> > >("FloatVectorVector")
+    boost::python::class_< std::vector< std::vector<float> > >("FloatVectorVector")
         .def(boost::python::vector_indexing_suite<std::vector< std::vector<float> > >());
 
     boost::python::class_< std::vector<Process*> >("ProcessVector")
         .def(boost::python::vector_indexing_suite< std::vector<Process*> >());
+
+    boost::python::class_< std::vector< std::vector<Process*> > >("ProcessVectorVector")
+        .def(boost::python::vector_indexing_suite< std::vector< std::vector<Process*> > >());
 
     // Expose Process object
     class_<Process, ProcessWrapper, boost::noncopyable, boost::shared_ptr<ProcessWrapper> >("Process", init<>())
@@ -211,6 +214,7 @@ BOOST_PYTHON_MODULE(core)
         .add_property("global_scale", make_getter(&Main_App::global_scale), make_setter(&Main_App::global_scale))
         .add_property("world_objects", make_getter(&Main_App::world_objects))
         .add_property("targetable_world_objects", make_getter(&Main_App::targetable_world_objects))
+        .add_property("world_objects_by_faction", make_getter(&Main_App::world_objects_by_faction))
  
         .def("screen_to_world", &Main_App::screen_to_world)
         .def("world_to_screen", &Main_App::world_to_screen)
@@ -246,6 +250,7 @@ BOOST_PYTHON_MODULE(core)
 
         .def("init", &World_object::init)
         .def("Execute", &World_object::Execute, &World_objectWrapper::Execute_default)
+        .def("Destroy", &World_object::Destroy, &World_objectWrapper::Destroy_default)
         .def("get_screen_draw_position", &World_object::get_screen_draw_position, &World_objectWrapper::get_screen_draw_position_default)
         .def("Kill", &World_objectWrapper::Kill)
         ;
@@ -270,6 +275,7 @@ BOOST_PYTHON_MODULE(core)
     scope().attr("FACTION_PLAYER") = FACTION_PLAYER;
     scope().attr("FACTION_OTHER") = FACTION_OTHER;
     scope().attr("FACTION_ENEMY") = FACTION_ENEMY;
+    scope().attr("MINIMAP_RANGE") = MINIMAP_RANGE;
 
     // Expose all the SDL Keybinding constants
     enum_<SDLKey>("key")

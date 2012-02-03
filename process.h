@@ -79,8 +79,6 @@ public:
     void Set_scale_pos(boost::python::object list);
 
     void move_forward(float distance_to_travel, int rotation_to_move_in);
-    float deg_to_rad(float deg);
-    float rad_to_deg(float rad);
 
     virtual tuple<float, float> get_screen_draw_position();
 
@@ -256,8 +254,10 @@ public:
     void set_x(float x_);
     void set_y(float y_);
     void Execute();
+    void Destroy();
     void Kill();
     tuple<float, float> get_screen_draw_position();
+    void calculate_corner_vectors();
 };
 
 
@@ -266,6 +266,8 @@ struct World_objectWrapper : virtual public Process, public World_object
     World_objectWrapper();
     World_objectWrapper(PyObject *p);
 
+    void Destroy_default();
+    void Destroy();
     void Execute_default();
     void Execute();
     tuple<float, float> get_screen_draw_position_default();

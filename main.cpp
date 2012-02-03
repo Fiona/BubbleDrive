@@ -38,6 +38,7 @@ Main_App::Main_App()
     frames_rendered = 0;
     python_interface = NULL;
     mouse = NULL;
+    global_scale = 0.5f;
 
     // Get the application data path depending on system
 #if __LINUX__
@@ -64,6 +65,9 @@ Main_App::Main_App()
     // Deal with loading default settings etc
     path_settings_file = path_application_data + SEPARATOR + FILE_SETTINGS;
     settings = new Settings(path_settings_file);
+    
+    // Set up these game related structures
+    world_objects_by_faction.resize(5);
 
 }
 
@@ -102,6 +106,10 @@ int Main_App::On_Execute()
         while(SDL_PollEvent(&event))
             On_Event(&event);
 
+        // Clean up
+        minimap_objects.clear();
+
+        // Game loop
         On_Loop();
         Do_Process_Clean();
         On_Render();
@@ -309,6 +317,28 @@ tuple<int, int> Main_App::world_to_in_universe_coords(float x, float y)
 {
     return tuple<int, int>((int)(x / 1000), (int)(y / 1000));
 }          
+
+
+/**
+ *
+ */
+tuple<float, float> Main_App::rotate_point(float x, float y, float rotation)
+{
+    rotation = deg_to_rad(rotation);
+    return tuple<float, float>(
+        cos(rotation) * x - sin(rotation) * y,
+        sin(rotation) * x + cos(rotation) * y
+        );
+}
+
+/**
+ *
+ */
+tuple<float, float> Main_App::rotate_point_about_point(float x, float y, float rotation, float rotate_about_x, float rotate_about_y)
+{
+    tuple<float, float> p = Main_App::rotate_point(x - rotate_about_x, y - rotate_about_y, rotation);
+    return tuple<float, float>(p.get<0>() + rotate_about_x, p.get<1>() + rotate_about_y);
+}
 
 
 int main(int argc, char* argv[])

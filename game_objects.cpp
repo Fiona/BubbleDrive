@@ -25,8 +25,6 @@ World_object::World_object(): Process()
     collidable = False;
     collision_type = COLLISION_TYPE_RECTANGLE;
     collision_rectangle_radius = 0.0f;
-    //world_collision_point = tuple<float, float>(0.0f, 0.0f);
-    //collision_point = tuple<float, float>(0.0f, 0.0f);
     width = -1;
     height = -1;
     radius = -1;
@@ -55,7 +53,7 @@ void World_object::init()
         core->targetable_world_objects.push_back(this);
 
     core->world_objects.push_back(this);
-    //self.game.world_objects_by_faction[self.faction].append(self)
+    core->world_objects_by_faction[faction].push_back(this);
     health = max_health;
 
 }
@@ -71,6 +69,10 @@ void World_object::Kill()
     if(it != core->world_objects.end())
         it = core->world_objects.erase(it);
 
+    it = std::find(core->world_objects_by_faction[faction].begin(), core->world_objects_by_faction[faction].end(), this);
+    if(it != core->world_objects_by_faction[faction].end())
+        it = core->world_objects_by_faction[faction].erase(it);
+
     if(targetable)
     {
         it = std::find(core->targetable_world_objects.begin(), core->targetable_world_objects.end(), this);
@@ -83,7 +85,29 @@ void World_object::Kill()
 
 void World_object::Execute()
 {
-//    cout << "c++ " << health << endl;
+
+    Main_App* core = Main_App::Instance();
+
+    scale = core->global_scale * custom_scale;
+
+    if(health <= 0)
+        Destroy();
+
+    if(show_on_minimap)
+        if(
+            x > core->camera_x - MINIMAP_RANGE &&
+            x < core->camera_x + MINIMAP_RANGE &&
+            y > core->camera_y - MINIMAP_RANGE &&
+            y < core->camera_y + MINIMAP_RANGE
+            )
+            core->minimap_objects.push_back(this);
+
+}
+
+
+void World_object::Destroy()
+{
+    World_object::Kill();
 }
 
 
@@ -120,6 +144,44 @@ tuple<float, float> World_object::get_screen_draw_position()
 }
 
 
+/**
+   Required for computing rectangle collisions. This works out where in the world
+   the four corners of the bounding box are.
+*/
+void World_object::calculate_corner_vectors()
+{
+
+    if(recalculate_corner_vectors == False)
+        return;
+        
+    if(width == -1)
+        width = image->width * custom_scale;
+    if(height == -1)
+        height = image->height * custom_scale;
+
+    tuple<float, float> rot;
+
+    rot = Main_App::rotate_point((float)(-width/2), (float)(-height/2), (float)rotation);
+    corner_vectors[CORNER_UL][0] = x + rot.get<0>();
+    corner_vectors[CORNER_UL][1] = y + rot.get<1>();
+
+    rot = Main_App::rotate_point((float)(width/2), (float)(-height/2), (float)rotation);
+    corner_vectors[CORNER_UR][0] = x + rot.get<0>();
+    corner_vectors[CORNER_UR][1] = y + rot.get<1>();
+
+    rot = Main_App::rotate_point((float)(-width/2), (float)(height/2), (float)rotation);
+    corner_vectors[CORNER_LL][0] = x + rot.get<0>();
+    corner_vectors[CORNER_LL][1] = y + rot.get<1>();
+
+    rot = Main_App::rotate_point((float)(width/2), (float)(height/2), (float)rotation);
+    corner_vectors[CORNER_LR][0] = x + rot.get<0>();
+    corner_vectors[CORNER_LR][1] = y + rot.get<1>();
+
+    recalculate_corner_vectors = False;
+
+}
+
+
 /*
  * World object stuff for the python wrapper
  */
@@ -143,6 +205,17 @@ void World_objectWrapper::Execute()
 void World_objectWrapper::Execute_default()
 {
     this->World_object::Execute();
+}
+
+
+void World_objectWrapper::Destroy()
+{
+    boost::python::call_method<void>(self, "Destroy");
+    this->World_object::Destroy();
+}
+void World_objectWrapper::Destroy_default()
+{
+    this->World_object::Destroy();
 }
 
 
