@@ -94,6 +94,7 @@
 #include <SDL/SDL_ttf.h>
 
 // Program includes
+#include "mathutil.h"
 #include "image.h"
 #include "font.h"
 #include "process.h"

@@ -60,6 +60,34 @@ BOOST_PYTHON_MODULE(core)
     
     boost::python::to_python_converter<Process*, my::Process_to_python_object>();
 
+    // Expose the mathutil vector class
+    class_<Vector2D>("Vector2D")
+        .def(init<float, float, boost::python::optional<bool> >())
+        .def("get_mag", &Vector2D::get_mag)
+        .def("to_tuple", &Vector2D::to_tuple)
+        .def("dot", &Vector2D::dot)
+
+        .def(self + Vector2D())              // __add__
+        .def(Vector2D() + self)              // __radd__
+        .def(self += Vector2D())             // __iadd__
+        .def(self - Vector2D())              // __sub__
+        .def(Vector2D() - self)              // __rsub__
+        .def(self -= Vector2D())             // __isub__
+        .def(self * Vector2D())              // __mul__
+        .def(Vector2D() * self)              // __rmul__
+        .def(self *= Vector2D())             // __imul__
+        .def(self / Vector2D())              // __div__
+        .def(Vector2D() / self)              // __rdiv__
+        .def(self /= Vector2D())             // __idiv__
+        .def(self == Vector2D())             // __eq__
+        .def(self != Vector2D())             // __neq__
+        //having to explicitly specify the namespace is a boost bug
+        .def(self_ns::str(self_ns::self))    // __str__  
+
+        .add_property("x", make_getter(&Vector2D::x), make_setter(&Vector2D::x))
+        .add_property("y", make_getter(&Vector2D::y), make_setter(&Vector2D::y))
+        ;
+
     // Expose all media related objects
     class_<Image>("Image")
         .def_readonly("num_of_frames", &Image::num_of_frames)
