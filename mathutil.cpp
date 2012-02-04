@@ -114,10 +114,23 @@ Vector2D& Vector2D::operator*=(Vector2D const& right)
     return *this;
 }
 
+Vector2D& Vector2D::operator*=(float const& right)
+{
+    x *= right;
+    y *= right;
+    return *this;
+}
+
 /**
  * * Operator
  */
 Vector2D operator*(Vector2D left, Vector2D const& right)
+{
+  left *= right;
+  return left;
+}
+
+Vector2D operator*(Vector2D left, float const& right)
 {
   left *= right;
   return left;
@@ -134,10 +147,22 @@ Vector2D& Vector2D::operator/=(Vector2D const& right)
     return *this;
 }
 
+Vector2D& Vector2D::operator/=(float const& right)
+{
+    x /= right;
+    y /= right;
+    return *this;
+}
+
 /**
  * / Operator
  */
 Vector2D operator/(Vector2D left, Vector2D const& right)
+{
+  left /= right;
+  return left;
+}
+Vector2D operator/(Vector2D left, float const& right)
 {
   left /= right;
   return left;

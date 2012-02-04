@@ -78,8 +78,10 @@ void Process::Draw()
     // position
     if(rotation < 0 || rotation > 0)
     {
-        float rot_x = (draw_pos.get<0>() * scale) + ((image->width/2) * scale);
-        float rot_y = (draw_pos.get<1>() * scale) + ((image->height/2) * scale);
+        //float rot_x = (draw_pos.get<0>() * scale) + ((image->width/2) * scale);
+        //float rot_y = (draw_pos.get<1>() * scale) + ((image->height/2) * scale);
+        float rot_x = draw_pos.get<0>() + (image->width/2) * scale;
+        float rot_y = draw_pos.get<1>() + (image->height/2) * scale;
         glTranslatef(rot_x, rot_y, 0.0f);
         glRotatef((float)rotation, 0.0f, 0.0f, 1.0f);
         glTranslatef(-rot_x, -rot_y, 0.0f);

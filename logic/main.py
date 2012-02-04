@@ -15,8 +15,8 @@ sys.path.append(os.path.join(os.getcwd(), "logic"))
 from consts import *
 from gui import GUI
 from galaxy import Galaxy
-from game_objects import Test, Camera
-#from game_objects import Camera, Player_ship, Background, Background_object, Asteroid, Mouse_object, AI_ship
+from game_objects import Camera, Player_ship
+#from game_objects import Background_object, Asteroid, Mouse_object, AI_ship
 from game_objects import Background
 #from particles import ParticleSystem
 
@@ -143,15 +143,14 @@ class Game(Process):
 
         elif state == GAME_STATE_IN_GAME:            
             self.galaxy = Galaxy(self)
-            Test(self)
             self.camera = Camera(self)
             
             #self.particle_emitters = {}
             #self.particles = ParticleSystem(self, Z_PARTICLES)
             #self.create_emitters()
                     
-            #self.player_ship = Player_ship(self)
-            #self.camera.x, self.camera.y = self.player_ship.x, self.player_ship.y
+            self.player_ship = Player_ship(self)
+            self.camera.x, self.camera.y = self.player_ship.x, self.player_ship.y
             
             self.background = Background(self)
                             
@@ -159,10 +158,10 @@ class Game(Process):
             #    Asteroid(self)
             #AI_ship(self, {'type' : SHIP_TYPE_PROSPERO_FIGHTER, 'x' : 50500, 'y' : 50500})
  
-            #self.camera.set_anchor_to(self.player_ship, instant = True)
+            self.camera.set_anchor_to(self.player_ship, instant = True)
 
-            self.gui.switch_gui_state_to(GUI_STATE_WORLD_VIEW)
             self.gui.fade_toggle()
+            self.gui.switch_gui_state_to(GUI_STATE_WORLD_VIEW)
 
 
     def game_event(self, event_code, param_1 = None):

@@ -35,7 +35,7 @@ class Mouse(Process):
 
 
     def get_screen_draw_position(self):
-        return self.x, self.y
+        return self.x - (self.image.width/2), self.y - (self.image.height/2)
 
         
 
@@ -125,38 +125,35 @@ class GUI(Process):
             """
             IN-GAME WORLD VIEW
             """
-            """
             if not self.game.player_ship.lock_controls:
                 if not self.block_gui_keyboard_input:
                     # Quit on escape
-                    if MyrmidonGame.engine['input'].keyboard_key_released(K_ESCAPE):
+                    if self.game.core.Keyboard_key_released(key.ESCAPE):
                         self.game.quit_game()
 
                     # Open menu
-                    if MyrmidonGame.engine['input'].keyboard_key_released(K_SPACE):
+                    if self.game.core.Keyboard_key_released(key.SPACE):
                         self.fade_toggle(lambda: self.open_in_game_menu())
 
                 # Scroll wheel zoom input
                 if not self.game.paused:
-                    if MyrmidonGame.engine['input'].mouse.wheel_down:
-                        self.game.global_scale *= 0.75
-                    elif MyrmidonGame.engine['input'].keyboard_key_down(self.game.settings['key_zoom_out']):
-                        self.game.global_scale *= 0.95
-                    if MyrmidonGame.engine['input'].mouse.wheel_up:
-                        self.game.global_scale *= 1.25
-                    elif MyrmidonGame.engine['input'].keyboard_key_down(self.game.settings['key_zoom_in']):
-                        self.game.global_scale *= 1.05
+                    if self.game.core.mouse.wheel_down:                    
+                        self.game.core.global_scale *= 0.75
+                    elif self.game.core.Keyboard_key_down(self.game.settings['key_zoom_out']):
+                        self.game.core.global_scale *= 0.95
+                    if self.game.core.mouse.wheel_up:
+                        self.game.core.global_scale *= 1.25
+                    elif self.game.core.Keyboard_key_down(self.game.settings['key_zoom_in']):
+                        self.game.core.global_scale *= 1.05
 
             else:
                 MyrmidonGame.engine['input'].mouse.alpha = 0
-        """
-
             
             # adjust the zoom level if we're out of bounds
-            if self.game.global_scale > 1.00:
-                self.game.global_scale = 1.00
-            if self.game.global_scale < MIN_ZOOM_LEVEL:
-                self.game.global_scale = MIN_ZOOM_LEVEL
+            if self.game.core.global_scale > 1.00:
+                self.game.core.global_scale = 1.00
+            if self.game.core.global_scale < MIN_ZOOM_LEVEL:
+                self.game.core.global_scale = MIN_ZOOM_LEVEL
 
             """
             # Rotate the mouse cursor if hovering over a targetable object

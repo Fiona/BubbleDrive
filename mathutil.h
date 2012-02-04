@@ -75,11 +75,13 @@ public:
      * *= operator
      */
     Vector2D& operator*=(Vector2D const& right);
+    Vector2D& operator*=(float const& right);
 
     /**
      * /= operator
      */
     Vector2D& operator/=(Vector2D const& right);
+    Vector2D& operator/=(float const& right);
 
     /**
      * [] operator
@@ -103,11 +105,13 @@ Vector2D operator-(Vector2D left, Vector2D const& right);
  * * operator
  */
 Vector2D operator*(Vector2D left, Vector2D const& right);
+Vector2D operator*(Vector2D left, float const& right);
 
 /**
  * / operator
  */
 Vector2D operator/(Vector2D left, Vector2D const& right);
+Vector2D operator/(Vector2D left, float const& right);
 
 /**
  * == operator

@@ -88,6 +88,8 @@ BOOST_PYTHON_MODULE(core)
         .add_property("y", make_getter(&Vector2D::y), make_setter(&Vector2D::y))
         ;
 
+    register_ptr_to_python< shared_ptr<Vector2D> >();
+
     // Expose all media related objects
     class_<Image>("Image")
         .def_readonly("num_of_frames", &Image::num_of_frames)
@@ -205,8 +207,13 @@ BOOST_PYTHON_MODULE(core)
         .add_property("settings", make_getter(&Main_App::settings, return_value_policy<reference_existing_object>()))
         .add_property("path_application_data", make_getter(&Main_App::path_application_data))
         .add_property("path_settings_file", make_getter(&Main_App::path_settings_file))
-        .def("Keyboard_key_down", &Main_App::Keyboard_key_down)
-        .def("Keyboard_key_released", &Main_App::Keyboard_key_released)
+
+
+        .def( "Keyboard_key_down", static_cast< bool (Main_App::*)(int) >(&Main_App::Keyboard_key_down))
+        .def( "Keyboard_key_released", static_cast< bool (Main_App::*)(SDLKey) >(&Main_App::Keyboard_key_released)) 
+
+        //#.def("Keyboard_key_down", &Main_App::Keyboard_key_down)
+        //.def("Keyboard_key_released", &Main_App::Keyboard_key_released)
         .def("Quit", &Main_App::Quit)
 
         .add_property("camera_x", make_getter(&Main_App::camera_x), make_setter(&Main_App::camera_x))
@@ -215,7 +222,13 @@ BOOST_PYTHON_MODULE(core)
         .add_property("world_objects", make_getter(&Main_App::world_objects))
         .add_property("targetable_world_objects", make_getter(&Main_App::targetable_world_objects))
         .add_property("world_objects_by_faction", make_getter(&Main_App::world_objects_by_faction))
- 
+
+        .def("get_distance", &Main_App::get_distance)
+        .def("angle_between_points", &Main_App::angle_between_points)
+        .def("normalise_angle", &Main_App::normalise_angle)
+        .def("angle_difference", &Main_App::angle_difference)
+        .def("near_angle", &Main_App::near_angle)
+
         .def("screen_to_world", &Main_App::screen_to_world)
         .def("world_to_screen", &Main_App::world_to_screen)
         .def("world_to_in_universe_coords", &Main_App::world_to_in_universe_coords)
@@ -253,6 +266,28 @@ BOOST_PYTHON_MODULE(core)
         .def("Destroy", &World_object::Destroy, &World_objectWrapper::Destroy_default)
         .def("get_screen_draw_position", &World_object::get_screen_draw_position, &World_objectWrapper::get_screen_draw_position_default)
         .def("Kill", &World_objectWrapper::Kill)
+        ;
+
+    class_<Physical_object, boost::python::bases<World_object>, Physical_objectWrapper, boost::noncopyable>("Physical_object", init<>())
+        .add_property("x", make_getter(&Physical_object::x), &Physical_object::set_x)
+        .add_property("y", make_getter(&Physical_object::y), &Physical_object::set_y)
+
+        .add_property("pos", make_getter(&Physical_object::pos, return_value_policy<reference_existing_object>()), make_setter(&Physical_object::pos))
+        .add_property("velocity", make_getter(&Physical_object::velocity, return_value_policy<reference_existing_object>()), make_setter(&Physical_object::velocity))
+        .add_property("max_velocity", make_getter(&Physical_object::max_velocity), make_setter(&Physical_object::max_velocity))
+        .add_property("velocity_friction", make_getter(&Physical_object::velocity_friction), make_setter(&Physical_object::velocity_friction))
+        .add_property("accel", make_getter(&Physical_object::accel), make_setter(&Physical_object::accel))
+        .add_property("rotation_velocity", make_getter(&Physical_object::rotation_velocity), make_setter(&Physical_object::rotation_velocity))
+        .add_property("rotation_friction", make_getter(&Physical_object::rotation_friction), make_setter(&Physical_object::rotation_friction))
+        .add_property("rotation_accel", make_getter(&Physical_object::rotation_accel), make_setter(&Physical_object::rotation_accel))
+
+        .def("init", &Physical_object::init)
+        .def("update_position", &Physical_object::update_position)
+        .def("update_velocity", &Physical_object::update_velocity)
+        .def("update_position", &Physical_object::update_position)
+        .def("bump", &Physical_object::bump)
+
+        .def("Execute", &Physical_object::Execute, &Physical_objectWrapper::Execute_default)
         ;
 
     // Expose the framework constants

@@ -66,7 +66,7 @@
 #define FACTION_OTHER 3
 #define FACTION_ENEMY 4
 
-#define PRIORITY_WORLD_OBJECTS 900
+#define PRIORITY_WORLD_OBJECTS 400
 
 #define MINIMAP_RANGE 3000
 
@@ -139,8 +139,8 @@ public:
 
     Settings* settings;
     Media* media;
-    std::vector<SDLKey> Keyboard_keys_down;
-    std::vector<SDLKey> Keyboard_keys_released;
+    std::vector<int> Keyboard_keys_down;
+    std::vector<int> Keyboard_keys_released;
     int current_fps;
     int process_count;
     string path_application_data;
@@ -157,7 +157,40 @@ public:
     void Do_Process_Clean();
     void On_Cleanup(); 
     bool Keyboard_key_down(SDLKey Key);
+    bool Keyboard_key_down(int Key);
     bool Keyboard_key_released(SDLKey Key);
+    bool Keyboard_key_released(int Key);
+
+    // Handy math methods
+
+    /**
+     * Returns the direct distance between two points.
+     */
+    float get_distance(float xa, float ya, float xb, float yb);
+
+    /**
+     * Take x/y of two points and returns the angle between those in degrees
+     */
+    int angle_between_points(float xa, float ya, float xb, float yb);
+
+    /**
+     * Returns an equivalent angle value between 0 and 360
+     */
+    int normalise_angle(int angle);
+
+    /**
+     * Returns the angle to turn by to get from start_angle to end_angle.
+     * The sign of the result indicates the direction in which to turn.
+     */
+    int angle_difference(int start, int goal);
+
+    /**
+     * Returns an angle which has been moved from 'start' closer to 
+     * 'goal' by 'int'. increment should always be positive, as 
+     * angle will be rotated in the direction resulting in the shortest 
+     * distance to the target angle.
+     */
+    int near_angle(int start, int goal, int inc);
 
     // Game specific
     float camera_x;

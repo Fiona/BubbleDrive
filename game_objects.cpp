@@ -137,10 +137,24 @@ void World_object::set_y(float y_)
 
 tuple<float, float> World_object::get_screen_draw_position()
 {
-    if(image == NULL)
-        return tuple<float, float>(x, y);
 
-    return tuple<float, float>(x - (image -> width / 2), y - (image -> height / 2));
+    Main_App *core = Main_App::Instance();
+
+    tuple<float, float> world_pos = core->world_to_screen(x, y);
+
+    float _width = (
+        (image != NULL ? (float)(image->width/2) : 0.0f)
+        *
+        (core->global_scale * custom_scale)
+        );
+
+    float _height = (
+        (image != NULL ? (float)(image->height/2) : 0.0f)
+        *
+        (core->global_scale * custom_scale)
+        );
+    return tuple<float, float>(world_pos.get<0>() - _width, world_pos.get<1>() - _height);
+
 }
 
 
@@ -239,3 +253,140 @@ void World_objectWrapper::Kill()
     boost::python::decref(self);
     self = NULL;
 }
+
+
+/**
+ * Physical objects have an acceleraction and will take
+ * care of their velocity, rotation and position calculations.
+ */
+Physical_object::Physical_object(): World_object()
+{
+    pos = new Vector2D(0.0, 0.0);
+    velocity = new Vector2D(0.0, 0.0);
+    max_velocity = 0.0f;
+    velocity_friction = 0.999f;
+    accel = 0.0f;
+    rotation_velocity = 0.0f;
+    rotation_friction = 0.99f;
+    rotation_accel = 10.f;
+}
+
+
+void Physical_object::init()
+{
+    this->World_object::init();
+}
+
+
+void Physical_object::Execute()
+{
+
+    this->World_object::Execute();
+
+    update_rotation();
+
+    if(fabs(accel) > 0.0f || velocity->x < -0.01f || velocity->x > 0.01f || velocity->y < -0.01f || velocity->y > 0.01f)
+    {
+        update_velocity();
+        update_position();
+    }
+
+}
+
+
+float Physical_object::get_x()
+{
+    return pos->x;
+}
+
+void Physical_object::set_x(float x_)
+{
+    pos->x = x_;
+    this->World_object::set_x(x_);
+}
+
+
+float Physical_object::get_y()
+{
+    return pos->y;
+}
+
+void Physical_object::set_y(float y_)
+{
+    pos->y = y_;
+    this->World_object::set_y(y_);
+}
+
+
+void Physical_object::update_rotation()
+{
+    rotation_velocity *= rotation_friction;
+    rotation += rotation_velocity;
+}
+
+
+void Physical_object::update_velocity()
+{
+
+    if(fabs(accel) > 0.0f)
+        *velocity += Vector2D(deg_to_rad(rotation), accel, True);
+
+    if((velocity->x > -0.01f && velocity->x < 0.01f) && (velocity->y > -0.01f && velocity->y < 0.01f))
+        return;
+
+    *velocity *= velocity_friction;
+
+    if(max_velocity > 0.0f)
+    {
+        if(velocity->x < -max_velocity)
+            velocity->x = -max_velocity;
+        if(velocity->x > max_velocity)
+            velocity->x = max_velocity;
+        if(velocity->y < -max_velocity)
+            velocity->y = -max_velocity;
+        if(velocity->y > max_velocity)
+            velocity->y = max_velocity;
+    }
+
+}
+
+
+void Physical_object::update_position()
+{
+    *pos += *velocity;
+    x = pos->x;
+    y = pos->y;
+}
+
+
+void Physical_object::bump(Vector2D* vec)
+{
+    *velocity += *vec;
+}
+
+
+/*
+ * Physical object stuff for the python wrapper
+ */
+Physical_objectWrapper::Physical_objectWrapper() : Physical_object(){}
+Physical_objectWrapper::Physical_objectWrapper(PyObject* _self) : Physical_object()
+{
+    self = _self;
+    self_ = boost::python::object(boost::python::handle<>(boost::python::borrowed(self)));
+    Process::internal_list.append(self_);
+    this->Process::self = self;
+    this->Process::self_ = self_;
+}
+
+
+void Physical_objectWrapper::Execute()
+{
+    boost::python::call_method<void>(self, "Execute");
+    if(!is_dead)
+        this->Physical_object::Execute();
+}
+void Physical_objectWrapper::Execute_default()
+{
+    this->Physical_object::Execute();
+}
+

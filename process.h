@@ -177,8 +177,12 @@ struct TextWrapper : Text
 };
 
 
+
 /*
- *
+ * World objects are visual objects that will also take
+ * care of position in the world relative to the camera.
+ * Call init(); at the start of the process creation (after
+ * overriding the world object default settings)
  */
 class World_object : virtual public Process
 {
@@ -274,5 +278,58 @@ struct World_objectWrapper : virtual public Process, public World_object
     tuple<float, float> get_screen_draw_position();
     void Kill();
 };
+
+
+
+/*
+ * Physical objects have an acceleraction and will take
+ * care of their velocity, rotation and position calculations.
+ * Call init(); at the start of the process creation (after overriding
+ * world object and physical object default settings).
+ */
+class Physical_object : virtual public World_object
+{
+    
+public:
+    Physical_object();
+
+    Vector2D* pos;
+    Vector2D* velocity;
+
+    float max_velocity;
+    float velocity_friction;
+    float accel;
+    float rotation_velocity;
+    float rotation_friction;
+    float rotation_accel;
+
+    float get_x();
+    void set_x(float x_);
+
+    float get_y();
+    void set_y(float y_);
+
+    void init();
+    void update_rotation();
+    void update_velocity();
+    void update_position();
+    void bump(Vector2D* vec);
+    void Execute();
+
+};
+
+
+struct Physical_objectWrapper : virtual public Process, virtual public World_object, public Physical_object
+{
+
+public:
+    Physical_objectWrapper();
+    Physical_objectWrapper(PyObject *p);
+
+    void Execute_default();
+    void Execute();
+
+};
+
 
 #endif 

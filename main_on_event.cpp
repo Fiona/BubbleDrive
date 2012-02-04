@@ -26,7 +26,7 @@ void Main_App::On_Event(SDL_Event* Event)
  
     case SDL_KEYUP:
     {
-        vector<SDLKey>::iterator it;
+        vector<int>::iterator it;
         it = std::find(Keyboard_keys_down.begin(), Keyboard_keys_down.end(), Event -> key.keysym.sym);
         if(it != Keyboard_keys_down.end())
             Keyboard_keys_down.erase(it);

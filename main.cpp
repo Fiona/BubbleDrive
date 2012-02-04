@@ -152,10 +152,16 @@ void Main_App::Quit()
 }
 
 
+
 bool Main_App::Keyboard_key_down(SDLKey Key)
 {
+    return Keyboard_key_down((int)Key);
+}
 
-    vector<SDLKey>::iterator it = std::find(Keyboard_keys_down.begin(), Keyboard_keys_down.end(), Key);
+bool Main_App::Keyboard_key_down(int Key)
+{
+
+    vector<int>::iterator it = std::find(Keyboard_keys_down.begin(), Keyboard_keys_down.end(), Key);
     if(it != Keyboard_keys_down.end())
         return True;      
     return False;
@@ -165,8 +171,13 @@ bool Main_App::Keyboard_key_down(SDLKey Key)
 
 bool Main_App::Keyboard_key_released(SDLKey Key)
 {
+    return Keyboard_key_released((int)Key);
+}
 
-    vector<SDLKey>::iterator it = std::find(Keyboard_keys_released.begin(), Keyboard_keys_released.end(), Key);
+bool Main_App::Keyboard_key_released(int Key)
+{
+
+    vector<int>::iterator it = std::find(Keyboard_keys_released.begin(), Keyboard_keys_released.end(), Key);
     if(it != Keyboard_keys_released.end())
         return True;      
     return False;
@@ -287,13 +298,92 @@ int randint(int min, int max)
 
 
 /**
+ * -----------------------
+ * Handy dandy mathematics
+ * -----------------------
+ */
+
+/**
+ * Returns the direct distance between two points.
+ */
+float Main_App::get_distance(float xa, float ya, float xb, float yb)
+{
+    return sqrt(
+        (pow((yb - ya), 2) + pow((xb - xa), 2))
+        );
+}
+
+
+/**
+ * Take x/y of two points and returns the angle between those in degrees
+ */
+int Main_App::angle_between_points(float xa, float ya, float xb, float yb)
+{
+    return (int)rad_to_deg(atan2(yb - ya, xb - xa));
+}
+
+
+/**
+ * Returns an equivalent angle value between 0 and 360
+ */
+int Main_App::normalise_angle(int angle)
+{
+    return angle % 360;
+}
+
+
+/**
+ * Returns the angle to turn by to get from start_angle to end_angle.
+ * The sign of the result indicates the direction in which to turn.
+ */
+int Main_App::angle_difference(int start, int goal)
+{
+    start = normalise_angle(start);
+    goal = normalise_angle(goal);
+        
+    int difference = goal - start;
+    if(difference > 180.0f)
+        difference -= 360.0f;
+    if(difference < -180.0f)
+        difference += 360.0f;
+            
+    return difference;
+}
+
+
+/**
+ * Returns an angle which has been moved from 'start' closer to 
+ * 'goal' by 'int'. increment should always be positive, as 
+ * angle will be rotated in the direction resulting in the shortest 
+ * distance to the target angle.
+ */
+int Main_App::near_angle(int start, int goal, int inc)
+{
+
+    start = normalise_angle(start);
+    goal = normalise_angle(goal);
+    int difference = angle_difference(start, goal);
+            
+    if(fabs(difference) <= 0)
+        return start;
+
+    if(fabs(difference) < inc)
+        return goal;
+
+    float dir = (float)difference / fabs((float)difference);
+    return start + (inc * (int)dir);
+
+}
+
+
+/**
  * Handy method for transforming coords from screen to world.
  */
 tuple<float, float> Main_App::screen_to_world(float x, float y)
 {
     return tuple<float, float>(
-        camera_x + (x - (settings->screen_width/2) / global_scale),
-        camera_y + (y - (settings->screen_height/2) / global_scale)
+        camera_x + (x - (settings->screen_width/2)) / global_scale,
+        camera_y + (y - (settings->screen_height/2)) / global_scale
         );
 }
 
