@@ -75,6 +75,7 @@ bool Main_App::On_Init()
     draw_strategies["gui_button"] = &Process::Draw_strategy_gui_button;
     draw_strategies["gui_window_frame"] = &Process::Draw_strategy_gui_window_frame;
     draw_strategies["background"] = &Process::Draw_strategy_background;
+    draw_strategies["space_dust"] = &Process::Draw_strategy_space_dust;
 
     return True;
 

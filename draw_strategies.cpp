@@ -377,3 +377,103 @@ void Process::Draw_strategy_background()
     glTexCoordPointer(2, GL_FLOAT, 0, &Process::default_texture_coords[0]);
 
 }
+
+
+
+/*
+ *
+ */
+void Process::Draw_strategy_space_dust()
+{
+
+    Main_App* core = Main_App::Instance();
+    boost::python::dict dust_items = boost::python::extract<boost::python::dict>(self_.attr("dust_items"));
+    boost::python::tuple screen_size_adjust = boost::python::extract<boost::python::tuple>(self_.attr("screen_size_adjust"));
+    boost::python::tuple max_screen_size = boost::python::extract<boost::python::tuple>(self_.attr("max_screen_size"));
+
+    glPushMatrix();
+        
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    glEnable(GL_POINT_SPRITE_ARB);
+    glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glPointSize(7 * core->global_scale);
+    glColor4f(1.0, 1.0, 1.0, .8);
+
+    glEnable(GL_TEXTURE_2D);
+
+    for(int image_num = 1; image_num <= SPACE_DUST_TYPES; image_num++)
+    {
+        
+        std::stringstream out;
+        out << image_num;
+        string s = out.str();
+        string img = "background_space_dust_" + out.str();
+        glBindTexture(GL_TEXTURE_2D, core->media->gfx[img]->texture);
+
+        glBegin(GL_POINTS);
+
+        boost::python::dict dust_items_image_num = boost::python::extract<boost::python::dict>(dust_items[image_num]);
+        boost::python::list iterkeys = (boost::python::list)dust_items_image_num.iterkeys();
+
+        for(int i = 0; i < boost::python::len(iterkeys); i++)
+        {
+
+            int dust_item_num = boost::python::extract<int>(iterkeys[i]);
+            boost::python::tuple pos = boost::python::extract<boost::python::tuple>(dust_items[image_num][iterkeys[i]]);
+
+            //Alter position if going off screen
+            if(pos[0] < core->camera_x - screen_size_adjust[0])
+            {
+                dust_items[image_num][dust_item_num] = boost::python::make_tuple(
+                    pos[0] + max_screen_size[0],
+                    pos[1]
+                    );
+            }       
+            if(pos[0] > core->camera_x - screen_size_adjust[0])
+            {
+                dust_items[image_num][dust_item_num] = boost::python::make_tuple(
+                    pos[0] - max_screen_size[0],
+                    pos[1]
+                    );
+            }       
+
+            if(pos[1] < core->camera_y - screen_size_adjust[1])
+            {
+                dust_items[image_num][dust_item_num] = boost::python::make_tuple(
+                    pos[0],
+                    pos[1] + max_screen_size[1]
+                    );
+            }       
+            if(pos[1] > core->camera_y + screen_size_adjust[1])
+            {
+                dust_items[image_num][dust_item_num] = boost::python::make_tuple(
+                    pos[0],
+                    pos[1] - max_screen_size[1]
+                    );
+            }       
+
+            boost::tuple<float, float> w2s = core->world_to_screen(
+                boost::python::extract<float>(dust_items[image_num][dust_item_num][0]),
+                boost::python::extract<float>(dust_items[image_num][dust_item_num][1])
+                );
+            glVertex2f(w2s.get<0>(), w2s.get<1>());
+
+        }
+
+        glEnd();
+
+    }
+
+    glPopMatrix();
+
+    glDisable(GL_POINT_SPRITE_ARB);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    Process::current_bound_texture = -1;
+
+}

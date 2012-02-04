@@ -68,6 +68,7 @@
 
 #define PRIORITY_WORLD_OBJECTS 400
 
+#define SPACE_DUST_TYPES 4
 #define MINIMAP_RANGE 3000
 
 // Macros

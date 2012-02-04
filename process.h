@@ -92,6 +92,7 @@ public:
     void Draw_strategy_gui_button();
     void Draw_strategy_gui_window_frame();
     void Draw_strategy_background();
+    void Draw_strategy_space_dust();
 
 };
 

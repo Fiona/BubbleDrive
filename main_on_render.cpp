@@ -54,6 +54,8 @@ void Main_App::On_Render()
                 FuncGetter func = found->second;
                 ((*it)->*func)();
             }
+            else
+                cout << "not found " << (*it)->draw_strategy << endl;
         }
 
     }

@@ -319,7 +319,7 @@ float Main_App::get_distance(float xa, float ya, float xb, float yb)
  */
 int Main_App::angle_between_points(float xa, float ya, float xb, float yb)
 {
-    return (int)rad_to_deg(atan2(yb - ya, xb - xa));
+    return rad_to_deg(atan2(yb - ya, xb - xa));
 }
 
 
@@ -362,7 +362,7 @@ int Main_App::near_angle(int start, int goal, int inc)
 
     start = normalise_angle(start);
     goal = normalise_angle(goal);
-    int difference = angle_difference(start, goal);
+    float difference = angle_difference(start, goal);
             
     if(fabs(difference) <= 0)
         return start;
@@ -370,7 +370,7 @@ int Main_App::near_angle(int start, int goal, int inc)
     if(fabs(difference) < inc)
         return goal;
 
-    float dir = (float)difference / fabs((float)difference);
+    float dir = difference / fabs(difference);
     return start + (inc * (int)dir);
 
 }

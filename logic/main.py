@@ -72,6 +72,11 @@ class Game(Process):
         self.settings['screen_height'] = self.core.settings.screen_height
         self.settings['full_screen'] = self.core.settings.full_screen
         self.settings['key_ship_forward'] = self.core.settings.key_ship_forward
+        self.settings['key_ship_back'] = self.core.settings.key_ship_back
+        self.settings['key_ship_left'] = self.core.settings.key_ship_left
+        self.settings['key_ship_right'] = self.core.settings.key_ship_right
+        self.settings['key_zoom_out'] = self.core.settings.key_zoom_out
+        self.settings['key_zoom_in'] = self.core.settings.key_zoom_in
 
         # Debug display
         if DEBUG_SHOW_FPS:

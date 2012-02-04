@@ -27,6 +27,10 @@ Media::Media()
     gfx.insert(pair<string, Image*>("gui_cursor", new Image("gfx/gui/cursor.png")));
     gfx.insert(pair<string, Image*>("gui_crosshair", new Image("gfx/gui/crosshair.png")));
 
+    gfx.insert(pair<string, Image*>("background_space_dust_1", new Image("gfx/background/space_dust_1.png")));
+    gfx.insert(pair<string, Image*>("background_space_dust_2", new Image("gfx/background/space_dust_2.png")));
+    gfx.insert(pair<string, Image*>("background_space_dust_3", new Image("gfx/background/space_dust_3.png")));
+    gfx.insert(pair<string, Image*>("background_space_dust_4", new Image("gfx/background/space_dust_4.png")));
     gfx.insert(pair<string, Image*>("background_stars", new Image("gfx/background/stars.png", True)));
     gfx.insert(pair<string, Image*>("background_nebula1", new Image("gfx/background/nebula1.png", False, 8)));
     gfx.insert(pair<string, Image*>("background_nebula2", new Image("gfx/background/nebula2.png", False, 8)));

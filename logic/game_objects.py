@@ -88,7 +88,6 @@ class Camera(Process):
             self.x += random.randrange(-3,3)
             self.y += random.randrange(-3,3)
 
-        print self.x, self.y
         self.game.core.camera_x = self.x
         self.game.core.camera_y = self.y
 
@@ -313,7 +312,7 @@ class Ship(Physical_object):
         if self.distance_to_turn_towards > 32:
             rotation_towards_target = self.game.core.angle_between_points(
                 self.x, self.y,
-                *self.turn_towards
+                self.turn_towards[0], self.turn_towards[1]
                 )
             self.rotation = self.game.core.near_angle(
                 self.rotation,
@@ -366,8 +365,8 @@ class Player_ship(Ship):
     def __init__(self, game):        
         Ship.__init__(self, game, ship_type = SHIP_TYPE_PROSPERO_FIGHTER)
         self.faction = FACTION_PLAYER
-        self.x = 50000
-        self.y = 50000
+        self.x = 0.0#50000
+        self.y = 0.0#50000
         self.object_name = ""
         self.custom_scale = .9
         self.init()
@@ -413,12 +412,15 @@ class Player_ship(Ship):
                 self.attempt_to_fire_primary()
 
             # Turn towards mouse
-            self.turn_towards = self.game.core.screen_to_world(self.game.gui.mouse.x, self.game.gui.mouse.y)        
+            self.turn_towards = self.game.core.screen_to_world(self.game.gui.mouse.x, self.game.gui.mouse.y)
+            #print self.turn_towards
+
 
 
 #######################################
 ##### BACKGROUND OR OTHER VISUALS #####
 #######################################
+
 
 
 class Background(Process):
@@ -436,8 +438,47 @@ class Background(Process):
         #    self.add_new_background_object(obj)
             
         # dusttt
-        #self.recreate_space_dust()
+        self.recreate_space_dust()
 
         # drawing
         self.draw_strategy = "background"
         self.draw_strategy_nebula_image = str(random.randrange(1, BACKGROUND_NUM_NEBULA_TYPES + 1))
+
+
+    def recreate_space_dust(self, start_sleeped = False):
+        if not self.space_dust is None:
+            self.space_dust.Kill()
+            
+        self.space_dust = Space_dust(self.game)
+
+        if start_sleeped:
+            self.space_dust.Stop_logic()
+            self.space_dust.Stop_drawing()
+
+
+    def On_exit(self):
+        self.space_dust.Kill()
+
+
+
+class Space_dust(World_object):
+    
+    dust_items = {}
+    
+    def __init__(self, game):
+        World_object.__init__(self)
+        self.game = game
+        self.z = Z_SPACE_DUST
+        self.init()
+
+        self.screen_size_adjust = ((self.game.settings['screen_width']/2) / MIN_ZOOM_LEVEL), ((self.game.settings['screen_height']/2) / MIN_ZOOM_LEVEL)
+        self.max_screen_size = ((self.game.settings['screen_width'] / MIN_ZOOM_LEVEL), (self.game.settings['screen_height'] / MIN_ZOOM_LEVEL))
+
+        for image_num in range(1, SPACE_DUST_TYPES + 1):
+            self.dust_items[image_num] = {}
+            for x in range(SPACE_DUST_NUM):
+                pos = (random.randrange(int(self.game.camera.x - self.screen_size_adjust[0]), int(self.game.camera.x + self.screen_size_adjust[0])),
+                       random.randrange(int(self.game.camera.y - self.screen_size_adjust[1]), int(self.game.camera.y + self.screen_size_adjust[1])))
+                self.dust_items[image_num][x] = pos
+
+        self.draw_strategy = "space_dust"
