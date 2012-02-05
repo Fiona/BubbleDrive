@@ -365,8 +365,8 @@ class Player_ship(Ship):
     def __init__(self, game):        
         Ship.__init__(self, game, ship_type = SHIP_TYPE_PROSPERO_FIGHTER)
         self.faction = FACTION_PLAYER
-        self.x = 0.0#50000
-        self.y = 0.0#50000
+        self.x = 50000
+        self.y = 50000
         self.object_name = ""
         self.custom_scale = .9
         self.init()
@@ -433,9 +433,9 @@ class Background(Process):
         self.z = Z_BACKGROUND
 
         # create the bg objects
-        #self.objs = {}
-        #for obj in self.game.galaxy.current_solar_system.background_objects:
-        #    self.add_new_background_object(obj)
+        self.objs = {}
+        for obj in self.game.galaxy.current_solar_system.background_objects:
+            self.add_new_background_object(obj)
             
         # dusttt
         self.recreate_space_dust()
@@ -456,8 +456,41 @@ class Background(Process):
             self.space_dust.Stop_drawing()
 
 
+    def add_new_background_object(self, obj):
+        new_obj = Background_object(self.game, obj)
+        self.objs[obj['uuid']] = new_obj
+        if self.game.paused:
+            new_obj.Stop_logic()
+            new_obj.Stop_drawing()
+
+        
+    def move_background_object(self, obj_uuid, pos):
+        self.objs[obj_uuid].x = pos[0]
+        self.objs[obj_uuid].y = pos[1]
+        if not self.objs[obj_uuid].child is None:
+            self.objs[obj_uuid].child.x = pos[0]
+            self.objs[obj_uuid].child.y = pos[1]
+        
+
+    def remove_background_object(self, obj_uuid):
+        self.objs[obj_uuid].Kill()
+        del(self.objs[obj_uuid])
+
+
+    def change_background_object_scale(self, obj_uuid, scale):
+        self.objs[obj_uuid].scale = scale
+        if not self.objs[obj_uuid].child is None:
+            self.objs[obj_uuid].child.scale = scale
+
+
+    def change_background_object_type(self, obj_uuid, type):
+        self.objs[obj_uuid].set_type(type)
+
+
     def On_exit(self):
         self.space_dust.Kill()
+        for x in self.objs:
+            self.objs[x].Kill()
 
 
 
@@ -482,3 +515,68 @@ class Space_dust(World_object):
                 self.dust_items[image_num][x] = pos
 
         self.draw_strategy = "space_dust"
+
+
+
+class Background_object(Process):
+    child = None
+    def __init__(self, game, obj_info):
+        Process.__init__(self)
+        self.game = game
+        self.x = obj_info['x']
+        self.y = obj_info['y']
+        self.z = Z_BACKGROUND_OBJECT
+        self.obj_info = obj_info
+        self.set_type(self.obj_info['type'])
+        self.priority = PRIORITY_WORLD_OBJECTS
+        self.scale = self.obj_info['scale']
+
+
+    def Execute(self):
+        # Recreate the child if we don't have one but need it
+        if self.child is None and self.obj_type[:4] == "star":
+            self.child = Background_object_sun_over(self.game, self.obj_info)
+            self.blend = True
+        else:
+            self.blend = False
+
+
+    def set_type(self, type):
+        if not self.child is None:
+            self.child.Kill()
+            self.child = None
+
+        self.obj_type = type
+        self.image = self.game.core.media.gfx[str("background_objects_" + self.obj_type)]
+
+        
+    def On_exit(self):
+        if not self.child is None:
+            self.child.Kill()
+        
+
+    def get_screen_draw_position(self):
+        world_pos = (
+            ((float(self.x) - (self.game.camera.x)) / 30.0) + ((self.game.settings['screen_width']/2)),
+            ((float(self.y) - (self.game.camera.y)) / 30.0) + ((self.game.settings['screen_height']/2))
+            )
+        return (world_pos[0] - ((self.image.width/2) * self.scale), world_pos[1] - ((self.image.height/2) * self.scale))
+
+            
+            
+class Background_object_sun_over(Background_object):
+    def __init__(self, game, obj_info):
+        Process.__init__(self)
+        self.game = game
+        self.x = obj_info['x']
+        self.y = obj_info['y']
+        self.z = Z_BACKGROUND_OBJECT_SUN_OVER
+        self.image = self.game.core.media.gfx[str("background_objects_" + obj_info['type'] + "_over")]
+        self.priority = PRIORITY_WORLD_OBJECTS
+        self.scale = obj_info['scale'] - .5
+        self.alpha = .5
+        self.blend = True
+
+
+    def Execute(self):
+        pass

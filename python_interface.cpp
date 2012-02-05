@@ -312,6 +312,7 @@ BOOST_PYTHON_MODULE(core)
     scope().attr("FACTION_ENEMY") = FACTION_ENEMY;
     scope().attr("MINIMAP_RANGE") = MINIMAP_RANGE;
     scope().attr("SPACE_DUST_TYPES") = SPACE_DUST_TYPES;
+    scope().attr("PRIORITY_WORLD_OBJECTS") = PRIORITY_WORLD_OBJECTS;
 
     // Expose all the SDL Keybinding constants
     enum_<SDLKey>("key")

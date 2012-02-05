@@ -36,6 +36,12 @@ Media::Media()
     gfx.insert(pair<string, Image*>("background_nebula2", new Image("gfx/background/nebula2.png", False, 8)));
     gfx.insert(pair<string, Image*>("background_nebula3", new Image("gfx/background/nebula3.png", False, 8)));
 
+    gfx.insert(pair<string, Image*>("background_objects_planet1", new Image("gfx/background/objects/planet1.png")));
+    gfx.insert(pair<string, Image*>("background_objects_planet2", new Image("gfx/background/objects/planet3.png")));
+    gfx.insert(pair<string, Image*>("background_objects_planet_broken1", new Image("gfx/background/objects/planet_broken1.png")));
+    gfx.insert(pair<string, Image*>("background_objects_star1", new Image("gfx/background/objects/star1.png")));
+    gfx.insert(pair<string, Image*>("background_objects_star1_over", new Image("gfx/background/objects/star1_over.png")));
+
     gfx.insert(pair<string, Image*>("ships_ship2", new Image("gfx/ships/ship2.png")));
 
 /*
