@@ -51,7 +51,7 @@ WEAPON_STATS = {
         'colour' : (.5, 0.0, .5),
         'range' : 600,
         'reload_time' : 60,
-        'collision_point' : (8, 0),
+        'collision_point' : (8.0, 0.0),
         'base_damage' : 10,
         }
     }

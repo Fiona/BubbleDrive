@@ -28,7 +28,8 @@ void Main_App::On_Loop()
     }
 
     vector<Process*>::iterator dead_check;
-    std::vector<Process*> copy_list(Process::Priority_List);
+    //std::vector<Process*> copy_list(Process::Priority_List);
+    std::vector<Process*> copy_list(Process::Process_List);
 
     for(std::vector<Process*>::iterator it = copy_list.begin(); it != copy_list.end(); ++it)
     {
@@ -54,7 +55,7 @@ void Main_App::On_Loop()
 
     }
     
-    if(Keyboard_key_down(SDLK_ESCAPE))
-        Quit();
+    //if(Keyboard_key_down(SDLK_ESCAPE))
+    //    Quit();
 
 }

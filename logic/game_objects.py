@@ -331,7 +331,7 @@ class Ship(Physical_object):
         """
         for x in self.primary_weapons:
             if x['reload_count'] >= WEAPON_STATS[x['type']]['reload_time']:
-                #Primary_weapon(self.game, self, x['point'], x['type'])
+                Primary_weapon(self.game, self, x['point'], x['type'])
                 x['reload_count'] = 0
     
 
@@ -374,36 +374,30 @@ class Player_ship(Ship):
 
     def Execute(self):
         Ship.Execute(self);
-        #print self.x, ",", self.y
-        #print self.game.core.camera_x, ",", self.game.core.camera_y
 
         if not self.lock_controls:
 
             # Press forward key
             for _key in [self.game.settings['key_ship_forward'], key.UP]:
                 if self.game.core.Keyboard_key_down(_key):
-                    print "forward"
                     self.thrust()
                     break
 
             # Press back key
             for _key in [self.game.settings['key_ship_back'], key.DOWN]:
                 if self.game.core.Keyboard_key_down(_key):
-                    print "down"
                     self.thrust(reverse = True)
                     break
 
             # Press left
             for _key in [self.game.settings['key_ship_left'], key.LEFT]:
                 if self.game.core.Keyboard_key_down(_key):
-                    print "left"
                     self.thrust_sideways()
                     break
 
             # Press right
             for _key in [self.game.settings['key_ship_right'], key.RIGHT]:
                 if self.game.core.Keyboard_key_down(_key):
-                    print "right"
                     self.thrust_sideways(right = True)
                     break
 
@@ -413,7 +407,84 @@ class Player_ship(Ship):
 
             # Turn towards mouse
             self.turn_towards = self.game.core.screen_to_world(self.game.gui.mouse.x, self.game.gui.mouse.y)
-            #print self.turn_towards
+
+
+
+#######################################
+##### WEAPONS, LASERS, MISSLES ########
+#######################################
+
+
+
+class Primary_weapon(World_object):
+    
+    distance_travelled = 0
+    die = False
+    
+    def __init__(self, game, ship, mount, weapon_type):
+        World_object.__init__(self)
+        self.game = game
+        self.ship = ship
+        self.faction = self.ship.faction
+        self.weapon_type = weapon_type
+        self.details = WEAPON_STATS[self.weapon_type]
+        #self.collision_point = self.details['collision_point']
+        self.collidable = True
+        self.collision_type = COLLISION_TYPE_POINT
+        self.init()
+
+        self.rotation = self.ship.rotation
+        point = self.game.core.rotate_point(float(mount[0]), float(mount[1]), float(self.rotation))
+        self.x = self.ship.x + point[0]
+        self.y = self.ship.y + point[1]
+        self.z = Z_PRIMARY_WEAPONS
+
+        self.image = self.game.core.media.gfx[str('weapons_' +self.details['image'])]
+        self.blend = True
+        self.alpha = 0.0
+        self.colour = self.details['colour']
+        self.iter = 0
+        
+        
+    def Execute(self):
+        self.move_forward(self.details['speed'], self.rotation)
+
+        # Collide with objects and hit them
+        """
+        collision = self.check_collision_with(self.game.world_objects)
+        if collision[0]:
+            collision[1].register_hit(self)
+            self.game.particle_emitters['weapon_emitter_'+str(self.weapon_type)].add_point(
+                (self.x, self.y),
+                death_timer = 2
+                )
+            self.kill()
+            return
+        """
+        if self.die:
+            if self.image_sequence == 1:
+                self.alpha -= 0.1
+                if self.alpha <= 0.0:
+                    self.Kill()
+                    return
+            else:
+                if self.iter < 20:
+                    self.iter += 1
+                    self.custom_scale = lerp(self.iter, 20, 1.0, 0.1)
+                    self.alpha = lerp(self.iter, 20, .9, .2)
+                else:
+                    self.Kill()
+                    return
+        else:
+            self.distance_travelled += self.details['speed']
+            if self.distance_travelled > self.details['range']:
+                self.die = True
+                if self.image.num_of_frames > 1:
+                    self.image_sequence = 2
+
+            if self.alpha < .9:
+                self.alpha += .1
+
 
 
 
