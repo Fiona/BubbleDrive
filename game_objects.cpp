@@ -72,13 +72,15 @@ void World_object::Kill()
     it = std::find(core->world_objects_by_faction[faction].begin(), core->world_objects_by_faction[faction].end(), this);
     if(it != core->world_objects_by_faction[faction].end())
         it = core->world_objects_by_faction[faction].erase(it);
-
+    
     if(targetable)
     {
         it = std::find(core->targetable_world_objects.begin(), core->targetable_world_objects.end(), this);
         if(it != core->targetable_world_objects.end())
             it = core->targetable_world_objects.erase(it);
     }
+
+    this->Process::Kill();
 
 }
 
@@ -174,20 +176,21 @@ void World_object::calculate_corner_vectors()
         height = image->height * custom_scale;
 
     tuple<float, float> rot;
+    Main_App* core = Main_App::Instance();
 
-    rot = Main_App::rotate_point((float)(-width/2), (float)(-height/2), (float)rotation);
+    rot = core->rotate_point((float)(-width/2), (float)(-height/2), (float)rotation);
     corner_vectors[CORNER_UL][0] = x + rot.get<0>();
     corner_vectors[CORNER_UL][1] = y + rot.get<1>();
 
-    rot = Main_App::rotate_point((float)(width/2), (float)(-height/2), (float)rotation);
+    rot = core->rotate_point((float)(width/2), (float)(-height/2), (float)rotation);
     corner_vectors[CORNER_UR][0] = x + rot.get<0>();
     corner_vectors[CORNER_UR][1] = y + rot.get<1>();
 
-    rot = Main_App::rotate_point((float)(-width/2), (float)(height/2), (float)rotation);
+    rot = core->rotate_point((float)(-width/2), (float)(height/2), (float)rotation);
     corner_vectors[CORNER_LL][0] = x + rot.get<0>();
     corner_vectors[CORNER_LL][1] = y + rot.get<1>();
 
-    rot = Main_App::rotate_point((float)(width/2), (float)(height/2), (float)rotation);
+    rot = core->rotate_point((float)(width/2), (float)(height/2), (float)rotation);
     corner_vectors[CORNER_LR][0] = x + rot.get<0>();
     corner_vectors[CORNER_LR][1] = y + rot.get<1>();
 
@@ -207,6 +210,7 @@ World_objectWrapper::World_objectWrapper(PyObject* _self) : World_object()
     Process::internal_list.append(self_);
     this->Process::self = self;
     this->Process::self_ = self_;
+    is_dead = False;
 }
 
 
@@ -252,6 +256,7 @@ void World_objectWrapper::Kill()
     boost::python::decref(self);
     boost::python::decref(self);
     self = NULL;
+    is_dead = True;
 }
 
 

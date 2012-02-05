@@ -44,6 +44,8 @@ Media::Media()
 
     gfx.insert(pair<string, Image*>("ships_ship2", new Image("gfx/ships/ship2.png")));
 
+    gfx.insert(pair<string, Image*>("weapons_laser1", new Image("gfx/weapons/laser1.png", False, 2)));
+
 /*
     gfx.insert(pair<string, Image*>("gui_button_generic_background", new Image("gfx/gui/button_generic_background.png", True, 4)));
     gfx.insert(pair<string, Image*>("gui_button_spinner_down", new Image("gfx/gui/button_spinner_down.png", False, 3)));

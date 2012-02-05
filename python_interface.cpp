@@ -57,6 +57,8 @@ BOOST_PYTHON_MODULE(core)
 
     typedef boost::tuples::tuple<float, float> screen_pos_tuple;
     to_python_converter<screen_pos_tuple, my::tupleconverter<screen_pos_tuple> >();
+    typedef boost::tuples::tuple<int, int> int_int_tuple;
+    to_python_converter<int_int_tuple, my::tupleconverter<int_int_tuple> >();
     
     boost::python::to_python_converter<Process*, my::Process_to_python_object>();
 
@@ -228,6 +230,8 @@ BOOST_PYTHON_MODULE(core)
         .def("normalise_angle", &Main_App::normalise_angle)
         .def("angle_difference", &Main_App::angle_difference)
         .def("near_angle", &Main_App::near_angle)
+        .def("rotate_point", &Main_App::rotate_point)
+        .def("rotate_point_about_point", &Main_App::rotate_point_about_point)
 
         .def("screen_to_world", &Main_App::screen_to_world)
         .def("world_to_screen", &Main_App::world_to_screen)

@@ -206,8 +206,8 @@ public:
     tuple<float, float> screen_to_world(float x, float y);
     tuple<float, float> world_to_screen(float x, float y);
     tuple<int, int> world_to_in_universe_coords(float x, float y);
-    static tuple<float, float> rotate_point(float x, float y, float rotation);
-    static tuple<float, float> rotate_point_about_point(float x, float y, float rotation, float rotate_about_x, float rotate_about_y);
+    tuple<float, float> rotate_point(float x, float y, float rotation);
+    tuple<float, float> rotate_point_about_point(float x, float y, float rotation, float rotate_about_x, float rotate_about_y);
 
 };
 

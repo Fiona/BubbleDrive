@@ -271,6 +271,8 @@ struct World_objectWrapper : virtual public Process, public World_object
     World_objectWrapper();
     World_objectWrapper(PyObject *p);
 
+    bool is_dead;
+
     void Destroy_default();
     void Destroy();
     void Execute_default();
