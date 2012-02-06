@@ -28,6 +28,7 @@ void Main_App::On_Loop()
     }
 
     vector<Process*>::iterator dead_check;
+
     std::vector<Process*> copy_list(Process::Priority_List);
     //std::vector<Process*> copy_list(Process::Process_List);
 
