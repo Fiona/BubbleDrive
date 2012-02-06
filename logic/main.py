@@ -5,7 +5,7 @@ Action space RPG
 """
 
 # python imports
-import sys, os
+import sys, os, random
 
 # Game engine imports
 from core import *
@@ -15,8 +15,8 @@ sys.path.append(os.path.join(os.getcwd(), "logic"))
 from consts import *
 from gui import GUI
 from galaxy import Galaxy
-from game_objects import Camera, Player_ship
-#from game_objects import Background_object, Asteroid, Mouse_object, AI_ship
+from game_objects import Camera, Player_ship, Asteroid, AI_ship
+#from game_objects import Mouse_object
 from game_objects import Background
 #from particles import ParticleSystem
 
@@ -124,17 +124,17 @@ class Game(Process):
         elif self.game_state == GAME_STATE_IN_GAME:
             self.galaxy.Kill()
             self.galaxy = None
-            #self.camera.signal(S_KILL)
-            #self.camera = None
+            self.camera.Kill()
+            self.camera = None
             self.background.Kill()
             self.background = None
-            #self.player_ship = None
+            self.player_ship = None
 
-            #for x in self.world_objects:
-            #    self.world_objects[x].kill()
-            #self.world_objects = []
+            for x in self.core.world_objects:
+                self.core.world_objects[x].kill()
+            self.core.world_objects = []
 
-            self.world_objects_by_faction = {
+            self.core.world_objects_by_faction = {
                 FACTION_NEUTRAL : [],
                 FACTION_PLAYER : []
                 }
@@ -159,9 +159,13 @@ class Game(Process):
             
             self.background = Background(self)
                             
-            #for x in range(50):
-            #    Asteroid(self)
-            #AI_ship(self, {'type' : SHIP_TYPE_PROSPERO_FIGHTER, 'x' : 50500, 'y' : 50500})
+            """for x in range(1000):
+                Asteroid(self)
+                """
+            for x in range(50):
+                x_ = random.randrange(49000, 51000)
+                y_ = random.randrange(49000, 51000)
+                AI_ship(self, {'type' : SHIP_TYPE_PROSPERO_FIGHTER, 'x' : x_, 'y' : y_})
  
             self.camera.set_anchor_to(self.player_ship, instant = True)
 

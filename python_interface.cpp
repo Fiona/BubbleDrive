@@ -158,6 +158,7 @@ BOOST_PYTHON_MODULE(core)
             )
 
         .def("move_forward", &Process::move_forward)
+        .def("get_distance", &Process::get_distance)
         .def("Kill", &ProcessWrapper::Kill)
         ;
 

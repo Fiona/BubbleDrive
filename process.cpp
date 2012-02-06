@@ -65,7 +65,7 @@ void Process::On_Exit()
 void Process::Draw()
 {
 
-    if(image == NULL || is_dead == True)
+    if(image == NULL || is_dead == True || alpha <= 0.0f)
         return;
 
     glPushMatrix();
@@ -165,6 +165,14 @@ void Process::move_forward(float distance_to_travel, int rotation_to_move_in)
 {
     x = x + distance_to_travel * cos(deg_to_rad((float)rotation_to_move_in));
     y = y + distance_to_travel * sin(deg_to_rad((float)rotation_to_move_in));
+}
+
+
+float Process::get_distance(float x_, float y_)
+{
+    return sqrt(
+        (pow((y_ - y), 2) + pow((x_ - x), 2))
+        );
 }
 
 

@@ -79,6 +79,7 @@ public:
     void Set_scale_pos(boost::python::object list);
 
     void move_forward(float distance_to_travel, int rotation_to_move_in);
+    float get_distance(float x_, float y_);
 
     virtual tuple<float, float> get_screen_draw_position();
 

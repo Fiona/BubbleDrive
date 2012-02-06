@@ -125,22 +125,6 @@ SHIP_STATS = {
                     'rotation' : 0,
                     'scale' : 1.0
                 },
-                {
-                    'dir' : 'forward',    
-                    'type' : 1,
-                    'point' : (-22, -2),
-                    'colour' : (1.0, 1.0, 1.0),
-                    'rotation' : 0,
-                    'scale' : 1.0
-                },
-                {
-                    'dir' : 'forward',    
-                    'type' : 1,
-                    'point' : (-22, 2),
-                    'colour' : (1.0, 1.0, 1.0),
-                    'rotation' : 0,
-                    'scale' : 1.0
-                },
                 
                 {
                     'dir' : 'backward',

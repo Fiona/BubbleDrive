@@ -46,6 +46,10 @@ Media::Media()
 
     gfx.insert(pair<string, Image*>("weapons_laser1", new Image("gfx/weapons/laser1.png", False, 2)));
 
+    gfx.insert(pair<string, Image*>("world_objects_asteroid1", new Image("gfx/world_objects/asteroid1.png")));
+
+    gfx.insert(pair<string, Image*>("fx_engine_glow1", new Image("gfx/fx/engine_glow1.png")));
+
 /*
     gfx.insert(pair<string, Image*>("gui_button_generic_background", new Image("gfx/gui/button_generic_background.png", True, 4)));
     gfx.insert(pair<string, Image*>("gui_button_spinner_down", new Image("gfx/gui/button_spinner_down.png", False, 3)));

@@ -163,7 +163,8 @@ class Ship(Physical_object):
         self.ship_type = ship_type
         self.image = self.game.core.media.gfx['ships_ship' + str(self.ship_type)]
         self.z = Z_SHIPS
-
+        self.is_ship = True
+        
         self.thruster_accelerations = {'forward' : 0.0, 'backward' : 0.0, 'left' : 0.0, 'right' : 0.0}
         self.target = None
 
@@ -184,9 +185,9 @@ class Ship(Physical_object):
 
         self.engine_glows = []
 
-        #if 'engine_glow' in SHIP_STATS[self.ship_type]:
-        #    for x in SHIP_STATS[self.ship_type]['engine_glow']:
-        #        self.engine_glows.append(Ship_engine_glow(self.game, self, x))
+        if 'engine_glow' in SHIP_STATS[self.ship_type]:
+            for x in SHIP_STATS[self.ship_type]['engine_glow']:
+                self.engine_glows.append(Ship_engine_glow(self.game, self, x))
         
         #if not SHIP_STATS[self.ship_type]['glow_map_colour'] is None:
         #    self.glow_map = Ship_glow_map(self.game, self)
@@ -357,6 +358,56 @@ class Ship(Physical_object):
 
 
 
+class Ship_engine_glow(World_object):
+    steady_scale_dir = 1
+    steady_scale_wait = 0
+    
+    def __init__(self, game, ship, glow_info):
+        World_object.__init__(self)
+        self.game = game
+        self.ship = ship
+        self.z = self.ship.z + 1
+        self.blend = True
+        self.glow_info = glow_info
+        self.colour = self.glow_info['colour']
+        self.alpha = .9
+        self.scale = 0
+        self.init()
+        
+        self.image = self.game.core.media.gfx[str('fx_engine_glow' + str(glow_info['type']))]
+        self.rot_point = glow_info['point']
+        self.custom_scale = 1.0
+
+    def Execute(self):
+        amt = ((SHIP_STATS[self.ship.ship_type]['max_acceleration'] * self.ship.thruster_accelerations[self.glow_info['dir']]) * 100)
+        self.alpha = .4 * amt
+        self.custom_scale = self.glow_info['scale'] * amt
+
+        if self.custom_scale > (self.glow_info['scale']-.1):
+            if self.steady_scale_dir == 1:
+                self.custom_scale = lerp(self.steady_scale_wait, 10, (self.glow_info['scale']-.05), self.glow_info['scale'])
+                self.steady_scale_wait += 1
+                if self.steady_scale_wait == 10:
+                    self.steady_scale_dir = 0
+                    self.steady_scale_wait = 0
+            else:
+                self.custom_scale = lerp(self.steady_scale_wait, 10, self.glow_info['scale'], (self.glow_info['scale'] - .05))
+                self.steady_scale_wait += 1
+                if self.steady_scale_wait == 10:
+                    self.steady_scale_dir = 1
+                    self.steady_scale_wait = 0
+        else:
+            self.steady_scale_dir = 1
+            self.steady_scale_wait = 0
+
+        if self.alpha > 0:
+            self.rotation = self.ship.rotation + self.glow_info['rotation']
+            point = self.game.core.rotate_point(self.rot_point[0] - ((self.image.width/2) * self.custom_scale), self.rot_point[1], self.rotation)
+            self.x = self.ship.x + point[0]
+            self.y = self.ship.y + point[1]
+
+
+
 class Player_ship(Ship):
     """
     Main player ship, generally always followed by the camera,
@@ -373,7 +424,7 @@ class Player_ship(Ship):
         
 
     def Execute(self):
-        Ship.Execute(self);
+        Ship.Execute(self)
 
         if not self.lock_controls:
 
@@ -407,6 +458,157 @@ class Player_ship(Ship):
 
             # Turn towards mouse
             self.turn_towards = self.game.core.screen_to_world(self.game.gui.mouse.x, self.game.gui.mouse.y)
+
+
+
+class AI_ship(Ship):    
+    strafe_dir = False
+    switch_strafe_dir_count = 0
+    switch_strafe_dir_wait_til = 0
+    
+    def __init__(self, game, ship_info):
+        Ship.__init__(self, game, ship_info['type'])
+        self.game = game
+        self.ship_info = ship_info
+        self.faction = FACTION_ENEMY
+        self.targetable = True        
+        self.init()
+        self.x = self.ship_info['x']
+        self.y = self.ship_info['y']
+
+        self.max_weapon_range = None
+        for x in self.primary_weapons:
+            if self.max_weapon_range is None or WEAPON_STATS[x['type']]['range'] > self.max_weapon_range:
+                self.max_weapon_range = WEAPON_STATS[x['type']]['range']
+
+
+    def Execute(self):
+        Ship.Execute(self)
+
+        if not self.lock_controls:
+
+            if self.target is None:
+                self.get_new_target()
+            else:
+                self.turn_towards = (self.target.x + (self.target.image.width/2), self.target.y + (self.target.image.height/2))
+
+                if self.distance_to_turn_towards > (self.max_weapon_range / 2):
+                    self.thrust()
+                else:
+                    self.thrust_sideways(right = self.strafe_dir)
+
+                if self.distance_to_turn_towards < (self.max_weapon_range / 4):
+                    self.thrust(reverse = True)
+
+                if self.distance_to_turn_towards < self.max_weapon_range:
+                    self.attempt_to_fire_primary()
+
+                self.switch_strafe_dir_count += 1
+                if self.switch_strafe_dir_count >= self.switch_strafe_dir_wait_til:
+                    self.switch_strafe_dir()
+
+
+    def get_new_target(self):
+        candidates = []
+        for x in self.game.core.world_objects:
+            if x.is_ship and not x.faction is self.faction:
+                candidates.append(x)
+
+        new_target = None
+        dist = None
+        
+        for x in candidates:
+            x_dist = self.get_distance(x.x, x.y)
+            if new_target is None or x_dist < dist:
+                new_target = x
+            dist = x_dist
+
+        self.change_target(new_target)
+        self.switch_strafe_dir()
+
+        
+    def switch_strafe_dir(self):
+        self.strafe_dir = False if random.random() > .5 else True
+        self.switch_strafe_dir_count = 0
+        self.switch_strafe_dir_wait_til = random.randrange(50, 200)
+
+
+
+class Asteroid(Physical_object):
+    
+    def __init__(self, game, parent = None):
+        Physical_object.__init__(self)
+        self.game = game
+        self.image = self.game.core.media.gfx['world_objects_asteroid1']
+        self.rotation = random.randrange(0, 360)
+        self.asteroid_size = parent.asteroid_size - 1 if not parent is None else random.randrange(1, 5)
+        self.custom_scale = 0.25 * self.asteroid_size
+
+        self.collidable = True
+        self.collision_type = COLLISION_TYPE_CIRCLE
+        self.target_image_prefix = "asteroid"
+        self.object_name = "Asteroid"
+        self.targetable = True
+        self.mass = 120
+        self.show_on_minimap = True
+        
+        # Chosen to look right.
+        self.moment_of_inertia = 200 * self.custom_scale
+        
+        self.max_health = ASTEROID_HEALTH * self.asteroid_size
+        self.init()
+        if parent is None:
+            self.x = random.randrange(40000, 60000)
+            self.y = random.randrange(40000, 60000)
+        else:
+            self.bump(Vector2d(math.radians(self.rotation), .5, True))
+            self.x = parent.x + random.randrange(-25, 25)
+            self.y = parent.y + random.randrange(-25, 25)
+                    
+
+    def register_hit(self, weapon_hit_by):
+        return
+        self.health -= weapon_hit_by.details['base_damage']
+
+        # Push asteroid in correct direction
+        angle = MyrmidonGame.angle_between_points((weapon_hit_by.x, weapon_hit_by.y), (self.x, self.y))
+        theta = MyrmidonGame.angle_difference(angle, weapon_hit_by.rotation)
+        self.bump(Vector2d(dir =  math.radians(angle), mag = (weapon_hit_by.details['speed'] * math.cos(math.radians(theta))) / (self.custom_scale * self.mass)))
+    
+        # add rotational velocity
+        # Removed radius term because lever rotation looked awkward
+        self.rotation_velocity -= (weapon_hit_by.details['speed'] * math.sin(math.radians(theta))) / self.moment_of_inertia
+
+        """
+        for x in range(3):
+            Small_object_debris(self.game, 'asteroid_debris', weapon_hit_by.world_collision_point)
+            """
+        
+
+    def destroy(self):
+        return
+        # Explosion effect
+        Explosion(self.game, self, self.custom_scale)
+
+        deb_pos = (self.x + random.randrange(int(-(self.image.width/3)*self.custom_scale), int((self.image.width/3)*self.custom_scale)),
+                   self.y + random.randrange(int(-(self.image.width/3)*self.custom_scale), int((self.image.width/3)*self.custom_scale)))
+
+        """
+        for x in range(3):            
+            Large_object_debris(self.game, 'debris_large', self.custom_scale * .75, deb_pos)
+           """ 
+        self.game.particle_emitters['debris_asteroid'].add_point(
+            (self.x, self.y),
+            death_timer = 2
+            )
+
+        # Make tiny asteroids
+        if self.asteroid_size > 1:
+            for x in range(0, 2):
+                Asteroid(self.game, self)
+
+        # Remove from world
+        self.kill()
 
 
 
@@ -585,7 +787,7 @@ class Space_dust(World_object):
                        random.randrange(int(self.game.camera.y - self.screen_size_adjust[1]), int(self.game.camera.y + self.screen_size_adjust[1])))
                 self.dust_items[image_num][x] = pos
 
-        self.draw_strategy = "space_dust"
+        #self.draw_strategy = "space_dust"
 
 
 
