@@ -8,20 +8,33 @@
  ***************************************/
 
 /**
- * Main source file, just inits and starts the game object.
+   Generic Entity object source file.
  */
 
 
 // Includes
+#include "Entity.h"
 #include "Game.h"
 
 
 /**
- * App entry function.
+ * Constructor
  */
-int main(int argc, char* argv[])
+Entity::Entity()
 {
 
-    return Game::Instance()->Start();
+    fX = 0.0f;
+    fY = 0.0f;
+    iZ = 0;
+    oGame = Game::Instance();
+    oGame->Register_Entity(this);
 
+}
+
+
+/**
+ * Deconstructor
+ */
+Entity::~Entity()
+{
 }
