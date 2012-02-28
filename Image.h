@@ -30,13 +30,14 @@ class Image
 
 private:
     std::string sFile_Name;
-    GLuint iTexture_Num;
 
     void Create_From_SMFL_Image(sf::Image* raw_image);
     
 public:
     int iWidth;
     int iHeight;
+    GLuint iTexture_Num;
+    float aVertex_List[12];
 
     Image(std::string file_name);
     ~Image();

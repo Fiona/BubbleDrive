@@ -19,6 +19,10 @@
 #include "Game.h"
 
 
+// Forward declaration
+class Game;
+
+
 /**
  * All visible objects in the game inherit from the generic
  * Entity class. It handles basic drawing, screen position,
@@ -30,16 +34,26 @@ class Entity
 {
 
 private:
-    
-public:
     float fX;
     float fY;
     int iZ;
     Image* oImage;
+    
+public:
     Game* oGame;
 
     Entity();
     ~Entity();
+    virtual void Logic();
+    virtual void Draw();
+    virtual void Set_X(float X);
+    virtual float Get_X();
+    virtual void Set_Y(float Y);
+    virtual float Get_Y();
+    virtual void Set_Z(int Z);
+    virtual int Get_Z();
+    virtual void Set_Image(Image* Image);
+    virtual Image* Get_Image();
 
 };
 

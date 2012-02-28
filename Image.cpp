@@ -33,6 +33,13 @@ Image::Image(std::string file_name)
 
     delete(raw_image);
 
+    for(int i = 0; i < 12; i++)
+        aVertex_List[i] = 0.0f;
+    aVertex_List[0] = (float)iWidth;
+    aVertex_List[1] = (float)iHeight;
+    aVertex_List[4] = (float)iHeight;
+    aVertex_List[6] = (float)iWidth; 
+
 }
 
 

@@ -33,7 +33,13 @@ Game::Game()
     iLoops_This_Frame = 0;
     iFrames_This_Second = 0;
     iCurrent_FPS = 0;
-    oState = new State;
+    oState = NULL;
+
+    oDefault_Texture_Coords.resize(8);
+    oDefault_Texture_Coords[0] = 1.0f;
+    oDefault_Texture_Coords[1] = 1.0f;
+    oDefault_Texture_Coords[3] = 1.0f;
+    oDefault_Texture_Coords[4] = 1.0f;
 
 }
 
@@ -63,6 +69,7 @@ int Game::Start()
 
     Initialise_Window();
     Load_Media();
+    oState = new State;
 
     bRunning = true;
 
@@ -94,7 +101,7 @@ int Game::Start()
         }
 
         Render();
-             
+
     }
 
     Shutdown();
@@ -151,6 +158,17 @@ void Game::Load_Media()
 void Game::Tick()
 {
 
+    std::vector<Entity*> copy_list(Registered_Entities);
+
+    for(std::vector<Entity*>::iterator it = copy_list.begin(); it != copy_list.end(); ++it)
+    {
+
+        if(*it == NULL)
+            continue;
+
+        (*it)->Logic();
+
+    }
 
 }
 
@@ -161,8 +179,31 @@ void Game::Tick()
 void Game::Render()
 {
 
+    oWindow->SetActive();
+
     // Clear screen
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // Set up pre-drawing
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(2, GL_FLOAT, 0, &oDefault_Texture_Coords[0]);
+
+    std::vector<Entity*> copy_list(Registered_Entities);
+
+    for(std::vector<Entity*>::iterator it = copy_list.begin(); it != copy_list.end(); ++it)
+    {
+
+        if(*it == NULL)
+            continue;
+
+        (*it)->Draw();
+
+    }
+
+    // Disable gl stuff
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
 
     // Flip
     oWindow->Display();
@@ -183,6 +224,28 @@ void Game::Shutdown()
     delete(oNext_Game_Tick);
     delete(oFrame_Count_Time);
     delete(oState);
+
+    for(std::vector<Entity*>::iterator it = Registered_Entities.begin(); it != Registered_Entities.end(); ++it)
+    {
+        if(*it == NULL)
+            continue;
+        delete(*it);
+    }
+
+    Registered_Entities.clear();
+
+}
+
+
+/**
+ * Makes sure the game is keeping track of an Entity, so it
+ * will happily call logic and draw methods when appropriate.
+ * Is automatically called by Entity constructors.
+ */
+void Game::Register_Entity(Entity* Entity_To_Register)
+{
+
+    Registered_Entities.push_back(Entity_To_Register);
 
 }
 

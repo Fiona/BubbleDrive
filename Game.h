@@ -18,11 +18,17 @@
 // Includes
 #include <iostream>
 #include <cstddef>
+#include <vector>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <SFML/Window.hpp>
 #include "Media.h"
 #include "State.h"
+#include "Entity.h"
+
+
+// Forward declaration
+class Entity;
 
 
 /**
@@ -42,6 +48,7 @@ private:
     sf::Time* oFrame_Count_Time;
     int iLoops_This_Frame;
     int iFrames_This_Second;
+    std::vector<float> oDefault_Texture_Coords;
 
     void Initialise_Window();
     void Load_Media();
@@ -55,10 +62,12 @@ public:
     int iCurrent_FPS;
     Media* oMedia;
     State* oState;
+    std::vector<Entity*> Registered_Entities;
 
     Game();
     static Game* Instance();
     int Start();
+    void Register_Entity(Entity* Entity_To_Register);
 
 };
 
