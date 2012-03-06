@@ -35,6 +35,7 @@ Game::Game()
     iCurrent_FPS = 0;
     oState = NULL;
 
+    iCurrent_Bound_Texture = -1;
     oDefault_Texture_Coords.resize(8);
     oDefault_Texture_Coords[0] = 1.0f;
     oDefault_Texture_Coords[1] = 1.0f;
@@ -81,6 +82,7 @@ int Game::Start()
         while(oGame_Time->GetElapsedTime() > *oNext_Game_Tick && iLoops_This_Frame < MAX_FRAMESKIP)
         {
 
+            Update_Events();
             Tick();
             *oNext_Game_Tick += sf::Milliseconds(TICK_SKIP_TIME);
             iLoops_This_Frame++;
@@ -153,10 +155,33 @@ void Game::Load_Media()
 
 
 /**
+ * Called before each game Tick. Empties the current event queue and sets
+ * them up to be queried by entities in the game.
+ */
+void Game::Update_Events()
+{
+
+    aKeys_Released.clear();
+
+    sf::Event Event;
+    while(oWindow->PollEvent(Event))
+    {
+
+        if(Event.Type == sf::Event::KeyReleased)
+            aKeys_Released.push_back(Event.Key.Code);
+
+    }
+
+}
+
+
+/**
  * Calls the logic for each game entity
  */
 void Game::Tick()
 {
+
+    std::cout << iCurrent_FPS << std::endl;
 
     std::vector<Entity*> copy_list(Registered_Entities);
 
@@ -169,6 +194,20 @@ void Game::Tick()
         (*it)->Logic();
 
     }
+
+    if(Entities_To_Delete.size() > 0)
+    {
+        for(std::vector<Entity*>::iterator it = Entities_To_Delete.begin(); it != Entities_To_Delete.end(); ++it)
+        {
+            if(*it == NULL)
+                continue;
+            delete(*it);
+        }
+        Entities_To_Delete.clear();
+    }
+
+    if(Keyboard_Key_Released(sf::Keyboard::Escape))
+        bRunning = false;
 
 }
 
@@ -234,6 +273,8 @@ void Game::Shutdown()
 
     Registered_Entities.clear();
 
+    aKeys_Released.clear();
+
 }
 
 
@@ -247,6 +288,66 @@ void Game::Register_Entity(Entity* Entity_To_Register)
 
     Registered_Entities.push_back(Entity_To_Register);
 
+}
+
+
+/**
+ * Used to prime an entity for eventual removal
+ */
+void Game::Unregister_Entity(Entity* Entity_To_Unregister)
+{
+
+    std::vector<Entity*>::iterator it;
+    it = std::find(Registered_Entities.begin(), Registered_Entities.end(), Entity_To_Unregister);
+    if(it != Registered_Entities.end())
+        Registered_Entities.erase(it);
+
+    Entities_To_Delete.push_back(Entity_To_Unregister);
+
+}
+
+
+/**
+ * Returns true/false if a particular key is currently being held down or not.
+ * Should be passed key codes from the sf::Keyboard enum.
+ */
+bool Game::Keyboard_Key_Down(sf::Keyboard::Key k)
+{
+    return sf::Keyboard::IsKeyPressed(k);
+}
+
+
+/**
+ * Returns true/false if a particular key was released the previous tick.
+ * Should be passed key codes from the sf::Key enum.
+ */
+bool Game::Keyboard_Key_Released(sf::Keyboard::Key k)
+{
+
+    std::vector<sf::Keyboard::Key>::iterator it;
+    it = std::find(aKeys_Released.begin(), aKeys_Released.end(), k);
+    if(it != aKeys_Released.end())
+        return true;
+    return false;
+
+}
+
+
+/**
+ * Converts degrees to radians
+ */
+float Game::Deg_To_Rad(float degrees)
+{
+    return (3.1415926f / 180.0f) * degrees;
+}
+
+
+/**
+ * Converts radians to degrees
+ */
+float Game::Rad_To_Deg(float radians)
+{
+    return radians * 180.0f / 3.1415926f;
 }
 
 

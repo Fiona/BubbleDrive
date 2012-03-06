@@ -17,6 +17,7 @@
 
 // Includes
 #include <string>
+#include <vector>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <SFML/Graphics/Image.hpp>
@@ -36,10 +37,13 @@ private:
 public:
     int iWidth;
     int iHeight;
+    int iRaw_Surface_Width;
     GLuint iTexture_Num;
+    int iFrame_Count;
     float aVertex_List[12];
+    std::vector< std::vector<float> > aTexture_Coord_Lists;
 
-    Image(std::string file_name);
+    Image(std::string file_name, int frame_count);
     ~Image();
 
 };

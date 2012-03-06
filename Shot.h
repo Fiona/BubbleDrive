@@ -7,11 +7,11 @@
  *** File started Feb 2012 by Fiona ****
  ***************************************/
 
-#ifndef _SHIP_H_
-#define _SHIP_H_
+#ifndef _SHOT_H_
+#define _SHOT_H_
 
 /**
- * Ship object header
+ * Shot object header
  */
 
 
@@ -22,18 +22,17 @@
 /**
  *
  */
-class Ship : Entity
+class Shot : Entity
 {
 
 private:
     
 public:
 
-    Ship();
+    int iRotation_To;
+
+    Shot(float x, float y, int rot);
     void Logic();
-    void create_vorticies(float x, float y, int type);
-    int current_rotation;
-    int current_rotation_2;
 
 };
 

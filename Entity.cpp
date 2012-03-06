@@ -16,6 +16,7 @@
 #include "Entity.h"
 #include "Game.h"
 #include <iostream>
+#include <math.h>
 
 
 /**
@@ -27,6 +28,9 @@ Entity::Entity()
     fX = 0.0f;
     fY = 0.0f;
     iZ = 0;
+    iImage_Frame = 1;
+    fAlpha = 1.0f;
+    aColour.resize(3, 1.0f);
     oImage = NULL;
     oGame = Game::Instance();
     oGame->Register_Entity(this);
@@ -71,16 +75,41 @@ void Entity::Draw()
     // move to position
     glTranslatef(X, Y, 0.0f);
 
-    // Bind texture
-    glBindTexture(GL_TEXTURE_2D, Get_Image()->iTexture_Num);
-    glVertexPointer(3, GL_FLOAT, 0, Get_Image()->aVertex_List);
+    // Bind texture coords if our image is a multi frame one
+    if(Get_Image()->iFrame_Count > 1)
+        glTexCoordPointer(2, GL_FLOAT, 0, &Get_Image()->aTexture_Coord_Lists[iImage_Frame - 1][0]);
 
-    glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+    // Binding texture
+    if(oGame->iCurrent_Bound_Texture != Get_Image()->iTexture_Num)
+    {
+        glBindTexture(GL_TEXTURE_2D, Get_Image()->iTexture_Num);
+        glVertexPointer(3, GL_FLOAT, 0, Get_Image()->aVertex_List);
+        oGame->iCurrent_Bound_Texture = Get_Image()->iTexture_Num;
+    }
+
+    // Colour and transparency
+    glColor4f(aColour[0], aColour[1], aColour[2], fAlpha);
 
     // draw the triangle strip
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+    // Reset the texture coords back to default if necessary
+    if(Get_Image()->iFrame_Count > 1)
+        glTexCoordPointer(2, GL_FLOAT, 0, &oGame->oDefault_Texture_Coords[0]);
+
     glPopMatrix();
+
+}
+
+
+/**
+ * This should be used to kill an entity and stop them from being executed and drawn.
+ * It's designed to be overridden if necessary to add some additional behaviour upon killing.
+ */
+void Entity::Kill()
+{
+
+   oGame->Unregister_Entity(this);
 
 }
 
@@ -127,4 +156,21 @@ void Entity::Set_Image(Image* Image)
 Image* Entity::Get_Image()
 {
     return oImage;
+}
+
+void Entity::Set_Colour(float r, float g, float b)
+{
+    aColour[0] = r;
+    aColour[1] = g;
+    aColour[2] = b;
+}
+
+
+/**
+ * Will move the X/Y coordinates in a specified directon a specified distance
+ */
+void Entity::Advance_Towards(float distance, int rot)
+{
+    Set_X(Get_X() + distance * cos(oGame->Deg_To_Rad((float)rot)));
+    Set_Y(Get_Y() + distance * sin(oGame->Deg_To_Rad((float)rot)));
 }

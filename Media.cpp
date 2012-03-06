@@ -23,7 +23,8 @@
 Media::Media()
 {
 
-    mImages.insert(std::pair<std::string, Image*>("ship", new Image("gfx" + SEPARATOR + "ship.png")));
+    mImages.insert(std::pair<std::string, Image*>("ship", new Image("gfx" + SEPARATOR + "ship.png", 2)));
+    mImages.insert(std::pair<std::string, Image*>("shot", new Image("gfx" + SEPARATOR + "shot.png", 1)));
 
 }
 

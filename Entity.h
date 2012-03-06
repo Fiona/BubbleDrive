@@ -16,6 +16,7 @@
 
 
 // Includes
+#include <vector>
 #include "Game.h"
 
 
@@ -38,14 +39,18 @@ private:
     float fY;
     int iZ;
     Image* oImage;
-    
+
 public:
     Game* oGame;
+    int iImage_Frame;
+    float fAlpha;
+    std::vector<float> aColour;
 
     Entity();
     ~Entity();
     virtual void Logic();
     virtual void Draw();
+    virtual void Kill();
     virtual void Set_X(float X);
     virtual float Get_X();
     virtual void Set_Y(float Y);
@@ -54,6 +59,9 @@ public:
     virtual int Get_Z();
     virtual void Set_Image(Image* Image);
     virtual Image* Get_Image();
+    virtual void Set_Colour(float r, float g, float b);
+
+    void Advance_Towards(float distance, int rot);
 
 };
 

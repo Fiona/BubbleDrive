@@ -48,11 +48,14 @@ private:
     sf::Time* oFrame_Count_Time;
     int iLoops_This_Frame;
     int iFrames_This_Second;
-    std::vector<float> oDefault_Texture_Coords;
+    std::vector<sf::Keyboard::Key> aKeys_Released;
+    std::vector<Entity*> Registered_Entities;
+    std::vector<Entity*> Entities_To_Delete;
 
     void Initialise_Window();
     void Load_Media();
     void Tick();
+    void Update_Events();
     void Render();
     void Shutdown();
 
@@ -62,12 +65,18 @@ public:
     int iCurrent_FPS;
     Media* oMedia;
     State* oState;
-    std::vector<Entity*> Registered_Entities;
+    GLuint iCurrent_Bound_Texture;
+    std::vector<float> oDefault_Texture_Coords;
 
     Game();
     static Game* Instance();
     int Start();
     void Register_Entity(Entity* Entity_To_Register);
+    void Unregister_Entity(Entity* Entity_To_Unregister);
+    bool Keyboard_Key_Down(sf::Keyboard::Key k);
+    bool Keyboard_Key_Released(sf::Keyboard::Key k);
+    float Deg_To_Rad(float degrees);
+    float Rad_To_Deg(float radians);
 
 };
 
