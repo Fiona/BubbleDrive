@@ -26,7 +26,7 @@ Image::Image(std::string file_name, int frame_count)
 
     sf::Image* raw_image = new sf::Image;
 
-    if(!raw_image->LoadFromFile(file_name))
+    if(!raw_image->loadFromFile(file_name))
         return;
 
     Create_From_SMFL_Image(raw_image);
@@ -85,8 +85,8 @@ Image::Image(std::string file_name, int frame_count)
 void Image::Create_From_SMFL_Image(sf::Image* raw_image)
 {
 
-    iWidth = raw_image->GetWidth();
-    iHeight = raw_image->GetHeight();
+    iWidth = raw_image->getWidth();
+    iHeight = raw_image->getHeight();
 
     glGenTextures(1, &iTexture_Num);
     glBindTexture(GL_TEXTURE_2D, iTexture_Num);
@@ -97,7 +97,7 @@ void Image::Create_From_SMFL_Image(sf::Image* raw_image)
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, iWidth, iHeight, GL_RGBA, GL_UNSIGNED_BYTE, raw_image->GetPixelsPtr());
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, iWidth, iHeight, GL_RGBA, GL_UNSIGNED_BYTE, raw_image->getPixelsPtr());
 
 }
 

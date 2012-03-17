@@ -26,9 +26,9 @@ Game::Game()
     bRunning = false;
     oGame_Time = new sf::Clock;
     oNext_Game_Tick = new sf::Time;
-    *oNext_Game_Tick += sf::Milliseconds(oGame_Time->GetElapsedTime().AsMilliseconds());
+    *oNext_Game_Tick += sf::milliseconds(oGame_Time->getElapsedTime().asMilliseconds());
     oFrame_Count_Time = new sf::Time;
-    *oFrame_Count_Time += sf::Milliseconds(oGame_Time->GetElapsedTime().AsMilliseconds());
+    *oFrame_Count_Time += sf::milliseconds(oGame_Time->getElapsedTime().asMilliseconds());
     oWindow = new sf::Window;
     iLoops_This_Frame = 0;
     iFrames_This_Second = 0;
@@ -79,25 +79,25 @@ int Game::Start()
 
         iLoops_This_Frame = 0;
 
-        while(oGame_Time->GetElapsedTime() > *oNext_Game_Tick && iLoops_This_Frame < MAX_FRAMESKIP)
+        while(oGame_Time->getElapsedTime() > *oNext_Game_Tick && iLoops_This_Frame < MAX_FRAMESKIP)
         {
 
             Update_Events();
             Tick();
-            *oNext_Game_Tick += sf::Milliseconds(TICK_SKIP_TIME);
+            *oNext_Game_Tick += sf::milliseconds(TICK_SKIP_TIME);
             iLoops_This_Frame++;
 
         }
               
         iFrames_This_Second++;
 
-        if(oGame_Time->GetElapsedTime() - *oFrame_Count_Time > sf::Milliseconds(1000))
+        if(oGame_Time->getElapsedTime() - *oFrame_Count_Time > sf::milliseconds(1000))
         {
 
             iCurrent_FPS = iFrames_This_Second;
             delete(oFrame_Count_Time);
             oFrame_Count_Time = new sf::Time;
-            *oFrame_Count_Time += sf::Milliseconds(oGame_Time->GetElapsedTime().AsMilliseconds());
+            *oFrame_Count_Time += sf::milliseconds(oGame_Time->getElapsedTime().asMilliseconds());
             iFrames_This_Second = 0;
 
         }
@@ -119,7 +119,7 @@ int Game::Start()
 void Game::Initialise_Window()
 {
 
-    oWindow->Create(
+    oWindow->create(
         sf::VideoMode(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, 32),
         WINDOW_TITLE,
         sf::Style::Titlebar | sf::Style::Close
@@ -164,11 +164,11 @@ void Game::Update_Events()
     aKeys_Released.clear();
 
     sf::Event Event;
-    while(oWindow->PollEvent(Event))
+    while(oWindow->pollEvent(Event))
     {
 
-        if(Event.Type == sf::Event::KeyReleased)
-            aKeys_Released.push_back(Event.Key.Code);
+        if(Event.type == sf::Event::KeyReleased)
+            aKeys_Released.push_back(Event.key.code);
 
     }
 
@@ -218,7 +218,7 @@ void Game::Tick()
 void Game::Render()
 {
 
-    oWindow->SetActive();
+    oWindow->setActive();
 
     // Clear screen
     glClear(GL_COLOR_BUFFER_BIT);
@@ -245,7 +245,7 @@ void Game::Render()
     glDisableClientState(GL_VERTEX_ARRAY);
 
     // Flip
-    oWindow->Display();
+    oWindow->display();
 
 }
 
@@ -256,7 +256,7 @@ void Game::Render()
 void Game::Shutdown()
 {
 
-    oWindow->Close();
+    oWindow->close();
 
     delete(oWindow);
     delete(oGame_Time);
@@ -313,7 +313,7 @@ void Game::Unregister_Entity(Entity* Entity_To_Unregister)
  */
 bool Game::Keyboard_Key_Down(sf::Keyboard::Key k)
 {
-    return sf::Keyboard::IsKeyPressed(k);
+    return sf::Keyboard::isKeyPressed(k);
 }
 
 
