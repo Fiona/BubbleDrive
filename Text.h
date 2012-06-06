@@ -52,6 +52,7 @@ private:
 	bool bReady;
 	std::map<GlyphMap*, std::vector<float>* > oVertex_List;
 	std::map<GlyphMap*, std::vector<float>* > oTexture_Coords;
+	float fTallest_Y_Bearing;
 
 };
 

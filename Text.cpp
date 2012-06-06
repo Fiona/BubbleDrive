@@ -49,7 +49,7 @@ void Text::Draw()
 
     float X = Get_X();
     float Y = Get_Y();
-    glTranslatef(X, Y, 0.0f);
+    glTranslatef(X, Y + fTallest_Y_Bearing, 0.0f);
 	
 	std::pair<GlyphMap*, std::vector<float>* > p;
 	BOOST_FOREACH(p, oVertex_List) 
@@ -142,6 +142,7 @@ void Text::Ready()
 	std::map<GlyphMap*, std::vector<float>* >::iterator glyphbin_search_it;
 	std::vector<float>* vertex_vector;
 	std::vector<float>* texture_coord_vector;
+	fTallest_Y_Bearing = 0.0f;
 
 	for(int i = 0; i < (int)sText.length(); i++)
 	{
@@ -155,6 +156,9 @@ void Text::Ready()
 
 		if(current_glyph == 0)
 			continue;
+
+		if(current_glyph->fY_Bearing > fTallest_Y_Bearing)
+			fTallest_Y_Bearing = current_glyph->fY_Bearing;
 
 		// If we have no knowledge of the glyphbin in question then we add it.
 		glyphbin_search_it = oVertex_List.find(oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map]);
@@ -192,7 +196,6 @@ void Text::Ready()
 		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position); vertex_vector->push_back(0.0f - current_glyph->fY_Bearing); 
 		
 		// Add to texture coords list
-
 		// tri 1 top right
 		texture_coord_vector->push_back(0.01f * ((((float)current_glyph->oNode->iX + (float)current_glyph->oNode->iWidth) / GLYPH_MAP_WIDTH) * 100.0f));
 		texture_coord_vector->push_back(0.01f * (((float)current_glyph->oNode->iY / GLYPH_MAP_HEIGHT) * 100.0f));

@@ -28,6 +28,7 @@ Media::Media()
 
     mFonts.insert(std::pair<std::string, Font*>("test", new Font("fnt" + SEPARATOR + "aurulent.ttf")));
     mFonts.insert(std::pair<std::string, Font*>("boris", new Font("fnt" + SEPARATOR + "borisblackbloxx.ttf")));
+    mFonts.insert(std::pair<std::string, Font*>("japan", new Font("fnt" + SEPARATOR + "japan.ttf")));
 
 }
 
