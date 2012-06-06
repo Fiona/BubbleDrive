@@ -7,6 +7,7 @@
  *** File started Feb 2012 by Fiona ****
  ***************************************/
 
+#pragma once
 #ifndef _GAME_H_
 #define _GAME_H_
 
@@ -14,21 +15,29 @@
  * Game object header
  */
 
+// Windows specific
+#if _WIN32
+#include <windows.h>
+#endif
 
 // Includes
 #include <iostream>
 #include <cstddef>
 #include <vector>
+#include <boost/lexical_cast.hpp>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <SFML/Window.hpp>
+#include "FontManager.h"
 #include "Media.h"
 #include "State.h"
 #include "Entity.h"
+#include "Text.h"
 
 
 // Forward declaration
 class Entity;
+class Text;
 
 
 /**
@@ -51,6 +60,7 @@ private:
     std::vector<sf::Keyboard::Key> aKeys_Released;
     std::vector<Entity*> Registered_Entities;
     std::vector<Entity*> Entities_To_Delete;
+	Text* oFPS_Text;
 
     void Initialise_Window();
     void Load_Media();
@@ -63,6 +73,7 @@ public:
     sf::Window* oWindow;
     bool bRunning;
     int iCurrent_FPS;
+	FontManager* oFont_Manager;
     Media* oMedia;
     State* oState;
     GLuint iCurrent_Bound_Texture;

@@ -7,12 +7,18 @@
  *** File started Feb 2012 by Fiona ****
  ***************************************/
 
+#pragma once
 #ifndef _IMAGE_H_
 #define _IMAGE_H_
 
 /**
  * Image object header
  */
+
+// Windows specific
+#if _WIN32
+#include <windows.h>
+#endif
 
 
 // Includes

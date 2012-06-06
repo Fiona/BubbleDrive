@@ -85,8 +85,10 @@ Image::Image(std::string file_name, int frame_count)
 void Image::Create_From_SMFL_Image(sf::Image* raw_image)
 {
 
-    iWidth = raw_image->getWidth();
-    iHeight = raw_image->getHeight();
+    //iWidth = raw_image->getWidth();
+	//iHeight = raw_image->getHeight();
+	iWidth = raw_image->getSize().x;
+	iHeight = raw_image->getSize().y;
 
     glGenTextures(1, &iTexture_Num);
     glBindTexture(GL_TEXTURE_2D, iTexture_Num);

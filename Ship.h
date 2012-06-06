@@ -7,6 +7,7 @@
  *** File started Feb 2012 by Fiona ****
  ***************************************/
 
+#pragma once
 #ifndef _SHIP_H_
 #define _SHIP_H_
 

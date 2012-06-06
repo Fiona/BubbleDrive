@@ -68,9 +68,20 @@ Game* Game::Instance()
 int Game::Start()
 {
 
+	//#include "RectangleBin.h"
+	//RectangleBin *test_bin = new RectangleBin(128, 128);
+	//test_bin->Insert(128, 64);
+
     Initialise_Window();
     Load_Media();
     oState = new State;
+
+	oFPS_Text = new Text();
+	oFPS_Text->Set_Text("fps: 0");
+	oFPS_Text->Set_Font(Game::Instance()->oMedia->mFonts["test"]);
+	oFPS_Text->Set_Size(10);
+	oFPS_Text->Set_X(0.0f);
+	oFPS_Text->Set_Y(10.0f);
 
     bRunning = true;
 
@@ -99,6 +110,8 @@ int Game::Start()
             oFrame_Count_Time = new sf::Time;
             *oFrame_Count_Time += sf::milliseconds(oGame_Time->getElapsedTime().asMilliseconds());
             iFrames_This_Second = 0;
+
+			oFPS_Text->Set_Text("fps: " + boost::lexical_cast<std::string>(iCurrent_FPS));
 
         }
 
@@ -149,6 +162,7 @@ void Game::Initialise_Window()
 void Game::Load_Media()
 {
 
+	oFont_Manager = new FontManager;
     oMedia = new Media;
 
 }
@@ -263,6 +277,8 @@ void Game::Shutdown()
     delete(oNext_Game_Tick);
     delete(oFrame_Count_Time);
     delete(oState);
+	delete(oMedia);
+	delete(oFont_Manager);
 
     for(std::vector<Entity*>::iterator it = Registered_Entities.begin(); it != Registered_Entities.end(); ++it)
     {

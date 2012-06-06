@@ -7,6 +7,7 @@
  *** File started Feb 2012 by Fiona ****
  ***************************************/
 
+#pragma once
 #ifndef _SHOT_H_
 #define _SHOT_H_
 

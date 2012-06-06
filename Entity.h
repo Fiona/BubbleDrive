@@ -7,6 +7,7 @@
  *** File started Feb 2012 by Fiona ****
  ***************************************/
 
+#pragma once
 #ifndef _ENTITY_H_
 #define _ENTITY_H_
 
@@ -17,7 +18,7 @@
 
 // Includes
 #include <vector>
-#include "Game.h"
+#include "Image.h"
 
 
 // Forward declaration

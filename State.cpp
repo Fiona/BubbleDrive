@@ -15,6 +15,7 @@
 // Includes
 #include "State.h"
 #include "Ship.h"
+#include "Text.h"
 
 
 /**
@@ -67,7 +68,7 @@ void State::Change_State(Game_State New_State)
     // Create main game
     if(eGame_State == GAME_STATE_IN_GAME)
     {
-        new Ship();
+		new Ship();
     }
 
 }

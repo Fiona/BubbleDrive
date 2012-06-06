@@ -7,6 +7,7 @@
  *** File started Feb 2012 by Fiona ****
  ***************************************/
 
+#pragma once
 #ifndef _MEDIA_H_
 #define _MEDIA_H_
 
@@ -19,6 +20,7 @@
 #include <string>
 #include <map>
 #include "Image.h"
+#include "Font.h"
 
 
 /**
@@ -35,7 +37,7 @@ public:
     ~Media();
 
     std::map <std::string, Image* > mImages;
-    //std::map <string, Font* > mFonts;
+	std::map <std::string, Font* > mFonts;
     //std::map <string, Audio* > mAudio;
 
 };

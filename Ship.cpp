@@ -14,6 +14,7 @@
 
 // Includes
 #include <iostream>
+#include "Game.h"
 #include "Ship.h"
 #include "Shot.h"
 
