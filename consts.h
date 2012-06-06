@@ -27,8 +27,8 @@
 #define DEFAULT_SCREEN_HEIGHT 768
 #define WINDOW_TITLE "Bubble Drive"
 
-#define GLYPH_MAP_WIDTH 512
-#define GLYPH_MAP_HEIGHT 512
+#define GLYPH_MAP_WIDTH 1024
+#define GLYPH_MAP_HEIGHT 1024
 
 // Compatibility settings
 #if _WIN32
