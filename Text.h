@@ -43,15 +43,17 @@ public:
 	void Set_Text(std::string text);
 	void Set_Font(Font* font);
 	void Set_Size(int size);
+	void Set_Line_Height_Padding(float line_height_padding);
 	void Ready();
 
 private:
 	std::string sText;
 	Font* oFont;
 	int iSize;
+	float fLine_Height_Padding;
 	bool bReady;
 	std::map<GlyphMap*, std::vector<float>* > oVertex_List;
-	std::map<GlyphMap*, std::vector<float>* > oTexture_Coords;
+	std::map<GlyphMap*, std::vector<float>* > oTexture_Coords;	
 	float fTallest_Y_Bearing;
 
 };

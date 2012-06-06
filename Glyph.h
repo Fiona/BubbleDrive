@@ -31,6 +31,7 @@ class Glyph
 public:
 	Glyph(std::string glyph, Font* font, int size);
 	~Glyph();
+	float Glyph::Get_Kerning(Glyph* other_glyph);
 
 	Font* oFont;
 	int iGlyph_Map;
@@ -39,6 +40,7 @@ public:
 	float fHeight;
 	float fAdvance;
 	float fY_Bearing;
+	FT_UInt iGlyph_Index;
 
 private:
 	std::string sGlyph;

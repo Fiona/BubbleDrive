@@ -26,6 +26,7 @@ Text::Text() : Entity()
 	sText = "";
 	oFont = 0;
 	iSize = 0;
+	fLine_Height_Padding = 0.0f;
 	bReady = false;
 
 }
@@ -120,6 +121,16 @@ void Text::Set_Size(int size)
 }
 
 
+/** 
+ * Sets how much of an extra gap there should be between lines.
+ */
+void Text::Set_Line_Height_Padding(float line_height_padding)
+{
+	fLine_Height_Padding = line_height_padding;
+	bReady = false;
+}
+
+
 /**
  * Readys the text for drawing, using the current text/font/size etc
  * settings this will build the vertex and texture coordinate lists that
@@ -139,6 +150,10 @@ void Text::Ready()
 	// Glyph object so we can gather it's information and metrics.
 	Glyph* current_glyph;
 	float hor_draw_position = 0.0f;
+	float ver_draw_position = 0.0f;
+	float tallest_glyph = 0.0f;
+	FT_Bool use_kerning = FT_HAS_KERNING(oFont->oFace);
+	Glyph* previous_glyph = 0;
 	std::map<GlyphMap*, std::vector<float>* >::iterator glyphbin_search_it;
 	std::vector<float>* vertex_vector;
 	std::vector<float>* texture_coord_vector;
@@ -146,6 +161,13 @@ void Text::Ready()
 
 	for(int i = 0; i < (int)sText.length(); i++)
 	{
+
+		if(sText.substr(i, 1) == "\n")
+		{
+			ver_draw_position += tallest_glyph + fLine_Height_Padding;
+			hor_draw_position = 0.0f;
+			continue;
+		}
 
 		current_glyph = 0;
 		current_glyph = oGame->oFont_Manager->Request_Glyph(
@@ -155,10 +177,26 @@ void Text::Ready()
 			);
 
 		if(current_glyph == 0)
+		{
+			previous_glyph = 0;
 			continue;
+		}
+
+		if(previous_glyph && use_kerning)
+			hor_draw_position += current_glyph->Get_Kerning(previous_glyph);
+		previous_glyph = current_glyph;
 
 		if(current_glyph->fY_Bearing > fTallest_Y_Bearing)
 			fTallest_Y_Bearing = current_glyph->fY_Bearing;
+
+		if(current_glyph->fHeight > tallest_glyph)
+			tallest_glyph = current_glyph->fHeight;
+
+		if(current_glyph->fWidth <= 0.0f || current_glyph->fHeight <= 0.0f)
+		{
+			hor_draw_position += current_glyph->fAdvance;
+			continue;
+		}
 
 		// If we have no knowledge of the glyphbin in question then we add it.
 		glyphbin_search_it = oVertex_List.find(oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map]);
@@ -182,18 +220,24 @@ void Text::Ready()
 
 		// Add glyph to vertex list
 		// tri 1 top right		
-		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position); vertex_vector->push_back(0.0f - current_glyph->fY_Bearing); 
+		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position);
+		vertex_vector->push_back(0.0f - current_glyph->fY_Bearing + ver_draw_position); 
 		// tri 1 top left
-		vertex_vector->push_back(hor_draw_position); vertex_vector->push_back(0.0f - current_glyph->fY_Bearing); 
+		vertex_vector->push_back(hor_draw_position);
+		vertex_vector->push_back(0.0f - current_glyph->fY_Bearing + ver_draw_position); 
 		// tri 1 bottom left
-		vertex_vector->push_back(hor_draw_position); vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing);
+		vertex_vector->push_back(hor_draw_position);
+		vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing + ver_draw_position);
 
 		// tri 2 bottom left
-		vertex_vector->push_back(hor_draw_position); vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing);
+		vertex_vector->push_back(hor_draw_position);
+		vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing + ver_draw_position);
 		// tri 2 bottom right
-		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position); vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing); 
+		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position);
+		vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing + ver_draw_position); 
 		// tri 2 top right
-		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position); vertex_vector->push_back(0.0f - current_glyph->fY_Bearing); 
+		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position);
+		vertex_vector->push_back(0.0f - current_glyph->fY_Bearing + ver_draw_position); 
 		
 		// Add to texture coords list
 		// tri 1 top right
