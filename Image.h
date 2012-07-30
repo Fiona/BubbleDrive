@@ -24,7 +24,7 @@
 // Includes
 #include <string>
 #include <vector>
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <GL/glu.h>
 #include <SFML/Graphics/Image.hpp>
 

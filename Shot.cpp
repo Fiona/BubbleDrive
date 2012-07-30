@@ -26,6 +26,7 @@ Shot::Shot(float x, float y, int rot) : Entity()
     Set_Image(oGame->oMedia->mImages["shot"]);
     Set_X(x);
     Set_Y(y);
+	Set_Z(0.0f);
     iRotation_To = rot;
 
 }
@@ -39,7 +40,7 @@ void Shot::Logic()
 
     Advance_Towards(3.0f, iRotation_To);
 
-    if(Get_X() < 50.0f || Get_X() > 974.0f || Get_Y() < 0.0f || Get_Y() > 800.0f)
+    if(Get_X() < 0.0f || Get_X() > 1024.0f || Get_Y() < 0.0f || Get_Y() > 800.0f)
         Kill();
 
 }

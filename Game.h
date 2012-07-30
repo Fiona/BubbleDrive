@@ -25,7 +25,7 @@
 #include <cstddef>
 #include <vector>
 #include <boost/lexical_cast.hpp>
-#include <GL/gl.h>
+#include <GL/glew.h>
 #include <GL/glu.h>
 #include <SFML/Window.hpp>
 #include "FontManager.h"
@@ -61,8 +61,10 @@ private:
     std::vector<Entity*> Registered_Entities;
     std::vector<Entity*> Entities_To_Delete;
 	Text* oFPS_Text;
+	GLuint oVertex_Shader_Program;
+	GLuint oFragment_Shader_Program;
 
-    void Initialise_Window();
+    bool Initialise_Window();
     void Load_Media();
     void Tick();
     void Update_Events();
@@ -78,6 +80,14 @@ public:
     State* oState;
     GLuint iCurrent_Bound_Texture;
     std::vector<float> oDefault_Texture_Coords;
+	float aCamera_Position[4];
+	GLuint oShader_Program;
+	GLint iUniform_Texture_Num;
+	GLint iUniform_Position;
+	GLint iUniform_Rotation;
+	GLint iUniform_Scale;
+	GLint iUniform_Camera_Position;
+	GLint iUniform_Screen_Size;
 
     Game();
     static Game* Instance();
@@ -88,6 +98,7 @@ public:
     bool Keyboard_Key_Released(sf::Keyboard::Key k);
     float Deg_To_Rad(float degrees);
     float Rad_To_Deg(float radians);
+	std::string Load_From_File(std::string file_name);
 
 };
 
