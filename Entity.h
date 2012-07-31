@@ -43,8 +43,7 @@ private:
 	float fScale;
     Image* oImage;
     int iImage_Frame;
-	GLfloat aPosition[4];
-	GLuint aVBO[3];
+	int iRender_Mode;
 	GLfloat aVertex_Data[12];
 	GLfloat aColour_Data[24];
 	GLfloat aText_Coord_Data[12];
@@ -57,6 +56,8 @@ public:
     Game* oGame;
     float fAlpha;
     std::vector<float> aColour;
+	GLfloat aPosition[4];
+	GLuint aVBO[3];
 
     Entity();
     ~Entity();
@@ -77,6 +78,8 @@ public:
     virtual Image* Get_Image();
     virtual void Set_Image_Frame(int image_frame);
     virtual int Get_Image_Frame();
+    virtual void Set_Render_Mode(int render_mode);
+    virtual int Get_Render_Mode();
     virtual void Set_Colour(float r, float g, float b);
 
 	std::vector<float> Get_Hotspot_Pos(int spot);

@@ -24,6 +24,7 @@
 #include <iostream>
 #include <cstddef>
 #include <vector>
+#include <map>
 #include <boost/lexical_cast.hpp>
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -33,11 +34,13 @@
 #include "State.h"
 #include "Entity.h"
 #include "Text.h"
+#include "RenderMode.h"
 
 
 // Forward declaration
 class Entity;
 class Text;
+class RenderMode;
 
 
 /**
@@ -63,6 +66,7 @@ private:
 	Text* oFPS_Text;
 	GLuint oVertex_Shader_Program;
 	GLuint oFragment_Shader_Program;
+	std::map<int, RenderMode*> oRender_Modes;
 
     bool Initialise_Window();
     void Load_Media();

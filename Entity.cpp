@@ -39,6 +39,7 @@ Entity::Entity()
 	fScale = 1.0f;
     iImage_Frame = 1;
     fAlpha = 1.0f;
+	iRender_Mode = RENDER_MODE_SCREEN;
     aColour.resize(3, 1.0f);
 	aPosition[0] = 0.0f; aPosition[1] = 0.0f; aPosition[2] = -100.0f; aPosition[3] = 0.0f;
     oImage = NULL;
@@ -166,17 +167,28 @@ void Entity::Create_Vertex_Array()
 
 	if(Get_Image() == NULL)
 	{
+
 		w = 0.0f;
 		h = 0.0f;
 		w_offset = 0.0f;
 		h_offset = 0.0f;
+
 	}
 	else
 	{
+
 		w = (float)Get_Image()->iWidth;
 		h = (float)Get_Image()->iHeight;
+
+		if(Get_Render_Mode() == RENDER_MODE_SCREEN)
+		{
+			w /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
+			h /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
+		}
+
 		w_offset = w/2;
 		h_offset = h/2;
+
 	}
 
 	GLsizeiptr Vertex_Size = 6 * 2 * sizeof(GLfloat);
@@ -294,6 +306,11 @@ void Entity::Set_Y(float Y)
 		aPosition[1] = Y;
 	else
 		aPosition[1] = Y - (float)(oImage->iHeight/2);
+	if(Get_Render_Mode() == RENDER_MODE_SCREEN)
+	{
+		aPosition[0] /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
+		aPosition[1] /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
+	}
 }
 
 float Entity::Get_Y()
@@ -352,6 +369,16 @@ void Entity::Set_Image_Frame(int image_frame)
 int Entity::Get_Image_Frame()
 {
     return iImage_Frame;
+}
+
+void Entity::Set_Render_Mode(int render_mode)
+{
+	iRender_Mode = render_mode;
+}
+
+int Entity::Get_Render_Mode()
+{
+	return iRender_Mode;
 }
 
 void Entity::Set_Colour(float r, float g, float b)

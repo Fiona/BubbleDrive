@@ -25,6 +25,7 @@
 Ship::Ship() : Entity()
 {
 
+	Set_Render_Mode(RENDER_MODE_WORLD);
     Set_Image(oGame->oMedia->mImages["ship"]);
     Set_X(300.0f);
     Set_Y(300.0f);
@@ -62,8 +63,8 @@ void Ship::Logic()
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Num4))
         Set_Scale(Get_Scale() + .05f);
 
-    create_vorticies(341.0f, 384.0f, 1);
-    create_vorticies(682.0f, 500.0f, 1);
+    create_vorticies(0.0f, 20.0f, 1);
+    create_vorticies(840.0f, 525.0f, 1);
 
 	std::vector<float> centre = Get_Hotspot_Pos(HOTSPOT_CENTRE);
 	oGame->aCamera_Position[0] = centre[0];
