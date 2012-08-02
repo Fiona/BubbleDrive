@@ -39,6 +39,10 @@ private:
 	GLuint oShader_Program;
 	Game* oGame;
 	std::map<std::string, GLint> oUniforms;
+	GLint oAttribute_Vertex_Coord;
+	GLint oAttribute_Vertex_Colour;
+	GLint oAttribute_Texture_Coord;
+	GLint oAttribute_Pos_Rotation_Scale;
 
 public:
 	RenderMode(std::string shader_file_name);

@@ -64,8 +64,6 @@ private:
     std::vector<Entity*> Registered_Entities;
     std::vector<Entity*> Entities_To_Delete;
 	Text* oFPS_Text;
-	GLuint oVertex_Shader_Program;
-	GLuint oFragment_Shader_Program;
 	std::map<int, RenderMode*> oRender_Modes;
 
     bool Initialise_Window();
@@ -85,13 +83,6 @@ public:
     GLuint iCurrent_Bound_Texture;
     std::vector<float> oDefault_Texture_Coords;
 	float aCamera_Position[4];
-	GLuint oShader_Program;
-	GLint iUniform_Texture_Num;
-	GLint iUniform_Position;
-	GLint iUniform_Rotation;
-	GLint iUniform_Scale;
-	GLint iUniform_Camera_Position;
-	GLint iUniform_Screen_Size;
 
     Game();
     static Game* Instance();

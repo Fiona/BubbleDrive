@@ -91,28 +91,12 @@ RenderMode::~RenderMode()
 void RenderMode::Get_Uniform_Locations()
 {
 
+	glUseProgram(oShader_Program);
+
 	oUniforms.insert(
 		std::pair<std::string, GLint>(
 			"texture_num",
 			glGetUniformLocation(oShader_Program, "texture_num")
-			)
-		);
-	oUniforms.insert(
-		std::pair<std::string, GLint>(
-			"position",
-			glGetUniformLocation(oShader_Program, "position")
-			)
-		);
-	oUniforms.insert(
-		std::pair<std::string, GLint>(
-			"rotation",
-			glGetUniformLocation(oShader_Program, "rotation")
-			)
-		);
-	oUniforms.insert(
-		std::pair<std::string, GLint>(
-			"scale",
-			glGetUniformLocation(oShader_Program, "scale")
 			)
 		);
 	oUniforms.insert(
@@ -128,10 +112,15 @@ void RenderMode::Get_Uniform_Locations()
 			)
 		);
 
-	glUseProgram(oShader_Program);
 	glUniform1i(oUniforms["texture_num"], 0);
 	float screen_size[2]; screen_size[0] = DEFAULT_SCREEN_WIDTH; screen_size[1] = DEFAULT_SCREEN_HEIGHT;
 	glUniform2fv(oUniforms["screen_size"], 1, screen_size);
+
+	oAttribute_Vertex_Coord = glGetAttribLocation(oShader_Program, "vertex_coord");
+	oAttribute_Vertex_Colour = glGetAttribLocation(oShader_Program, "vertex_colour");
+	oAttribute_Texture_Coord = glGetAttribLocation(oShader_Program, "texture_coord");
+	oAttribute_Pos_Rotation_Scale = glGetAttribLocation(oShader_Program, "pos_rotation_scale");
+
 	glUseProgram(0);
 
 }
@@ -143,9 +132,6 @@ void RenderMode::Get_Uniform_Locations()
 void RenderMode::Set_Uniform_Values(Entity* entity)
 {
 
-	glUniform4fv(oUniforms["position"], 1, entity->aPosition);
-	glUniform1f(oUniforms["rotation"], entity->Get_Rotation());
-	glUniform1f(oUniforms["scale"], entity->Get_Scale());
 	glUniform4fv(oUniforms["camera_position"], 1, oGame->aCamera_Position);
 
 }
@@ -169,18 +155,15 @@ void RenderMode::Setup_Render_Pass(Entity* entity)
 	glUseProgram(oShader_Program);
 	Set_Uniform_Values(entity);
 
-	glBindBuffer(GL_ARRAY_BUFFER, entity->aVBO[1]);
-	glColorPointer(4, GL_FLOAT, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, entity->aVBO[0]);
-	glVertexPointer(2, GL_FLOAT, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, entity->aVBO[2]);
-	glTexCoordPointer(2, GL_FLOAT, 0, 0);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, entity->oVBO);
+	glVertexAttribPointer(oAttribute_Vertex_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), 0);
+	glVertexAttribPointer(oAttribute_Vertex_Colour, 4, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+	glVertexAttribPointer(oAttribute_Texture_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glVertexAttribPointer(oAttribute_Pos_Rotation_Scale, 4, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(oAttribute_Vertex_Coord);
+	glEnableVertexAttribArray(oAttribute_Vertex_Colour);
+	glEnableVertexAttribArray(oAttribute_Texture_Coord);
+	glEnableVertexAttribArray(oAttribute_Pos_Rotation_Scale);
 
 }
 
@@ -204,9 +187,10 @@ void RenderMode::Do_Render_Pass(Entity* entity)
 void RenderMode::Cleanup_Render_Pass(Entity* entity)
 {
 
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY); 
+	glDisableVertexAttribArray(oAttribute_Vertex_Colour);
+	glDisableVertexAttribArray(oAttribute_Vertex_Coord);
+	glDisableVertexAttribArray(oAttribute_Texture_Coord);
+	glDisableVertexAttribArray(oAttribute_Pos_Rotation_Scale);
 
 	glUseProgram(0);
 

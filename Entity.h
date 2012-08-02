@@ -41,12 +41,10 @@ private:
     float iZ;
 	float fRotation;
 	float fScale;
+    float fAlpha;
     Image* oImage;
     int iImage_Frame;
 	int iRender_Mode;
-	GLfloat aVertex_Data[12];
-	GLfloat aColour_Data[24];
-	GLfloat aText_Coord_Data[12];
 
 	void Create_Vertex_Array();
 	void Create_Colour_Array();
@@ -54,15 +52,13 @@ private:
 
 public:
     Game* oGame;
-    float fAlpha;
     std::vector<float> aColour;
-	GLfloat aPosition[4];
-	GLuint aVBO[3];
-
+	bool bVBO_Dirty;
+	GLuint oVBO;
+	
     Entity();
     ~Entity();
     virtual void Logic();
-    virtual void Draw();
     virtual void Kill();
     virtual void Set_X(float X);
     virtual float Get_X();
@@ -81,6 +77,10 @@ public:
     virtual void Set_Render_Mode(int render_mode);
     virtual int Get_Render_Mode();
     virtual void Set_Colour(float r, float g, float b);
+    virtual void Set_Alpha(float alpha);
+    virtual float Get_Alpha();
+
+	void Create_VBO();
 
 	std::vector<float> Get_Hotspot_Pos(int spot);
     void Advance_Towards(float distance, int rot);

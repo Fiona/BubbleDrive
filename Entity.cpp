@@ -40,18 +40,20 @@ Entity::Entity()
     iImage_Frame = 1;
     fAlpha = 1.0f;
 	iRender_Mode = RENDER_MODE_SCREEN;
+	bVBO_Dirty = false;
     aColour.resize(3, 1.0f);
-	aPosition[0] = 0.0f; aPosition[1] = 0.0f; aPosition[2] = -100.0f; aPosition[3] = 0.0f;
     oImage = NULL;
     oGame = Game::Instance();
     oGame->Register_Entity(this);
 
 	// GL stuff
-	glGenBuffers(3, aVBO);
+	glGenBuffers(1, &oVBO);
 
-	Create_Colour_Array();
-	Create_Vertex_Array();
-	Create_Texture_Coord_Array();
+	glBindBuffer(GL_ARRAY_BUFFER, oVBO);
+	std::vector<GLfloat> vbo_data((6 * NUM_ELEMENTS_PER_VERTEX), 0.0);
+	glBufferData(GL_ARRAY_BUFFER, 6 * NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), &vbo_data[0], GL_DYNAMIC_DRAW);
+
+	Create_VBO();
 
 }
 
@@ -61,7 +63,7 @@ Entity::Entity()
  */
 Entity::~Entity()
 {
-	glDeleteBuffers(3, aVBO);
+	glDeleteBuffers(1, &oVBO);
 }
 
 
@@ -72,73 +74,6 @@ Entity::~Entity()
  */
 void Entity::Logic()
 {
-
-}
-
-
-/**
- * This is called for every Entity as much as possible to while ensuring
- * a steady framerate.
- * By default it will draw at the right position, rotation, scale etc.
- * It's designed to be overridden if necessary to add some custom drawing.
- */
-void Entity::Draw()
-{
-
-    // Bind texture coords if our image is a multi frame one
-	/*
-    if(Get_Image()->iFrame_Count > 1)
-        glTexCoordPointer(2, GL_FLOAT, 0, &Get_Image()->aTexture_Coord_Lists[iImage_Frame - 1][0]);
-	*/
-
-    // Binding texture
-    if(oGame->iCurrent_Bound_Texture != Get_Image()->iTexture_Num)
-    {
-	    glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, Get_Image()->iTexture_Num);
-        oGame->iCurrent_Bound_Texture = Get_Image()->iTexture_Num;
-    }
-
-	glUseProgram(oGame->oShader_Program);
-    glUniform1i(oGame->iUniform_Texture_Num, 0);
-	glUniform4fv(oGame->iUniform_Position, 1, aPosition);
-	glUniform1f(oGame->iUniform_Rotation, fRotation);
-	glUniform1f(oGame->iUniform_Scale, fScale);
-	glUniform4fv(oGame->iUniform_Camera_Position, 1, oGame->aCamera_Position);
-	float screen_size[2]; screen_size[0] = DEFAULT_SCREEN_WIDTH; screen_size[1] = DEFAULT_SCREEN_HEIGHT;
-	glUniform2fv(oGame->iUniform_Screen_Size, 1, screen_size);
-
-	/**/
-	glBindBuffer(GL_ARRAY_BUFFER, aVBO[1]);
-	glColorPointer(4, GL_FLOAT, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, aVBO[0]);
-	glVertexPointer(2, GL_FLOAT, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, aVBO[2]);
-	glTexCoordPointer(2, GL_FLOAT, 0, 0);
-
-	//glTexCoordPointer(2, GL_FLOAT, 0, &Get_Image()->aTexture_Coord_Lists[iImage_Frame - 1][0]);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY); 
-
-	glUseProgram(0);
-
-	/**/
-
-	/*
-    // Reset the texture coords back to default if necessary
-    if(Get_Image()->iFrame_Count > 1)
-        glTexCoordPointer(2, GL_FLOAT, 0, &oGame->oDefault_Texture_Coords[0]);
-	*/
 
 }
 
@@ -156,22 +91,27 @@ void Entity::Kill()
 
 
 /**
- * Used to make the Vertex location VBO up to date.
+ * Creates the Entity VBO.
+ * Densely packs all the info for the entity.
  */
-void Entity::Create_Vertex_Array()
+void Entity::Create_VBO()
 {
+
+	// ******
+	// Vertex stuff 
+	// ******
 
 	// The offset values are for calculating the centre of the triangles
 	// which should be 0,0. Rather than 0,0 being the top left.
-	float w, h, w_offset, h_offset;
+	float w, h, w_o, h_o;
 
 	if(Get_Image() == NULL)
 	{
 
 		w = 0.0f;
 		h = 0.0f;
-		w_offset = 0.0f;
-		h_offset = 0.0f;
+		w_o = 0.0f;
+		h_o = 0.0f;
 
 	}
 	else
@@ -186,97 +126,104 @@ void Entity::Create_Vertex_Array()
 			h /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
 		}
 
-		w_offset = w/2;
-		h_offset = h/2;
+		w_o = w/2;
+		h_o = h/2;
 
 	}
 
-	GLsizeiptr Vertex_Size = 6 * 2 * sizeof(GLfloat);
+	// *******
+	// Texture coordinate stuff
+	// *******
+	float sequence_start_pos, texture_x_from, texture_x_to, texture_y_from, texture_y_to;
+
+	texture_x_from = 0.0f;
+    texture_x_to = 1.0;
+	texture_y_from = 0.0f;
+    texture_y_to = 1.0;
+
+	if(Get_Image() && Get_Image()->iFrame_Count > 1)
+	{
+
+        sequence_start_pos = 0.01f * (((float)Get_Image()->iWidth / (float)Get_Image()->iRaw_Surface_Width) * 100.0f);
+		texture_x_from = sequence_start_pos * Get_Image_Frame();
+		texture_x_to = (sequence_start_pos * Get_Image_Frame()) + sequence_start_pos;
+
+	}
+
+	// *******
+	// Pos/rot/scale
+	// *******
+	float x, y, rot, scale;
+	x = Get_X();
+	y = Get_Y();
+	rot = Get_Rotation();
+	scale = Get_Scale();
+
+	if(Get_Render_Mode() == RENDER_MODE_SCREEN)
+	{
+		x /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
+		y /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
+	}
+
+	// *******
+	// Data creation
+	// *******
+	int num_verticies = 6;
+	int vjump = 0;
+
+	std::vector<GLfloat> vbo_data((num_verticies * NUM_ELEMENTS_PER_VERTEX), 0.0f);
+
+	//  ---- VERTEX LOCS -------------- COLOURS -------------------------- TEXTURE COORDS -------------- POS/ROTATION/SCALING
+
 	// tri 1 top right
-	aVertex_Data[0] = w - w_offset; aVertex_Data[1] = -h_offset;
+	vbo_data[0] = w - w_o;		vbo_data[2] = aColour[0];			vbo_data[6] = texture_x_to;			vbo_data[8] = x;
+	vbo_data[1] = -h_o;			vbo_data[3] = aColour[1];			vbo_data[7] = texture_y_from;		vbo_data[9] = y;
+								vbo_data[4] = aColour[2];												vbo_data[10] = rot;
+								vbo_data[5] = fAlpha;													vbo_data[11] = scale;
+
 	// tri 1 top left
-	aVertex_Data[2] = -w_offset; aVertex_Data[3] = -h_offset;
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = -w_o; 	vbo_data[vjump+2] = aColour[0];		vbo_data[vjump+6] = texture_x_from;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = -h_o;	vbo_data[vjump+3] = aColour[1];		vbo_data[vjump+7] = texture_y_from;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];											vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = fAlpha;												vbo_data[vjump+11] = scale;
+
 	// tri 1 bottom left
-	aVertex_Data[4] = -w_offset; aVertex_Data[5] = h - h_offset;
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = -w_o;		vbo_data[vjump+2] = aColour[0];		vbo_data[vjump+6] = texture_x_from;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = h - h_o;vbo_data[vjump+3] = aColour[1];		vbo_data[vjump+7] = texture_y_to;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];											vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = fAlpha;												vbo_data[vjump+11] = scale;
 
 	// tri 2 bottom left
-	aVertex_Data[6] = -w_offset; aVertex_Data[7] = h - h_offset;
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = -w_o;		vbo_data[vjump+2] = aColour[0];		vbo_data[vjump+6] = texture_x_from;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = h - h_o;vbo_data[vjump+3] = aColour[1];		vbo_data[vjump+7] = texture_y_to;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];											vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = fAlpha;												vbo_data[vjump+11] = scale;
+
 	// tri 2 bottom right
-	aVertex_Data[8] = w - w_offset; aVertex_Data[9] = h - h_offset;
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = w - w_o;  vbo_data[vjump+2] = aColour[0];		vbo_data[vjump+6] = texture_x_to;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = h - h_o;vbo_data[vjump+3] = aColour[1];		vbo_data[vjump+7] = texture_y_to;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];											vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = fAlpha;												vbo_data[vjump+11] = scale;
+
 	// tri 2 top right
-	aVertex_Data[10] = w - w_offset; aVertex_Data[11] = -h_offset;
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = w - w_o;	vbo_data[vjump+2] = aColour[0];		vbo_data[vjump+6] = texture_x_to;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = -h_o;	vbo_data[vjump+3] = aColour[1];		vbo_data[vjump+7] = texture_y_from;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];											vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = fAlpha;												vbo_data[vjump+11] = scale;
 
-	glBindBuffer(GL_ARRAY_BUFFER, aVBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, Vertex_Size, aVertex_Data, GL_DYNAMIC_DRAW);
+	// *******
+	// Data binding
+	// *******
+	glBindBuffer(GL_ARRAY_BUFFER, oVBO);
+	GLsizeiptr Vertex_Size = num_verticies * NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, Vertex_Size, &vbo_data[0]);
 
-}
-
-
-/**
- * Used to make the Colour data VBO up to date.
- */
-void Entity::Create_Colour_Array()
-{
-
-	GLsizeiptr Colour_Size = 6 * 4 * sizeof(GLfloat);
-	aColour_Data[0] = aColour[0];  aColour_Data[1] = aColour[1];  aColour_Data[2] = aColour[2];  aColour_Data[3] = fAlpha;
-	aColour_Data[4] = aColour[0];  aColour_Data[5] = aColour[1];  aColour_Data[6] = aColour[2];  aColour_Data[7] = fAlpha;
-	aColour_Data[8] = aColour[0];  aColour_Data[9] = aColour[1];  aColour_Data[10] = aColour[2]; aColour_Data[11] = fAlpha;
-	aColour_Data[12] = aColour[0]; aColour_Data[13] = aColour[1]; aColour_Data[14] = aColour[2]; aColour_Data[15] = fAlpha;
-	aColour_Data[16] = aColour[0]; aColour_Data[17] = aColour[1]; aColour_Data[18] = aColour[2]; aColour_Data[19] = fAlpha;
-	aColour_Data[20] = aColour[0]; aColour_Data[21] = aColour[1]; aColour_Data[22] = aColour[2]; aColour_Data[23] = fAlpha;
-
-	glBindBuffer(GL_ARRAY_BUFFER, aVBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, Colour_Size, aColour_Data, GL_DYNAMIC_DRAW);
-
-}
-
-
-/**
- * Used to make the Texture coord data VBO up to date.
- */
-void Entity::Create_Texture_Coord_Array()
-{
-
-	for(int i = 0; i < 12; i++)
-		aText_Coord_Data[i] = 0.0f;
-
-	GLsizeiptr Text_Coord_Size = 6 * 2 * sizeof(GLfloat);
-
-	if(Get_Image() == NULL)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, aVBO[2]);
-		glBufferData(GL_ARRAY_BUFFER, Text_Coord_Size, aText_Coord_Data, GL_DYNAMIC_DRAW);
-		return;
-	}
-
-	float sequence_start_pos, texture_x_from, texture_x_to;
-
-    if(Get_Image()->iFrame_Count > 1)
-        sequence_start_pos = 0.01f * (((float)Get_Image()->iWidth / (float)Get_Image()->iRaw_Surface_Width) * 100.0f);
-    else
-        sequence_start_pos = 0.0f;
-
-	if(Get_Image()->iFrame_Count == 1)
-	{
-		texture_x_from = 0.0f;
-        texture_x_to = 1.0;
-	}
-    else
-    {
-		texture_x_from = sequence_start_pos * Get_Image_Frame();
-        texture_x_to = (sequence_start_pos * Get_Image_Frame()) + sequence_start_pos;
-	}
-
-    aText_Coord_Data[0] = texture_x_to;
-    aText_Coord_Data[2] = texture_x_from;
-    aText_Coord_Data[4] = texture_x_from; aText_Coord_Data[5] = 1.0f;
-    aText_Coord_Data[6] = texture_x_from; aText_Coord_Data[7] = 1.0f;
-    aText_Coord_Data[8] = texture_x_to; aText_Coord_Data[9] = 1.0f;
-    aText_Coord_Data[10] = texture_x_to;
-
-	glBindBuffer(GL_ARRAY_BUFFER, aVBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, Text_Coord_Size, aText_Coord_Data, GL_DYNAMIC_DRAW);
+	bVBO_Dirty = false;
 
 }
 
@@ -288,10 +235,7 @@ void Entity::Create_Texture_Coord_Array()
 void Entity::Set_X(float X)
 {
     fX = X;
-	if(oImage == NULL)
-		aPosition[0] = X;
-	else
-		aPosition[0] = X - (float)(oImage->iWidth/2);
+	bVBO_Dirty = true;
 }
 
 float Entity::Get_X()
@@ -302,15 +246,7 @@ float Entity::Get_X()
 void Entity::Set_Y(float Y)
 {
     fY = Y;
-	if(oImage == NULL)
-		aPosition[1] = Y;
-	else
-		aPosition[1] = Y - (float)(oImage->iHeight/2);
-	if(Get_Render_Mode() == RENDER_MODE_SCREEN)
-	{
-		aPosition[0] /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
-		aPosition[1] /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
-	}
+	bVBO_Dirty = true;
 }
 
 float Entity::Get_Y()
@@ -321,7 +257,6 @@ float Entity::Get_Y()
 void Entity::Set_Z(float Z)
 {
     iZ = Z;
-	aPosition[2] = 0.0f;
 }
 
 float Entity::Get_Z()
@@ -332,6 +267,7 @@ float Entity::Get_Z()
 void Entity::Set_Rotation(float Rotation)
 {
     fRotation = Rotation;
+	bVBO_Dirty = true;
 }
 
 float Entity::Get_Rotation()
@@ -342,6 +278,7 @@ float Entity::Get_Rotation()
 void Entity::Set_Scale(float Scale)
 {
     fScale = Scale;
+	bVBO_Dirty = true;
 }
 
 float Entity::Get_Scale()
@@ -352,8 +289,7 @@ float Entity::Get_Scale()
 void Entity::Set_Image(Image* Image)
 {
     oImage = Image;
-	Create_Vertex_Array();
-	Create_Texture_Coord_Array();
+	bVBO_Dirty = true;
 }
 
 Image* Entity::Get_Image()
@@ -364,6 +300,7 @@ Image* Entity::Get_Image()
 void Entity::Set_Image_Frame(int image_frame)
 {
     iImage_Frame = image_frame;
+	bVBO_Dirty = true;
 }
 
 int Entity::Get_Image_Frame()
@@ -374,6 +311,7 @@ int Entity::Get_Image_Frame()
 void Entity::Set_Render_Mode(int render_mode)
 {
 	iRender_Mode = render_mode;
+	bVBO_Dirty = true;
 }
 
 int Entity::Get_Render_Mode()
@@ -386,7 +324,18 @@ void Entity::Set_Colour(float r, float g, float b)
     aColour[0] = r;
     aColour[1] = g;
     aColour[2] = b;
-	Create_Colour_Array();
+	bVBO_Dirty = true;
+}
+
+void Entity::Set_Alpha(float alpha)
+{
+    fAlpha = alpha;
+	bVBO_Dirty = true;
+}
+
+float Entity::Get_Alpha()
+{
+    return fAlpha;
 }
 
 
@@ -402,16 +351,8 @@ std::vector<float> Entity::Get_Hotspot_Pos(int spot)
 
 	if(spot == HOTSPOT_CENTRE)
 	{
-
 		hotspot_pos[0] = Get_X();
 		hotspot_pos[1] = Get_Y();
-
-		if(Get_Image())
-		{
-			hotspot_pos[0] -= Get_Image()->iWidth/2;
-			hotspot_pos[1] -= Get_Image()->iHeight/2;
-		}
-
 	}
 
 	return hotspot_pos;
