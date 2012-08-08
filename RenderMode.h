@@ -48,10 +48,9 @@ public:
 	RenderMode(std::string shader_file_name);
 	~RenderMode();
 	virtual void Get_Uniform_Locations();
-	virtual void Set_Uniform_Values(Entity* entity);
-	virtual void Setup_Render_Pass(Entity* entity);
-	virtual void Do_Render_Pass(Entity* entity);
-	virtual void Cleanup_Render_Pass(Entity* entity);
+	virtual void Set_Uniform_Values();
+	virtual void Setup();
+	virtual void Cleanup();
 
 };
 

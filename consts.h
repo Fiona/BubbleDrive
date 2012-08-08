@@ -52,6 +52,8 @@
 
 #define PATH_SHADERS "shaders"
 
+#define NUM_OBJECTS_IN_VBO 50
+#define NUM_VERTEX_IN_OBJECT 6
 #define NUM_ELEMENTS_PER_VERTEX 12
 
 // Compatibility settings

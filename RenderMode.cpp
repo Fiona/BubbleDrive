@@ -129,7 +129,7 @@ void RenderMode::Get_Uniform_Locations()
 /**
  * Used by the render set up to set uniform vals.
  */
-void RenderMode::Set_Uniform_Values(Entity* entity)
+void RenderMode::Set_Uniform_Values()
 {
 
 	glUniform4fv(oUniforms["camera_position"], 1, oGame->aCamera_Position);
@@ -139,23 +139,22 @@ void RenderMode::Set_Uniform_Values(Entity* entity)
 
 /**
  * Does everything that is required before rendering.
- * You have to pass the Entity object in directly.
  */
-void RenderMode::Setup_Render_Pass(Entity* entity)
+void RenderMode::Setup()
 {
 
 	// Binding texture
+	/*
     if(oGame->iCurrent_Bound_Texture != entity->Get_Image()->iTexture_Num)
     {
-	    glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, entity->Get_Image()->iTexture_Num);
         oGame->iCurrent_Bound_Texture = entity->Get_Image()->iTexture_Num;
     }
+	*/
 
 	glUseProgram(oShader_Program);
-	Set_Uniform_Values(entity);
+	Set_Uniform_Values();
 
-	glBindBuffer(GL_ARRAY_BUFFER, entity->oVBO);
 	glVertexAttribPointer(oAttribute_Vertex_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), 0);
 	glVertexAttribPointer(oAttribute_Vertex_Colour, 4, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	glVertexAttribPointer(oAttribute_Texture_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
@@ -169,22 +168,9 @@ void RenderMode::Setup_Render_Pass(Entity* entity)
 
 
 /**
- * Actually does the rendering.
- * You have to pass the Entity object in directly.
- */
-void RenderMode::Do_Render_Pass(Entity* entity)
-{
-
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-}
-
-
-/**
  * Cleans up, disables GL modes etc
- * You have to pass the Entity object in directly.
  */
-void RenderMode::Cleanup_Render_Pass(Entity* entity)
+void RenderMode::Cleanup()
 {
 
 	glDisableVertexAttribArray(oAttribute_Vertex_Colour);

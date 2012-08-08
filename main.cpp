@@ -25,3 +25,13 @@ int main(int argc, char* argv[])
     return Game::Instance()->Start();
 
 }
+
+
+// poor windows. it has very specific needs.
+// okay windows. i will spoon feed you.
+#if defined(_WIN32)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
+{
+	return main(__argc, __argv);
+}
+#endif

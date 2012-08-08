@@ -45,16 +45,14 @@ private:
     Image* oImage;
     int iImage_Frame;
 	int iRender_Mode;
-
-	void Create_Vertex_Array();
-	void Create_Colour_Array();
-	void Create_Texture_Coord_Array();
+	std::vector<int>* oBatches_And_Object_Indicies;
+    bool bIs_Updating_Batches;
+	
+	void Update_Batches_And_Object_Indicies(bool remove_current);
 
 public:
     Game* oGame;
     std::vector<float> aColour;
-	bool bVBO_Dirty;
-	GLuint oVBO;
 	
     Entity();
     ~Entity();
@@ -79,9 +77,7 @@ public:
     virtual void Set_Colour(float r, float g, float b);
     virtual void Set_Alpha(float alpha);
     virtual float Get_Alpha();
-
-	void Create_VBO();
-
+	virtual void Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int vbo_offset_start);
 	std::vector<float> Get_Hotspot_Pos(int spot);
     void Advance_Towards(float distance, int rot);
 

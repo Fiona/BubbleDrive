@@ -34,13 +34,12 @@
 #include "State.h"
 #include "Entity.h"
 #include "Text.h"
-#include "RenderMode.h"
-
+#include "BatchManager.h"
 
 // Forward declaration
 class Entity;
 class Text;
-class RenderMode;
+class BatchManager;
 
 
 /**
@@ -64,13 +63,14 @@ private:
     std::vector<Entity*> Registered_Entities;
     std::vector<Entity*> Entities_To_Delete;
 	Text* oFPS_Text;
-	std::map<int, RenderMode*> oRender_Modes;
 
-    bool Initialise_Window();
+    bool Initialise_Graphics();
+	void Setup_Batches();
     void Load_Media();
     void Tick();
     void Update_Events();
     void Render();
+	void Cleanup_Deleted_Entities();
     void Shutdown();
 
 public:
@@ -83,6 +83,7 @@ public:
     GLuint iCurrent_Bound_Texture;
     std::vector<float> oDefault_Texture_Coords;
 	float aCamera_Position[4];
+	BatchManager* oBatch_Manager;
 
     Game();
     static Game* Instance();

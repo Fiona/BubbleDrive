@@ -26,11 +26,11 @@ Ship::Ship() : Entity()
 {
 
 	Set_Render_Mode(RENDER_MODE_WORLD);
-    Set_Image(oGame->oMedia->mImages["ship"]);
     Set_X(0.0f);
     Set_Y(0.0f);
 	Set_Z(.5f);
     Set_Image_Frame(1);
+    Set_Image(oGame->oMedia->mImages["ship"]);
 
     current_rotation = 0;
     current_rotation_2 = 0;
@@ -63,8 +63,10 @@ void Ship::Logic()
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Num4))
         Set_Scale(Get_Scale() + .05f);
 
-    create_vorticies(0.0f, 0.0f, 1);
+    create_vorticies(200.0f, 200.0f, 1);
     create_vorticies(840.0f, 525.0f, 1);
+    create_vorticies(320.0f, 320.0f, 1);
+    create_vorticies(1000.0f, 800.0f, 1);
 
 	std::vector<float> centre = Get_Hotspot_Pos(HOTSPOT_CENTRE);
 	oGame->aCamera_Position[0] = centre[0];
@@ -79,11 +81,11 @@ void Ship::create_vorticies(float x, float y, int type)
     int range = 0;
     int amount = 45;
 
-    if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
-    {
+    //if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
+    //{
         range = 10;
         amount = 10;
-    }
+    //}
 
     for(int c = 0; c <= range; c++)
     {

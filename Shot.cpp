@@ -23,11 +23,11 @@
 Shot::Shot(float x, float y, int rot) : Entity()
 {
 
-	Set_Render_Mode(RENDER_MODE_SCREEN);
-    Set_Image(oGame->oMedia->mImages["shot"]);
+	Set_Render_Mode(RENDER_MODE_WORLD);
     Set_X(x);
     Set_Y(y);
 	Set_Z(0.0f);
+    Set_Image(oGame->oMedia->mImages["shot"]);
 
     iRotation_To = rot;
 
