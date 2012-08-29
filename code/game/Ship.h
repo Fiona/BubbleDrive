@@ -8,39 +8,34 @@
  ***************************************/
 
 #pragma once
-#ifndef _MEDIA_H_
-#define _MEDIA_H_
+#ifndef _SHIP_H_
+#define _SHIP_H_
 
 /**
- * Media object header
+ * Ship object header
  */
 
 
 // Includes
-#include <string>
-#include <map>
-#include "Image.h"
-#include "Font.h"
+#include "../core/Entity.h"
 
 
 /**
- * Main media object, is responsible for loading/handling 
- * images, audio and fonts.
+ *
  */
-class Media
+class Ship : Entity
 {
 
 private:
-
+    
 public:
-    Media();
-    ~Media();
 
-    std::map <std::string, Image* > mImages;
-	std::map <std::string, Font* > mFonts;
-    //std::map <string, Audio* > mAudio;
+    Ship();
+    void Logic();
+    void create_vorticies(float x, float y, int type);
+    int current_rotation;
+    int current_rotation_2;
 
 };
-
 
 #endif

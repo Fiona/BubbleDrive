@@ -21,8 +21,8 @@
 #include <string>
 #include <GL/glew.h>
 #include <GL/glu.h>
-#include "Entity.h"
-#include "Game.h"
+#include "../core/Entity.h"
+#include "../core/Game.h"
 
 
 /**

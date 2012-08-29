@@ -50,6 +50,7 @@
 #define RENDER_MODE_NO_TEXTURE_SCREEN 3
 #define RENDER_MODE_NO_TEXTURE_WORLD 4
 
+#define PATH_RESOURCES "resources"
 #define PATH_SHADERS "shaders"
 
 #define NUM_OBJECTS_IN_VBO 50

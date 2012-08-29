@@ -14,7 +14,8 @@
 
 // Includes
 #include "Font.h"
-#include "Game.h"
+#include "../core/Game.h"
+#include "../core/consts.h"
 
 
 /**
@@ -23,11 +24,11 @@
 Font::Font(std::string filename)
 {
 
-	sFilename = filename;
+	sFilename = PATH_RESOURCES + SEPARATOR + filename;
 
 	int error = FT_New_Face(
 		Game::Instance()->oFont_Manager->oFTLib,
-		filename.c_str(), 0, &oFace);
+		sFilename.c_str(), 0, &oFace);
 
 	if(error)
 	{

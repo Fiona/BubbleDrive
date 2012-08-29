@@ -14,7 +14,7 @@
 
 // Includes
 #include "RenderMode.h"
-#include "consts.h"
+#include "../core/consts.h"
 
 
 /**
@@ -32,7 +32,9 @@ RenderMode::RenderMode(std::string shader_file_name)
 	oGame = Game::Instance();
 
 	// Load Vertex shader code
-	std::string vert_shader = oGame->Load_From_File(PATH_SHADERS + SEPARATOR + shader_file_name + ".vert");
+	std::string vert_shader = oGame->Load_From_File(
+		PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".vert"
+		);
 	const char* vertex_shader_code = vert_shader.c_str();
 	if(vertex_shader_code == 0)
 	{
@@ -45,7 +47,9 @@ RenderMode::RenderMode(std::string shader_file_name)
     glCompileShader(oVertex_Shader_Program);
 
 	// Load fragment shader code
-	std::string frag_shader = oGame->Load_From_File(PATH_SHADERS + SEPARATOR + shader_file_name + ".frag");
+	std::string frag_shader = oGame->Load_From_File(
+		PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".frag"
+		);
 	const char* fragment_shader_code = frag_shader.c_str();	
 	if(fragment_shader_code == 0)
 	{

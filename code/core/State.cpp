@@ -14,8 +14,8 @@
 
 // Includes
 #include "State.h"
-#include "Ship.h"
-#include "Text.h"
+#include "../game/Ship.h"
+#include "../text/Text.h"
 
 
 /**

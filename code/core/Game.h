@@ -29,12 +29,12 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <SFML/Window.hpp>
-#include "FontManager.h"
 #include "Media.h"
 #include "State.h"
 #include "Entity.h"
-#include "Text.h"
-#include "BatchManager.h"
+#include "../text/FontManager.h"
+#include "../text/Text.h"
+#include "../rendering/BatchManager.h"
 
 // Forward declaration
 class Entity;

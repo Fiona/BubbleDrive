@@ -16,9 +16,9 @@
 #include <vector>
 #include <GL/glew.h>
 #include <GL/glu.h>
-#include "Game.h"
+#include "../core/Game.h"
 #include "Batch.h"
-#include "Entity.h"
+#include "../core/Entity.h"
 #include "RenderMode.h"
 
 

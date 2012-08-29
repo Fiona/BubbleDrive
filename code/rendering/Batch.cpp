@@ -12,7 +12,7 @@
  */
 
 // Includes
-#include "consts.h"
+#include "../core/consts.h"
 #include "Batch.h"
 
 
@@ -154,7 +154,7 @@ void Batch::Free_Object_Index(int object_index)
 	iLargest_Object_Index = *std::max_element(oAssigned_Object_Indicies.begin(), oAssigned_Object_Indicies.end());
 
 	// Sort indicies in reverse order
-	std::sort(oAvailable_Object_Indicies.begin(), oAvailable_Object_Indicies.end(), std::greater<int>());
+	//std::sort(oAvailable_Object_Indicies.begin(), oAvailable_Object_Indicies.end(), std::greater<int>());
 
 }
 

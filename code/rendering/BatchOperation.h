@@ -16,7 +16,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include <GL/glu.h>
-#include "Entity.h"
+#include "../core/Entity.h"
 
 
 /**

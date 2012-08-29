@@ -14,7 +14,7 @@
 
 // Includes
 #include <iostream>
-#include "Game.h"
+#include "../core/Game.h"
 #include "Ship.h"
 #include "Shot.h"
 
@@ -65,8 +65,6 @@ void Ship::Logic()
 
     create_vorticies(200.0f, 200.0f, 1);
     create_vorticies(840.0f, 525.0f, 1);
-    create_vorticies(320.0f, 320.0f, 1);
-    create_vorticies(1000.0f, 800.0f, 1);
 
 	std::vector<float> centre = Get_Hotspot_Pos(HOTSPOT_CENTRE);
 	oGame->aCamera_Position[0] = centre[0];

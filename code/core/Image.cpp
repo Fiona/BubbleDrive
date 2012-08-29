@@ -22,11 +22,11 @@
 Image::Image(std::string file_name, int frame_count)
 {
 
-    sFile_Name = file_name;
+    sFile_Name = PATH_RESOURCES + SEPARATOR + file_name;
 
     sf::Image* raw_image = new sf::Image;
 
-    if(!raw_image->loadFromFile(file_name))
+    if(!raw_image->loadFromFile(PATH_RESOURCES + SEPARATOR + file_name))
         return;
 
     Create_From_SMFL_Image(raw_image);

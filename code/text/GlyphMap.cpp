@@ -14,7 +14,7 @@
 
 // Includes
 #include "GlyphMap.h"
-#include "consts.h"
+#include "../core/consts.h"
 
 
 /**

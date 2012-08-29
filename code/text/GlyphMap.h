@@ -18,7 +18,7 @@
 
 // Includes
 #include <GL/gl.h>
-#include "RectangleBin.h"
+#include "../utils/RectangleBin.h"
 
 
 /**
