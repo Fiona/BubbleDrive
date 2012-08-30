@@ -47,11 +47,13 @@ private:
 	int iRender_Mode;
 	std::vector<int>* oBatches_And_Object_Indicies;
     bool bIs_Updating_Batches;
-	
+
+protected:
 	void Update_Batches_And_Object_Indicies(bool remove_current);
 
 public:
     Game* oGame;
+	int iNum_Objects;
     std::vector<float> aColour;
 	
     Entity();
@@ -77,7 +79,8 @@ public:
     virtual void Set_Colour(float r, float g, float b);
     virtual void Set_Alpha(float alpha);
     virtual float Get_Alpha();
-	virtual void Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int vbo_offset_start);
+	virtual int Get_Texture_Num_For_Object_Num(int obj_num);
+	virtual void Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int entity_object_num);
 	std::vector<float> Get_Hotspot_Pos(int spot);
     void Advance_Towards(float distance, int rot);
 

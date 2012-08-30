@@ -34,11 +34,12 @@ class BatchOperation
 public:
     Entity* oEntity;
     int iObject_Index;
+    int iEntity_Object_Num;
     bool bRemove_Operation;
 
-    BatchOperation(int object_index, Entity* entity);
+    BatchOperation(int object_index, Entity* entity, int entity_object_num);
     BatchOperation(int object_index);
-    void Update(bool remove_operation, Entity* entity);
+    void Update(bool remove_operation, Entity* entity, int entity_object_number);
 
 };
 

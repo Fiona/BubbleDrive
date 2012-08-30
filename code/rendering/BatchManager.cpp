@@ -59,16 +59,15 @@ BatchManager::~BatchManager()
 void BatchManager::Request_New_Batch_And_Object_Indicies(Entity* entity, int num_objects_requested, std::vector<int>* batch_and_object_indicies)
 {
 
-	// Entities without an image can't be used
-	if(!entity->Get_Image())
-		return;
-
 	// Iterate through each required object and each batch to
 	// try and find a batch this will work for us.
 	int batch_num, found_batch, object_index;
 
-	for(int obj_num = 0; obj_num < num_objects_requested; obj_num++)
+	for(int obj_num = 1; obj_num <= num_objects_requested; obj_num++)
 	{
+
+		if(!entity->Get_Texture_Num_For_Object_Num(obj_num))
+			continue;
 
 		found_batch = -1;
 		object_index = -1;
@@ -79,7 +78,7 @@ void BatchManager::Request_New_Batch_And_Object_Indicies(Entity* entity, int num
 			// If this batch is good for us then request an object index from it
 			if(
 				oBatches[batch_num]->iZ == entity->Get_Z() &&
-				oBatches[batch_num]->oTexture == entity->Get_Image()->iTexture_Num &&
+				oBatches[batch_num]->oTexture == entity->Get_Texture_Num_For_Object_Num(obj_num) &&
 				oBatches[batch_num]->iRender_Mode == entity->Get_Render_Mode()
 				)
 			{
@@ -101,7 +100,11 @@ void BatchManager::Request_New_Batch_And_Object_Indicies(Entity* entity, int num
 		// If a suitable batch was not found then we clearly need a new one.
 		if(found_batch == -1)
 		{
-			found_batch = Create_New_Batch(entity->Get_Z(), entity->Get_Image()->iTexture_Num, entity->Get_Render_Mode());
+			found_batch = Create_New_Batch(
+				entity->Get_Z(),
+				entity->Get_Texture_Num_For_Object_Num(obj_num),
+				entity->Get_Render_Mode()
+				);
 			object_index = oBatches[found_batch]->Request_Object_Index();
 		}
 
@@ -121,8 +124,20 @@ void BatchManager::Request_New_Batch_And_Object_Indicies(Entity* entity, int num
 void BatchManager::Request_Object_Update_For_Entity(Entity* entity, std::vector<int>* batches_and_object_indicies)
 {
 
+	int object_num = 1;
+
 	for(int vector_index = 0; vector_index < (int)batches_and_object_indicies->size(); vector_index+=2)
-		oBatches[(*batches_and_object_indicies)[vector_index]]->New_Update_Batch_Operation(entity, (*batches_and_object_indicies)[vector_index+1]);
+	{
+
+		oBatches[(*batches_and_object_indicies)[vector_index]]->New_Update_Batch_Operation(
+			entity,
+			(*batches_and_object_indicies)[vector_index+1],
+			object_num		
+		);
+
+		object_num++;
+
+	}
 
 }
 

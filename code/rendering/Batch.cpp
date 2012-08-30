@@ -83,7 +83,7 @@ int Batch::Request_Object_Index()
  * be required for the supplied Entity at the supplied object index.
  * Checks for duplicates and updates removal operations.
  */
-void Batch::New_Update_Batch_Operation(Entity* entity, int object_index)
+void Batch::New_Update_Batch_Operation(Entity* entity, int object_index, int entity_object_number)
 {
 
 	// Look in current operations for this object index
@@ -95,7 +95,7 @@ void Batch::New_Update_Batch_Operation(Entity* entity, int object_index)
 
 			// If this is a remove op then we need to change it to an update one
 			if((*op)->bRemove_Operation)
-				(*op)->Update(false, entity);
+				(*op)->Update(false, entity, entity_object_number);
 
 			// Dupe found
 			return;
@@ -106,7 +106,7 @@ void Batch::New_Update_Batch_Operation(Entity* entity, int object_index)
 
 	// No dupe was found so we need a new one
 	oBatch_Operations.push_back(
-		new BatchOperation(object_index, entity)
+		new BatchOperation(object_index, entity, entity_object_number)
 		);
 
 }
@@ -128,7 +128,7 @@ void Batch::New_Remove_Batch_Operation(int object_index, bool update_dupes)
 		{
 			if((*op)->iObject_Index == object_index && !(*op)->bRemove_Operation)
 			{
-				(*op)->Update(true, NULL);
+				(*op)->Update(true, NULL, 1);
 				return;
 			}
 		}
@@ -151,7 +151,11 @@ void Batch::Free_Object_Index(int object_index)
 
 	oAvailable_Object_Indicies.push_back(object_index);
 	oAssigned_Object_Indicies.erase(object_index);
-	iLargest_Object_Index = *std::max_element(oAssigned_Object_Indicies.begin(), oAssigned_Object_Indicies.end());
+
+	if(oAssigned_Object_Indicies.size() > 0)
+		iLargest_Object_Index = *std::max_element(oAssigned_Object_Indicies.begin(), oAssigned_Object_Indicies.end());
+	else
+		iLargest_Object_Index = 0;
 
 	// Sort indicies in reverse order
 	//std::sort(oAvailable_Object_Indicies.begin(), oAvailable_Object_Indicies.end(), std::greater<int>());
@@ -199,8 +203,9 @@ void Batch::Run_Batch_Operations()
 				vbo_data[i] = 0;
 		}
 		else
-			(*op)->oEntity->Get_Object_Index_Data((*op)->iObject_Index, vbo_data, 0);
-
+		{
+			(*op)->oEntity->Get_Object_Index_Data((*op)->iObject_Index, vbo_data, (*op)->iEntity_Object_Num);
+		}
 		glBufferSubData(
 			GL_ARRAY_BUFFER,
 			(*op)->iObject_Index * NUM_VERTEX_IN_OBJECT * NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat),

@@ -40,6 +40,7 @@ Entity::Entity()
     iImage_Frame = 1;
     fAlpha = 1.0f;
 	iRender_Mode = RENDER_MODE_SCREEN;
+	iNum_Objects = 1;
     aColour.resize(3, 1.0f);
     oImage = NULL;
     oGame = Game::Instance();
@@ -89,10 +90,24 @@ void Entity::Kill()
 
 
 /**
+ * Because an Entity could use more than one texture we 
+ * can override this to return the texture number for the 
+ * specific object number.
+ * By default it's just the oImage texture.
+ */
+int Entity::Get_Texture_Num_For_Object_Num(int obj_num)
+{
+	if(!Get_Image())
+		return 0;
+	return Get_Image()->iTexture_Num;
+}
+
+
+/**
  * Called by Batch objects to request the vertex information
  * for the specified object.
  */
-void Entity::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int vbo_offset_start)
+void Entity::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int entity_object_num)
 {
 
 	// ******
@@ -166,7 +181,7 @@ void Entity::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int vbo_
 	// *******
 	// Data creation
 	// *******
-	int vjump = vbo_offset_start * NUM_ELEMENTS_PER_VERTEX * NUM_VERTEX_IN_OBJECT;
+	int vjump = 0;
 
 	//  ---- VERTEX LOCS -------------- COLOURS -------------------------- TEXTURE COORDS -------------- POS/ROTATION/SCALING
 
@@ -212,48 +227,6 @@ void Entity::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int vbo_
 								vbo_data[vjump+4] = aColour[2];										vbo_data[vjump+10] = rot;
 								vbo_data[vjump+5] = fAlpha;											vbo_data[vjump+11] = scale;
 
-	/**
-	// tri 1 top right	
-	(*vbo_data)[vjump] = w - w_o; 	(*vbo_data)[vjump+2] = aColour[0];	(*vbo_data)[vjump+6] = texture_x_to;	(*vbo_data)[vjump+8] = x;
-	(*vbo_data)[vjump+1] = -h_o;	(*vbo_data)[vjump+3] = aColour[1];	(*vbo_data)[vjump+7] = texture_y_from;	(*vbo_data)[vjump+9] = y;
-									(*vbo_data)[vjump+4] = aColour[2];											(*vbo_data)[vjump+10] = rot;
-									(*vbo_data)[vjump+5] = fAlpha;												(*vbo_data)[vjump+11] = scale;
-
-	// tri 1 top left
-	vjump += NUM_ELEMENTS_PER_VERTEX;
-	(*vbo_data)[vjump] = -w_o; 		(*vbo_data)[vjump+2] = aColour[0];	(*vbo_data)[vjump+6] = texture_x_from;	(*vbo_data)[vjump+8] = x;
-	(*vbo_data)[vjump+1] = -h_o;	(*vbo_data)[vjump+3] = aColour[1];	(*vbo_data)[vjump+7] = texture_y_from;	(*vbo_data)[vjump+9] = y;
-									(*vbo_data)[vjump+4] = aColour[2];											(*vbo_data)[vjump+10] = rot;
-									(*vbo_data)[vjump+5] = fAlpha;												(*vbo_data)[vjump+11] = scale;
-
-	// tri 1 bottom left
-	vjump += NUM_ELEMENTS_PER_VERTEX;
-	(*vbo_data)[vjump] = -w_o; 		(*vbo_data)[vjump+2] = aColour[0];	(*vbo_data)[vjump+6] = texture_x_from;	(*vbo_data)[vjump+8] = x;
-	(*vbo_data)[vjump+1] = h - h_o;	(*vbo_data)[vjump+3] = aColour[1];	(*vbo_data)[vjump+7] = texture_y_to;	(*vbo_data)[vjump+9] = y;
-									(*vbo_data)[vjump+4] = aColour[2];											(*vbo_data)[vjump+10] = rot;
-									(*vbo_data)[vjump+5] = fAlpha;												(*vbo_data)[vjump+11] = scale;
-
-	// tri 2 bottom left
-	vjump += NUM_ELEMENTS_PER_VERTEX;
-	(*vbo_data)[vjump] = -w_o; 		(*vbo_data)[vjump+2] = aColour[0];	(*vbo_data)[vjump+6] = texture_x_from;	(*vbo_data)[vjump+8] = x;
-	(*vbo_data)[vjump+1] = h - h_o;	(*vbo_data)[vjump+3] = aColour[1];	(*vbo_data)[vjump+7] = texture_y_to;	(*vbo_data)[vjump+9] = y;
-									(*vbo_data)[vjump+4] = aColour[2];											(*vbo_data)[vjump+10] = rot;
-									(*vbo_data)[vjump+5] = fAlpha;												(*vbo_data)[vjump+11] = scale;
-
-	// tri 2 bottom right
-	vjump += NUM_ELEMENTS_PER_VERTEX;
-	(*vbo_data)[vjump] = w - w_o; 	(*vbo_data)[vjump+2] = aColour[0];	(*vbo_data)[vjump+6] = texture_x_to;	(*vbo_data)[vjump+8] = x;
-	(*vbo_data)[vjump+1] = h - h_o;	(*vbo_data)[vjump+3] = aColour[1];	(*vbo_data)[vjump+7] = texture_y_to;	(*vbo_data)[vjump+9] = y;
-									(*vbo_data)[vjump+4] = aColour[2];											(*vbo_data)[vjump+10] = rot;
-									(*vbo_data)[vjump+5] = fAlpha;												(*vbo_data)[vjump+11] = scale;
-
-	// tri 2 top right
-	vjump += NUM_ELEMENTS_PER_VERTEX;
-	(*vbo_data)[vjump] = w - w_o; 	(*vbo_data)[vjump+2] = aColour[0];	(*vbo_data)[vjump+6] = texture_x_to;	(*vbo_data)[vjump+8] = x;
-	(*vbo_data)[vjump+1] = -h_o;	(*vbo_data)[vjump+3] = aColour[1];	(*vbo_data)[vjump+7] = texture_y_from;	(*vbo_data)[vjump+9] = y;
-									(*vbo_data)[vjump+4] = aColour[2];											(*vbo_data)[vjump+10] = rot;
-									(*vbo_data)[vjump+5] = fAlpha;												(*vbo_data)[vjump+11] = scale;
-	/**/
 	bIs_Updating_Batches = false;
 
 }
@@ -272,7 +245,7 @@ void Entity::Update_Batches_And_Object_Indicies(bool remove_current)
 		return;
 
 	if(oBatches_And_Object_Indicies->size() == 0)
-		oGame->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, 1, oBatches_And_Object_Indicies);
+		oGame->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, iNum_Objects, oBatches_And_Object_Indicies);
 	else
 	{
 
@@ -281,7 +254,7 @@ void Entity::Update_Batches_And_Object_Indicies(bool remove_current)
 
 			oGame->oBatch_Manager->Request_Removal_Of_Objects(oBatches_And_Object_Indicies, false);
 			oBatches_And_Object_Indicies->clear();
-			oGame->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, 1, oBatches_And_Object_Indicies);
+			oGame->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, iNum_Objects, oBatches_And_Object_Indicies);
 
 		}
 

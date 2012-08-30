@@ -53,7 +53,7 @@ public:
 	Batch(float z, int render_mode, GLuint texture);
     ~Batch();
     int Request_Object_Index();
-    void New_Update_Batch_Operation(Entity* entity, int object_index);
+    void New_Update_Batch_Operation(Entity* entity, int object_index, int entity_object_number);
     void New_Remove_Batch_Operation(int object_index, bool update_dupes);
     void Free_Object_Index(int object_index);
     void Bind(int currently_bound);

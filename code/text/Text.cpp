@@ -32,55 +32,6 @@ Text::Text() : Entity()
 }
 
 
-
-/**
- * Draw method
- */
-void Text::Draw()
-{
-
-	if(sText == "")
-		return;
-
-	if(!bReady)
-		Ready();
-
-    glPushMatrix();
-
-
-    float X = Get_X();
-    float Y = Get_Y();
-    glTranslatef(X, Y + fTallest_Y_Bearing, 0.0f);
-	
-	std::pair<GlyphMap*, std::vector<float>* > p;
-	BOOST_FOREACH(p, oVertex_List) 
-	{
-	
-		glTexCoordPointer(2, GL_FLOAT, 0, &oTexture_Coords.find(p.first)->second[0][0]);
-		glVertexPointer(2, GL_FLOAT, 0, &p.second[0][0]);
-
-		// Binding texture
-	    if(oGame->iCurrent_Bound_Texture != p.first->iTexture)
-		{	
-	        glBindTexture(GL_TEXTURE_2D, p.first->iTexture);
-	        oGame->iCurrent_Bound_Texture = p.first->iTexture;
-		}
-
-		// Colour and transparency
-	    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-		// draw the triangle strip
-		glDrawArrays(GL_TRIANGLES, 0, (int)(p.second->size()/2));
-
-	}
-
-	glTexCoordPointer(2, GL_FLOAT, 0, &oGame->oDefault_Texture_Coords[0]);
-
-    glPopMatrix();
-
-}
-
-
 /*
  * Setting colour
  */
@@ -136,15 +87,11 @@ void Text::Set_Line_Height_Padding(float line_height_padding)
  * settings this will build the vertex and texture coordinate lists that
  * will be used to draw the text to the screen.
  */
-void Text::Ready()
+void Text::Ready_For_Rendering()
 {
 
 	if(bReady)
 		return;
-
-	// Clear up lists so we can go again
-	oVertex_List.clear();
-	oTexture_Coords.clear();
 
 	// For each character in the string we have to request a pointer to the 
 	// Glyph object so we can gather it's information and metrics.
@@ -154,10 +101,9 @@ void Text::Ready()
 	float tallest_glyph = 0.0f;
 	FT_Bool use_kerning = FT_HAS_KERNING(oFont->oFace);
 	Glyph* previous_glyph = 0;
-	std::map<GlyphMap*, std::vector<float>* >::iterator glyphbin_search_it;
-	std::vector<float>* vertex_vector;
-	std::vector<float>* texture_coord_vector;
 	fTallest_Y_Bearing = 0.0f;
+	iNum_Objects = 0;
+	oText_Characters.clear();
 
 	for(int i = 0; i < (int)sText.length(); i++)
 	{
@@ -198,72 +144,135 @@ void Text::Ready()
 			continue;
 		}
 
-		// If we have no knowledge of the glyphbin in question then we add it.
-		glyphbin_search_it = oVertex_List.find(oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map]);
+		iNum_Objects++;
 
-		if(glyphbin_search_it != oVertex_List.end())
-		{
-			vertex_vector = glyphbin_search_it->second;
-			texture_coord_vector = oTexture_Coords.find(oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map])->second;
-		}
-		else
-		{
-			vertex_vector = new std::vector<float>;
-			texture_coord_vector = new std::vector<float>;
-			oVertex_List.insert(
-				std::pair<GlyphMap*, std::vector<float>* >(oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map], vertex_vector)
-				);
-			oTexture_Coords.insert(
-				std::pair<GlyphMap*, std::vector<float>* >(oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map], texture_coord_vector)
-				);
-		}
-
-		// Add glyph to vertex list
-		// tri 1 top right		
-		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position);
-		vertex_vector->push_back(0.0f - current_glyph->fY_Bearing + ver_draw_position); 
-		// tri 1 top left
-		vertex_vector->push_back(hor_draw_position);
-		vertex_vector->push_back(0.0f - current_glyph->fY_Bearing + ver_draw_position); 
-		// tri 1 bottom left
-		vertex_vector->push_back(hor_draw_position);
-		vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing + ver_draw_position);
-
-		// tri 2 bottom left
-		vertex_vector->push_back(hor_draw_position);
-		vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing + ver_draw_position);
-		// tri 2 bottom right
-		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position);
-		vertex_vector->push_back(current_glyph->fHeight - current_glyph->fY_Bearing + ver_draw_position); 
-		// tri 2 top right
-		vertex_vector->push_back(current_glyph->fWidth + hor_draw_position);
-		vertex_vector->push_back(0.0f - current_glyph->fY_Bearing + ver_draw_position); 
-		
-		// Add to texture coords list
-		// tri 1 top right
-		texture_coord_vector->push_back(0.01f * ((((float)current_glyph->oNode->iX + (float)current_glyph->oNode->iWidth) / GLYPH_MAP_WIDTH) * 100.0f));
-		texture_coord_vector->push_back(0.01f * (((float)current_glyph->oNode->iY / GLYPH_MAP_HEIGHT) * 100.0f));
-		// tri 1 top left
-		texture_coord_vector->push_back(0.01f * (((float)current_glyph->oNode->iX / GLYPH_MAP_WIDTH) * 100.0f));
-		texture_coord_vector->push_back(0.01f * (((float)current_glyph->oNode->iY / GLYPH_MAP_HEIGHT) * 100.0f));
-		// tri 1 bottom left
-		texture_coord_vector->push_back(0.01f * (((float)current_glyph->oNode->iX / GLYPH_MAP_WIDTH) * 100.0f));
-		texture_coord_vector->push_back(0.01f * ((((float)current_glyph->oNode->iY + (float)current_glyph->oNode->iHeight) / GLYPH_MAP_HEIGHT) * 100.0f));
-
-		// tri 2 bottom left
-		texture_coord_vector->push_back(0.01f * (((float)current_glyph->oNode->iX / GLYPH_MAP_WIDTH) * 100.0f));
-		texture_coord_vector->push_back(0.01f * ((((float)current_glyph->oNode->iY + (float)current_glyph->oNode->iHeight) / GLYPH_MAP_HEIGHT) * 100.0f));
-		// tri 2 bottom right
-		texture_coord_vector->push_back(0.01f * ((((float)current_glyph->oNode->iX + (float)current_glyph->oNode->iWidth) / GLYPH_MAP_WIDTH) * 100.0f));
-		texture_coord_vector->push_back(0.01f * ((((float)current_glyph->oNode->iY + (float)current_glyph->oNode->iHeight) / GLYPH_MAP_HEIGHT) * 100.0f));
-		// tri 2 top right
-		texture_coord_vector->push_back(0.01f * ((((float)current_glyph->oNode->iX + (float)current_glyph->oNode->iWidth) / GLYPH_MAP_WIDTH) * 100.0f));
-		texture_coord_vector->push_back(0.01f * (((float)current_glyph->oNode->iY / GLYPH_MAP_HEIGHT) * 100.0f));
+		oText_Characters.push_back(
+			new TextCharacter(current_glyph, hor_draw_position, ver_draw_position, oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map])
+			);
 
 		hor_draw_position += current_glyph->fAdvance;
 
 	}
 
+    BOOST_FOREACH(TextCharacter* character, oText_Characters)
+    {
+
+		character->fY_Pos += tallest_glyph;
+
+    }
+
 	bReady = true;
+	Update_Batches_And_Object_Indicies(true);
+
+}
+
+
+/**
+ * Used to get the glyphbin texture num for specific glyphs (objects)
+ */
+int Text::Get_Texture_Num_For_Object_Num(int obj_num)
+{
+
+	if(oText_Characters.size() == 0)
+		return 0;
+	return oText_Characters[obj_num - 1]->oGlyph_Map->iTexture;
+
+}
+
+
+/**
+ * Returns the vbo data for a specific text character
+ */
+void Text::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int entity_object_num)
+{
+
+	if(oText_Characters.size() == 0)
+		return;
+
+	TextCharacter* character = oText_Characters[entity_object_num - 1];
+
+	// *******
+	// Width / Height
+	// *******
+	float ch_x, ch_y, w, h;
+	ch_x = character->fX_Pos;
+	w = character->oGlyph->fWidth;
+	ch_y = character->fY_Pos - character->oGlyph->fY_Bearing;
+	h = character->oGlyph->fHeight;
+
+	// *******
+	// Texture pos
+	// *******
+	float texture_x_from, texture_x_to, texture_y_from, texture_y_to;
+
+	texture_x_from = 0.01f * (((float)character->oGlyph->oNode->iX / GLYPH_MAP_WIDTH) * 100.0f);
+	texture_x_to = 0.01f * ((((float)character->oGlyph->oNode->iX + (float)character->oGlyph->oNode->iWidth - 1) / GLYPH_MAP_WIDTH) * 100.0f);
+	texture_y_from = 0.01f * (((float)character->oGlyph->oNode->iY / GLYPH_MAP_HEIGHT) * 100.0f);
+	texture_y_to = 0.01f * ((((float)character->oGlyph->oNode->iY + (float)character->oGlyph->oNode->iHeight - 1) / GLYPH_MAP_HEIGHT) * 100.0f);
+
+	// *******
+	// extra data
+	// *******
+	float x, y, rot, scale, alpha;
+	x = Get_X();
+	y = Get_Y();
+	rot = Get_Rotation();
+	scale = Get_Scale();
+	alpha = Get_Alpha();
+
+
+	if(Get_Render_Mode() == RENDER_MODE_SCREEN)
+	{
+		x /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
+		y /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
+	}
+
+	// *******
+	// Data creation
+	// *******
+	int vjump = 0;
+
+	//  ---- VERTEX LOCS -------------- COLOURS -------------------------- TEXTURE COORDS -------------- POS/ROTATION/SCALING
+
+	// tri 1 top right	
+	vbo_data[vjump] = ch_x + w; vbo_data[vjump+2] = aColour[0];	vbo_data[vjump+6] = texture_x_to;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = ch_y;	vbo_data[vjump+3] = aColour[1];	vbo_data[vjump+7] = texture_y_from;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];										vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = alpha;											vbo_data[vjump+11] = scale;
+
+	// tri 1 top left
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = ch_x; 	vbo_data[vjump+2] = aColour[0];	vbo_data[vjump+6] = texture_x_from;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = ch_y;	vbo_data[vjump+3] = aColour[1];	vbo_data[vjump+7] = texture_y_from;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];										vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = alpha;											vbo_data[vjump+11] = scale;
+
+	// tri 1 bottom left
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = ch_x;			vbo_data[vjump+2] = aColour[0];	vbo_data[vjump+6] = texture_x_from;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = ch_y + h;	vbo_data[vjump+3] = aColour[1];	vbo_data[vjump+7] = texture_y_to;	vbo_data[vjump+9] = y;
+									vbo_data[vjump+4] = aColour[2];										vbo_data[vjump+10] = rot;
+									vbo_data[vjump+5] = alpha;											vbo_data[vjump+11] = scale;
+
+	// tri 2 bottom left
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = ch_x; 		vbo_data[vjump+2] = aColour[0];	vbo_data[vjump+6] = texture_x_from;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = ch_y + h;	vbo_data[vjump+3] = aColour[1];	vbo_data[vjump+7] = texture_y_to;	vbo_data[vjump+9] = y;
+									vbo_data[vjump+4] = aColour[2];										vbo_data[vjump+10] = rot;
+									vbo_data[vjump+5] = alpha;											vbo_data[vjump+11] = scale;
+
+	// tri 2 bottom right
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = ch_x + w; 	vbo_data[vjump+2] = aColour[0];	vbo_data[vjump+6] = texture_x_to;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = ch_y + h;	vbo_data[vjump+3] = aColour[1];	vbo_data[vjump+7] = texture_y_to;	vbo_data[vjump+9] = y;
+									vbo_data[vjump+4] = aColour[2];										vbo_data[vjump+10] = rot;
+									vbo_data[vjump+5] = alpha;											vbo_data[vjump+11] = scale;
+
+	// tri 2 top right
+	vjump += NUM_ELEMENTS_PER_VERTEX;
+	vbo_data[vjump] = ch_x + w; vbo_data[vjump+2] = aColour[0];	vbo_data[vjump+6] = texture_x_to;	vbo_data[vjump+8] = x;
+	vbo_data[vjump+1] = ch_y;	vbo_data[vjump+3] = aColour[1];	vbo_data[vjump+7] = texture_y_from;	vbo_data[vjump+9] = y;
+								vbo_data[vjump+4] = aColour[2];										vbo_data[vjump+10] = rot;
+								vbo_data[vjump+5] = alpha;											vbo_data[vjump+11] = scale;
 
 }

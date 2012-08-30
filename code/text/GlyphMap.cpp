@@ -52,8 +52,8 @@ void GlyphMap::Add_Bitmap(unsigned char* pixels, RectangleBin::Node* node)
 {
 
 	glBindTexture(GL_TEXTURE_2D, iTexture);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, node->iX, node->iY,
-		node->iWidth, node->iHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels); 
+	glTexSubImage2D(GL_TEXTURE_2D, 0, node->iX + 1, node->iY + 1,
+		node->iWidth - 2, node->iHeight - 2, GL_RGBA, GL_UNSIGNED_BYTE, pixels); 
 
 }
 
@@ -64,5 +64,5 @@ void GlyphMap::Add_Bitmap(unsigned char* pixels, RectangleBin::Node* node)
  */
 RectangleBin::Node* GlyphMap::Insert(int w, int h)
 {
-	return oBin->Insert(w, h);
+	return oBin->Insert(w + 2, h + 2);
 }

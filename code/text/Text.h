@@ -17,10 +17,12 @@
 #include <map>
 #include <string>
 #include <boost/foreach.hpp>
-#include "consts.h"
-#include "Entity.h"
+#include "../core/consts.h"
+#include "../core/Entity.h"
 #include "GlyphMap.h"
 #include "Font.h"
+#include "TextCharacter.h"
+
 
 // Forward declaration
 class Entity;
@@ -38,13 +40,14 @@ public:
 	Text();
 	~Text();
 
-	void Draw();
 	void Set_Colour(float r, float g, float b);
 	void Set_Text(std::string text);
 	void Set_Font(Font* font);
 	void Set_Size(int size);
 	void Set_Line_Height_Padding(float line_height_padding);
-	void Ready();
+	void Ready_For_Rendering();
+	int Get_Texture_Num_For_Object_Num(int obj_num);
+	void Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int entity_object_num);
 
 private:
 	std::string sText;
@@ -52,9 +55,8 @@ private:
 	int iSize;
 	float fLine_Height_Padding;
 	bool bReady;
-	std::map<GlyphMap*, std::vector<float>* > oVertex_List;
-	std::map<GlyphMap*, std::vector<float>* > oTexture_Coords;	
 	float fTallest_Y_Bearing;
+	std::vector<TextCharacter*> oText_Characters;
 
 };
 
