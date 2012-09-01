@@ -47,10 +47,10 @@ private:
 
 public:
 	float iZ;
-    int iRender_Mode;
+    int iRender_Layer;
     GLuint oTexture;
 
-	Batch(float z, int render_mode, GLuint texture);
+	Batch(float z, int render_layer, GLuint texture);
     ~Batch();
     int Request_Object_Index();
     void New_Update_Batch_Operation(Entity* entity, int object_index, int entity_object_number);

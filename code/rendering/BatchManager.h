@@ -50,7 +50,7 @@ class BatchManager
 
 public:
     GLuint iCurrently_Bound_VBO;
-	int iCurrent_Render_Mode;
+	int iCurrent_Render_Layer;
 
     BatchManager();
     ~BatchManager();
@@ -63,11 +63,10 @@ public:
 private:
 	Game* oGame;
 	std::vector<Batch*> oBatches;
-	std::vector<Batch*> oBatches_In_Z_Order;
-	std::map<int, RenderMode*> oRender_Modes;
+	std::vector<Batch*> oBatches_In_Layer_And_Z_Order;
 
 	int Create_New_Batch(float z, GLuint texture, int render_mode);    
-	static bool Sort_Batches_By_Z(Batch* i, Batch* j);
+	static bool Sort_Batches_By_Layer_And_Z(Batch* i, Batch* j);
 
 };
 

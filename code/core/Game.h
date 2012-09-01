@@ -34,12 +34,12 @@
 #include "Entity.h"
 #include "../text/FontManager.h"
 #include "../text/Text.h"
-#include "../rendering/BatchManager.h"
+#include "../rendering/Renderer.h"
 
 // Forward declaration
 class Entity;
 class Text;
-class BatchManager;
+class Renderer;
 
 
 /**
@@ -65,7 +65,6 @@ private:
 	Text* oFPS_Text;
 
     bool Initialise_Graphics();
-	void Setup_Batches();
     void Load_Media();
     void Tick();
     void Update_Events();
@@ -83,7 +82,7 @@ public:
     GLuint iCurrent_Bound_Texture;
     std::vector<float> oDefault_Texture_Coords;
 	float aCamera_Position[4];
-	BatchManager* oBatch_Manager;
+	Renderer* oRenderer;
 
     Game();
     static Game* Instance();

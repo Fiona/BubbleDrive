@@ -19,11 +19,11 @@
 /**
  * Constructor. Will create the VBO to default values.
  */
-Batch::Batch(float z, int render_mode, GLuint texture)
+Batch::Batch(float z, int render_layer, GLuint texture)
 {
 
 	iZ = z;
-    iRender_Mode = render_mode;
+    iRender_Layer = render_layer;
     oTexture = texture;	
 
 	oGame = Game::Instance();

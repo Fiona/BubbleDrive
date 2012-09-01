@@ -25,10 +25,7 @@ BatchManager::BatchManager()
 	oGame = Game::Instance();
 
 	iCurrently_Bound_VBO = -1;
-	iCurrent_Render_Mode = -1;
-
-	oRender_Modes.insert(std::pair<int, RenderMode*>(RENDER_MODE_SCREEN, new RenderMode("screen")));
-	oRender_Modes.insert(std::pair<int, RenderMode*>(RENDER_MODE_WORLD, new RenderMode("world")));
+	iCurrent_Render_Layer = -1;
 
 }
 
@@ -79,7 +76,7 @@ void BatchManager::Request_New_Batch_And_Object_Indicies(Entity* entity, int num
 			if(
 				oBatches[batch_num]->iZ == entity->Get_Z() &&
 				oBatches[batch_num]->oTexture == entity->Get_Texture_Num_For_Object_Num(obj_num) &&
-				oBatches[batch_num]->iRender_Mode == entity->Get_Render_Mode()
+				oBatches[batch_num]->iRender_Layer == entity->Get_Render_Layer()
 				)
 			{
 
@@ -103,7 +100,7 @@ void BatchManager::Request_New_Batch_And_Object_Indicies(Entity* entity, int num
 			found_batch = Create_New_Batch(
 				entity->Get_Z(),
 				entity->Get_Texture_Num_For_Object_Num(obj_num),
-				entity->Get_Render_Mode()
+				entity->Get_Render_Layer()
 				);
 			object_index = oBatches[found_batch]->Request_Object_Index();
 		}
@@ -187,17 +184,17 @@ void BatchManager::Update_And_Render_Batches()
 
 /**
  * Called by Batch objects to ensure that the current
- * render mode is the one being used.
+ * render layer is the one being used.
  */
-void BatchManager::Set_Current_Render_Mode(int render_mode)
+void BatchManager::Set_Current_Render_Layer(int render_layer)
 {
 
 	//if(iCurrent_Render_Mode == render_mode)
 	//	return;
 
-	iCurrent_Render_Mode = render_mode;
+	iCurrent_Render_Layer = render_layer;
 
-	oRender_Modes[iCurrent_Render_Mode]->Setup();
+	oGame->oRender_Layers[iCurrent_Render_Layer]->Setup();
 
 }
 
@@ -207,16 +204,16 @@ void BatchManager::Set_Current_Render_Mode(int render_mode)
  * not found.
  * Returns the new batch index in the vector.
  */
-int BatchManager::Create_New_Batch(float z, GLuint texture, int render_mode)
+int BatchManager::Create_New_Batch(float z, GLuint texture, int render_layer)
 {
 
-	Batch* new_batch = new Batch(z, render_mode, texture);
+	Batch* new_batch = new Batch(z, render_layer, texture);
 
 	oBatches.push_back(new_batch);
-	oBatches_In_Z_Order.push_back(new_batch);
+	oBatches_In_Layer_And_Z_Order.push_back(new_batch);
 
-	// reorder batches so they're in z order
-	std::sort(oBatches_In_Z_Order.begin(), oBatches_In_Z_Order.end(), &BatchManager::Sort_Batches_By_Z);
+	// reorder batches so they're in layer order then by z 
+	std::sort(oBatches_In_Layer_And_Z_Order.begin(), oBatches_In_Layer_And_Z_Order.end(), &BatchManager::Sort_Batches_By_Layer_And_Z);
 
 	return (int)(oBatches.size() - 1);
 
@@ -227,7 +224,9 @@ int BatchManager::Create_New_Batch(float z, GLuint texture, int render_mode)
  * Sort method used by std::sort to sort Batch objects by
  * their Z value.
  */
-bool BatchManager::Sort_Batches_By_Z(Batch* i, Batch* j)
+bool BatchManager::Sort_Batches_By_Layer_And_Z(Batch* i, Batch* j)
 {
-    return (i->iZ > j->iZ);
+	if(i->iRender_Layer == j->iRender_Layer)
+		return (i->iZ > j->iZ);
+	return (i->iRender_Layer > j->iRender_Layer);
 }
