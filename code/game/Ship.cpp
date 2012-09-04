@@ -25,7 +25,7 @@
 Ship::Ship() : Entity()
 {
 
-	Set_Render_Mode(RENDER_MODE_WORLD);
+	Set_Render_Layer(RENDER_LAYER_WORLD_LIT);
     Set_X(0.0f);
     Set_Y(0.0f);
 	Set_Z(.5f);

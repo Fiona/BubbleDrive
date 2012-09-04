@@ -17,6 +17,7 @@
 
 
 // Includes
+#include "../core/Game.h"
 #include "Shader.h"
 
 // Forward declaration
@@ -34,10 +35,17 @@ class RenderLayer
 public:
 	RenderLayer(Shader* primary_shader);
 	void Add_Post_Processer_Shader(Shader* post_shader);
+	void Set_As_Active();
+	void Unbind();
+	void Enable_Primary_Shader();
+	void Disable_Primary_Shader();
 
 private:
+	Game* oGame;
 	Shader* oPrimary_Shader;
 	std::vector<Shader*> aPost_Processing_Shaders;
+	GLuint iTexture_Num;
+	GLuint iFrame_Buffer_Num;
 
 };
 

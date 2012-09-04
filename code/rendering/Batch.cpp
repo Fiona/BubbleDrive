@@ -170,10 +170,12 @@ void Batch::Bind(int currently_bound)
 {
 
 	glBindBuffer(GL_ARRAY_BUFFER, oVBO);
-	oGame->oBatch_Manager->Set_Current_Render_Mode(iRender_Mode);
+
+	oGame->oRenderer->Set_Current_Render_Layer(iRender_Layer);
 
     if(oGame->iCurrent_Bound_Texture != oTexture)
     {
+		glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, oTexture);
         oGame->iCurrent_Bound_Texture = oTexture;
     }

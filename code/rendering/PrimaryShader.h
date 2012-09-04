@@ -22,6 +22,7 @@
 
 
 // Forward declaration
+class Shader;
 
 
 /**
@@ -33,7 +34,7 @@ class PrimaryShader : public Shader
 {
 
 public:
-	PrimaryShader(std::string shader_file_name);
+	PrimaryShader(std::string shader_file_name, bool is_screen_shader);
 	void Get_Uniform_Locations();
 	void Set_Uniform_Values();
 	void Setup();
@@ -41,6 +42,7 @@ public:
 
 private:
 
+	bool bIs_Screen_Shader;
 	GLint oAttribute_Vertex_Coord;
 	GLint oAttribute_Vertex_Colour;
 	GLint oAttribute_Texture_Coord;

@@ -44,7 +44,7 @@ private:
     float fAlpha;
     Image* oImage;
     int iImage_Frame;
-	int iRender_Mode;
+	int iRender_Layer;
 	std::vector<int>* oBatches_And_Object_Indicies;
     bool bIs_Updating_Batches;
 
@@ -74,8 +74,8 @@ public:
     virtual Image* Get_Image();
     virtual void Set_Image_Frame(int image_frame);
     virtual int Get_Image_Frame();
-    virtual void Set_Render_Mode(int render_mode);
-    virtual int Get_Render_Mode();
+    virtual void Set_Render_Layer(int render_layer);
+    virtual int Get_Render_Layer();
     virtual void Set_Colour(float r, float g, float b);
     virtual void Set_Alpha(float alpha);
     virtual float Get_Alpha();

@@ -221,7 +221,7 @@ void Text::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int entity
 	alpha = Get_Alpha();
 
 
-	if(Get_Render_Mode() == RENDER_MODE_SCREEN)
+	if(Get_Render_Layer() == RENDER_LAYER_SCREEN)
 	{
 		x /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
 		y /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);

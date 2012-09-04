@@ -23,7 +23,7 @@
 Shot::Shot(float x, float y, int rot) : Entity()
 {
 
-	Set_Render_Mode(RENDER_MODE_WORLD);
+	Set_Render_Layer(RENDER_LAYER_WORLD);
     Set_X(x);
     Set_Y(y);
 	Set_Z(0.0f);

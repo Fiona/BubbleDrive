@@ -39,7 +39,7 @@ Entity::Entity()
 	fScale = 1.0f;
     iImage_Frame = 1;
     fAlpha = 1.0f;
-	iRender_Mode = RENDER_MODE_SCREEN;
+	iRender_Layer = RENDER_LAYER_SCREEN;
 	iNum_Objects = 1;
     aColour.resize(3, 1.0f);
     oImage = NULL;
@@ -84,7 +84,7 @@ void Entity::Kill()
 	oGame->Unregister_Entity(this);
 
 	if(oBatches_And_Object_Indicies->size() > 0)
-		oGame->oBatch_Manager->Request_Removal_Of_Objects(oBatches_And_Object_Indicies, true);
+		oGame->oRenderer->oBatch_Manager->Request_Removal_Of_Objects(oBatches_And_Object_Indicies, true);
 
 }
 
@@ -133,7 +133,7 @@ void Entity::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int enti
 		w = (float)Get_Image()->iWidth;
 		h = (float)Get_Image()->iHeight;
 
-		if(Get_Render_Mode() == RENDER_MODE_SCREEN)
+		if(Get_Render_Layer() == RENDER_LAYER_SCREEN)
 		{
 			w /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
 			h /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
@@ -172,7 +172,7 @@ void Entity::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int enti
 	rot = Get_Rotation();
 	scale = Get_Scale();
 
-	if(Get_Render_Mode() == RENDER_MODE_SCREEN)
+	if(Get_Render_Layer() == RENDER_LAYER_SCREEN)
 	{
 		x /= (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
 		y /= (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
@@ -245,22 +245,22 @@ void Entity::Update_Batches_And_Object_Indicies(bool remove_current)
 		return;
 
 	if(oBatches_And_Object_Indicies->size() == 0)
-		oGame->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, iNum_Objects, oBatches_And_Object_Indicies);
+		oGame->oRenderer->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, iNum_Objects, oBatches_And_Object_Indicies);
 	else
 	{
 
 		if(remove_current)
 		{
 
-			oGame->oBatch_Manager->Request_Removal_Of_Objects(oBatches_And_Object_Indicies, false);
+			oGame->oRenderer->oBatch_Manager->Request_Removal_Of_Objects(oBatches_And_Object_Indicies, false);
 			oBatches_And_Object_Indicies->clear();
-			oGame->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, iNum_Objects, oBatches_And_Object_Indicies);
+			oGame->oRenderer->oBatch_Manager->Request_New_Batch_And_Object_Indicies(this, iNum_Objects, oBatches_And_Object_Indicies);
 
 		}
 
 	}
 
-	oGame->oBatch_Manager->Request_Object_Update_For_Entity(this, oBatches_And_Object_Indicies);
+	oGame->oRenderer->oBatch_Manager->Request_Object_Update_For_Entity(this, oBatches_And_Object_Indicies);
 
 	bIs_Updating_Batches = true;
 
@@ -362,17 +362,17 @@ int Entity::Get_Image_Frame()
     return iImage_Frame;
 }
 
-void Entity::Set_Render_Mode(int render_mode)
+void Entity::Set_Render_Layer(int render_layer)
 {
-	if(iRender_Mode == render_mode)
+	if(iRender_Layer == render_layer)
 		return;
-	iRender_Mode = render_mode;
+	iRender_Layer = render_layer;
 	Update_Batches_And_Object_Indicies(true);
 }
 
-int Entity::Get_Render_Mode()
+int Entity::Get_Render_Layer()
 {
-	return iRender_Mode;
+	return iRender_Layer;
 }
 
 void Entity::Set_Colour(float r, float g, float b)

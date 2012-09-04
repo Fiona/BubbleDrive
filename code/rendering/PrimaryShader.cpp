@@ -19,8 +19,10 @@
 /**
  * Constructor, pretty much just passes on to the parent.
  */
-PrimaryShader::PrimaryShader(std::string shader_file_name) : Shader(shader_file_name)
+PrimaryShader::PrimaryShader(std::string shader_file_name, bool is_screen_shader) : Shader(shader_file_name)
 {
+	bIs_Screen_Shader = is_screen_shader;
+	Get_Uniform_Locations();
 }
 
 
@@ -38,12 +40,17 @@ void PrimaryShader::Get_Uniform_Locations()
 			glGetUniformLocation(oShader_Program, "texture_num")
 			)
 		);
-	oUniforms.insert(
-		std::pair<std::string, GLint>(
-			"camera_position",
-			glGetUniformLocation(oShader_Program, "camera_position")
-			)
-		);
+
+	if(!bIs_Screen_Shader)
+	{
+		oUniforms.insert(
+			std::pair<std::string, GLint>(
+				"camera_position",
+				glGetUniformLocation(oShader_Program, "camera_position")
+				)
+			);
+	}
+
 	oUniforms.insert(
 		std::pair<std::string, GLint>(
 			"screen_size",
@@ -71,7 +78,8 @@ void PrimaryShader::Get_Uniform_Locations()
 void PrimaryShader::Set_Uniform_Values()
 {
 
-	glUniform4fv(oUniforms["camera_position"], 1, oGame->aCamera_Position);
+	if(!bIs_Screen_Shader)
+		glUniform4fv(oUniforms["camera_position"], 1, oGame->aCamera_Position);
 
 }
 

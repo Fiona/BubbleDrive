@@ -19,11 +19,9 @@
 #include "../core/Game.h"
 #include "Batch.h"
 #include "../core/Entity.h"
-#include "RenderMode.h"
 
 
 // Forward declaration
-class RenderMode;
 class Batch;
 
 
@@ -50,7 +48,6 @@ class BatchManager
 
 public:
     GLuint iCurrently_Bound_VBO;
-	int iCurrent_Render_Layer;
 
     BatchManager();
     ~BatchManager();
@@ -58,7 +55,6 @@ public:
 	void Request_Object_Update_For_Entity(Entity* entity, std::vector<int>* batches_and_object_indicies);
 	void Request_Removal_Of_Objects(std::vector<int>* batches_and_object_indicies, bool update_dupes);
     void Update_And_Render_Batches();
-	void Set_Current_Render_Mode(int render_mode);
 
 private:
 	Game* oGame;

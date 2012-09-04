@@ -25,7 +25,6 @@ BatchManager::BatchManager()
 	oGame = Game::Instance();
 
 	iCurrently_Bound_VBO = -1;
-	iCurrent_Render_Layer = -1;
 
 }
 
@@ -165,9 +164,8 @@ void BatchManager::Update_And_Render_Batches()
 {
 
 	iCurrently_Bound_VBO = -1;
-	iCurrent_Render_Mode = -1;
 
-    for(std::vector<Batch*>::iterator batch = oBatches_In_Z_Order.begin(); batch != oBatches_In_Z_Order.end(); ++batch)
+    for(std::vector<Batch*>::iterator batch = oBatches_In_Layer_And_Z_Order.begin(); batch != oBatches_In_Layer_And_Z_Order.end(); ++batch)
     {
 
 		(*batch)->Bind(iCurrently_Bound_VBO);
@@ -175,26 +173,6 @@ void BatchManager::Update_And_Render_Batches()
 		(*batch)->Draw();
 
 	}
-
-	if(iCurrent_Render_Mode > -1)
-		oRender_Modes[iCurrent_Render_Mode]->Cleanup();
-
-}
-
-
-/**
- * Called by Batch objects to ensure that the current
- * render layer is the one being used.
- */
-void BatchManager::Set_Current_Render_Layer(int render_layer)
-{
-
-	//if(iCurrent_Render_Mode == render_mode)
-	//	return;
-
-	iCurrent_Render_Layer = render_layer;
-
-	oGame->oRender_Layers[iCurrent_Render_Layer]->Setup();
 
 }
 

@@ -34,6 +34,7 @@
 #include "Entity.h"
 #include "../text/FontManager.h"
 #include "../text/Text.h"
+#include "../rendering/Shader.h"
 #include "../rendering/Renderer.h"
 
 // Forward declaration

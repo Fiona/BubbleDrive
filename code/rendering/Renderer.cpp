@@ -14,6 +14,7 @@
 // Includes
 #include "../core/consts.h"
 #include "Renderer.h"
+#include "PrimaryShader.h"
 
 
 /**
@@ -23,11 +24,17 @@
 Renderer::Renderer()
 {
 
+	oGame = Game::Instance();
+	iCurrent_Render_Layer = -1;
+
 	oBatch_Manager = new BatchManager();
 
+	// Create screen sized texture and frame buffer
+	Create_Screen_Sized_FBO(&iScreen_Texture_Num, &iScreen_Frame_Buffer_Num);
+
 	// Create shader objects
-	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_SCREEN, new PrimaryShader("screen")));
-	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_WORLD, new PrimaryShader("world")));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_SCREEN, new PrimaryShader("screen", true)));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_WORLD, new PrimaryShader("world", false)));
 
 	// Create render layers
 	oRender_Layers.insert(
@@ -62,9 +69,6 @@ Renderer::Renderer()
 	glBindBuffer(GL_ARRAY_BUFFER, iFullscreen_FBO_Verticies);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_vertices), fbo_vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Create screen sized texture and frame buffer
-	Create_Screen_Sized_FBO(&iScreen_Texture_Num, &iScreen_Frame_Buffer_Num);
 
 }
 
@@ -104,7 +108,7 @@ void Renderer::Create_Screen_Sized_FBO(GLuint* texture_num, GLuint* frame_buffer
 {
 
 	// Create texture and fill full of junk data
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE1);
 	glGenTextures(1, texture_num);
 	glBindTexture(GL_TEXTURE_2D, *texture_num);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -130,6 +134,7 @@ void Renderer::Create_Screen_Sized_FBO(GLuint* texture_num, GLuint* frame_buffer
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glActiveTexture(GL_TEXTURE0);
 
 }
 
@@ -144,11 +149,22 @@ void Renderer::Render()
     glClear(GL_COLOR_BUFFER_BIT);
 
 	// Clear RenderLayers
-	// ... 
-
+	iCurrent_Render_Layer = -1;
+    for(std::map<int, RenderLayer* >::iterator it = oRender_Layers.begin(); it != oRender_Layers.end(); ++it)
+    {
+        it->second->Set_As_Active();
+	    glClear(GL_COLOR_BUFFER_BIT);
+	    it->second->Unbind();
+    }
+	
 	// Tell BatchManager to Update and draw
 	// batches to their RenderLayer textures
 	oBatch_Manager->Update_And_Render_Batches();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glActiveTexture(GL_TEXTURE0);
+
+	if(iCurrent_Render_Layer != -1)
+		Unbind_Render_Layer(iCurrent_Render_Layer);
 
 	// Do post-processing and draw each RenderLayer to
 	// the screen texture
@@ -156,5 +172,42 @@ void Renderer::Render()
 
 	// Draw screen texture to screen
 	// ...
+
+}
+
+
+/**
+ * Called by Batch objects to ensure that the current
+ * render layer is the one being used.
+ */
+void Renderer::Set_Current_Render_Layer(int render_layer)
+{
+
+	if(iCurrent_Render_Layer == render_layer)
+	{
+		//oRender_Layers[render_layer]->Enable_Primary_Shader();
+		return;
+	}
+
+	if(iCurrent_Render_Layer != -1)
+		Unbind_Render_Layer(iCurrent_Render_Layer);
+
+	iCurrent_Render_Layer = render_layer;
+
+	oRender_Layers[iCurrent_Render_Layer]->Set_As_Active();
+	oRender_Layers[iCurrent_Render_Layer]->Enable_Primary_Shader();
+
+}
+
+
+/*
+ *
+ */
+void Renderer::Unbind_Render_Layer(int render_layer)
+{
+
+	oRender_Layers[iCurrent_Render_Layer]->Disable_Primary_Shader();
+	oRender_Layers[iCurrent_Render_Layer]->Unbind();
+	iCurrent_Render_Layer = -1;
 
 }
