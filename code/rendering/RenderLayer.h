@@ -36,9 +36,12 @@ public:
 	RenderLayer(Shader* primary_shader);
 	void Add_Post_Processer_Shader(Shader* post_shader);
 	void Set_As_Active();
+	void Set_Texture_As_Active(GLuint texture_num = GL_TEXTURE0);
 	void Unbind();
+	void Unbind_Texture(GLuint texture_num = GL_TEXTURE0);
 	void Enable_Primary_Shader();
 	void Disable_Primary_Shader();
+	void Specify_Vertex_Layout();
 
 private:
 	Game* oGame;

@@ -39,6 +39,7 @@ class Batch
 private:
 	Game* oGame;
     GLuint oVBO;
+	GLuint oVAO;
 	int iLargest_Object_Index;
 
 	std::vector<BatchOperation*> oBatch_Operations;

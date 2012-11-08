@@ -28,9 +28,13 @@ Batch::Batch(float z, int render_layer, GLuint texture)
 
 	oGame = Game::Instance();
 
-	// create VBO to default size
+	// Create VAO 
+	glGenVertexArrays( 1, &oVAO);
+
+	// create VBO and load it with data
 	glGenBuffers(1, &oVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, oVBO);
+
 	int num_elements = (NUM_OBJECTS_IN_VBO * NUM_VERTEX_IN_OBJECT * NUM_ELEMENTS_PER_VERTEX);
 	std::vector<GLfloat> vbo_data(num_elements, 0.0);
 	glBufferData(
@@ -40,6 +44,11 @@ Batch::Batch(float z, int render_layer, GLuint texture)
 		GL_STREAM_DRAW
 		);
 	vbo_data.clear();
+
+	// Specify layout of vertex data
+	glBindVertexArray(oVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, oVBO);
+	oGame->oRenderer->Specify_Vertex_Layout_For_Render_Layer(iRender_Layer);
 
 	// Create pool
 	for(int i = NUM_OBJECTS_IN_VBO-1; i >= 0; i--)
@@ -54,6 +63,7 @@ Batch::Batch(float z, int render_layer, GLuint texture)
 Batch::~Batch()
 {
 	glDeleteBuffers(1, &oVBO);
+	glDeleteVertexArrays(1, &oVAO);
 }
 
 
@@ -169,7 +179,7 @@ void Batch::Free_Object_Index(int object_index)
 void Batch::Bind(int currently_bound)
 {
 
-	glBindBuffer(GL_ARRAY_BUFFER, oVBO);
+	glBindVertexArray(oVAO);
 
 	oGame->oRenderer->Set_Current_Render_Layer(iRender_Layer);
 
@@ -193,6 +203,8 @@ void Batch::Run_Batch_Operations()
 
 	if(oBatch_Operations.size() == 0)
 		return;
+
+	glBindBuffer(GL_ARRAY_BUFFER, oVBO);
 
 	GLfloat vbo_data[NUM_VERTEX_IN_OBJECT * NUM_ELEMENTS_PER_VERTEX];
 
@@ -233,6 +245,8 @@ void Batch::Draw()
 {
 
 	glDrawArrays(GL_TRIANGLES, 0, (iLargest_Object_Index + 1) * NUM_VERTEX_IN_OBJECT);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
 

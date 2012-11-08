@@ -64,6 +64,7 @@ private:
     std::vector<Entity*> Registered_Entities;
     std::vector<Entity*> Entities_To_Delete;
 	Text* oFPS_Text;
+	Text* oObj_Count_Text;
 
     bool Initialise_Graphics();
     void Load_Media();

@@ -29,7 +29,7 @@ Glyph::Glyph(std::string glyph, Font* font, int size)
 	iGlyph_Index = FT_Get_Char_Index(font->oFace, (int)*glyph.c_str());
 
 	FT_Set_Char_Size(font->oFace, 0, size*64, 0, 0);
-	FT_Load_Char(font->oFace, (int)*glyph.c_str(), FT_LOAD_RENDER);
+	FT_Load_Char(font->oFace, (int)*glyph.c_str(), FT_LOAD_NO_AUTOHINT);
 
 	fWidth = font->oFace->glyph->metrics.width / 64.0f;
 	fHeight = font->oFace->glyph->metrics.height / 64.0f;

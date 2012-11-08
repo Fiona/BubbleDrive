@@ -93,5 +93,6 @@ Shader::~Shader()
  */
 void Shader::Get_Uniform_Locations(){}
 void Shader::Set_Uniform_Values(){}
+void Shader::Specify_Vertex_Layout(){};
 void Shader::Setup(){}
 void Shader::Cleanup(){}

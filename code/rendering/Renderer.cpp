@@ -15,6 +15,7 @@
 #include "../core/consts.h"
 #include "Renderer.h"
 #include "PrimaryShader.h"
+#include "RenderLayerShader.h"
 
 
 /**
@@ -35,6 +36,7 @@ Renderer::Renderer()
 	// Create shader objects
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_SCREEN, new PrimaryShader("screen", true)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_WORLD, new PrimaryShader("world", false)));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_RENDER_LAYER, new RenderLayerShader("renderlayer")));
 
 	// Create render layers
 	oRender_Layers.insert(
@@ -58,17 +60,28 @@ Renderer::Renderer()
 			)
 		);
 
-	// Create vertex buffer for drawing a full screen texture
-	GLfloat fbo_vertices[] = {
-		-1, -1,
-	     1, -1,
-		-1,  1,
-	     1,  1,
-	};
-	glGenBuffers(1, &iFullscreen_FBO_Verticies);
-	glBindBuffer(GL_ARRAY_BUFFER, iFullscreen_FBO_Verticies);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_vertices), fbo_vertices, GL_STATIC_DRAW);
+	// We create a VAO containing a quad for use by full-screen layer drawing
+	glGenVertexArrays( 1, &oQuad_VAO);
+
+	std::vector<GLfloat> vbo_data(24, 0.0);
+	vbo_data[0] = -1.0f; vbo_data[1] = 1.0f;	vbo_data[2] = 0.0f; vbo_data[3] = 1.0f;
+	vbo_data[4] = 1.0f;  vbo_data[5] = 1.0f;	vbo_data[6] = 1.0f; vbo_data[7] = 1.0f;
+	vbo_data[8] = 1.0f;  vbo_data[9] = -1.0f;	vbo_data[10] = 1.0f; vbo_data[11] = 0.0f;
+
+	vbo_data[12] = 1.0f; vbo_data[13] = -1.0f;	vbo_data[14] = 1.0f; vbo_data[15] = 0.0f;
+	vbo_data[16] = -1.0f; vbo_data[17] = -1.0f;	vbo_data[18] = 0.0f; vbo_data[19] = 0.0f;
+	vbo_data[20] = -1.0f; vbo_data[21] = 1.0f;  vbo_data[22] = 0.0f; vbo_data[23] = 1.0f;
+	
+	glGenBuffers(1, &oQuad_VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, oQuad_VBO);
+	glBufferData(GL_ARRAY_BUFFER, vbo_data.size() * sizeof(GLfloat), &vbo_data[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(oQuad_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, oQuad_VBO);
+	oShaders[SHADER_RENDER_LAYER]->Specify_Vertex_Layout();
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	vbo_data.clear();
 
 }
 
@@ -95,7 +108,8 @@ Renderer::~Renderer()
 		delete(it->second);
     }
 
-	glDeleteBuffers(1, &iFullscreen_FBO_Verticies);
+	glDeleteBuffers(1, &oQuad_VBO);
+	glDeleteVertexArrays(1, &oQuad_VAO);
 
 }
 
@@ -108,20 +122,18 @@ void Renderer::Create_Screen_Sized_FBO(GLuint* texture_num, GLuint* frame_buffer
 {
 
 	// Create texture and fill full of junk data
-	glActiveTexture(GL_TEXTURE1);
 	glGenTextures(1, texture_num);
 	glBindTexture(GL_TEXTURE_2D, *texture_num);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Create FBO to link it all up
 	glGenFramebuffers(1, frame_buffer_num);
 	glBindFramebuffer(GL_FRAMEBUFFER, *frame_buffer_num);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *texture_num, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Check it worked
 	GLenum status;
@@ -134,7 +146,6 @@ void Renderer::Create_Screen_Sized_FBO(GLuint* texture_num, GLuint* frame_buffer
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(GL_TEXTURE0);
 
 }
 
@@ -160,18 +171,35 @@ void Renderer::Render()
 	// Tell BatchManager to Update and draw
 	// batches to their RenderLayer textures
 	oBatch_Manager->Update_And_Render_Batches();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(GL_TEXTURE0);
 
-	if(iCurrent_Render_Layer != -1)
-		Unbind_Render_Layer(iCurrent_Render_Layer);
+	// Now we have drawn each entity to their relevant RenderLayer
+	// and their frame buffer objects we interate through 
+	// each RenderLayer and apply post-processing shaders while
+	// drawing each one to the screen texture
 
-	// Do post-processing and draw each RenderLayer to
-	// the screen texture
-	// ...
+	// Bind the screen texture
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, iScreen_Frame_Buffer_Num);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Enable drawing a quad to the screen using the default shader
+	glBindVertexArray(oQuad_VAO);
+	oShaders[SHADER_RENDER_LAYER]->Setup();
+
+	// With each RenderLayer, draw them as a screen-sized quad
+    for(std::map<int, RenderLayer* >::iterator it = oRender_Layers.begin(); it != oRender_Layers.end(); ++it)
+    {
+		it->second->Set_Texture_As_Active();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		it->second->Unbind_Texture();
+    }
 
 	// Draw screen texture to screen
-	// ...
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBindTexture(GL_TEXTURE_2D, iScreen_Texture_Num);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	// Clean clean
+	oShaders[SHADER_RENDER_LAYER]->Cleanup();
 
 }
 
@@ -184,10 +212,7 @@ void Renderer::Set_Current_Render_Layer(int render_layer)
 {
 
 	if(iCurrent_Render_Layer == render_layer)
-	{
-		//oRender_Layers[render_layer]->Enable_Primary_Shader();
 		return;
-	}
 
 	if(iCurrent_Render_Layer != -1)
 		Unbind_Render_Layer(iCurrent_Render_Layer);
@@ -206,8 +231,20 @@ void Renderer::Set_Current_Render_Layer(int render_layer)
 void Renderer::Unbind_Render_Layer(int render_layer)
 {
 
-	oRender_Layers[iCurrent_Render_Layer]->Disable_Primary_Shader();
-	oRender_Layers[iCurrent_Render_Layer]->Unbind();
+	oRender_Layers[render_layer]->Disable_Primary_Shader();
+	oRender_Layers[render_layer]->Unbind();
 	iCurrent_Render_Layer = -1;
+
+}
+
+
+/**
+ * Each VBO ends up calling this so the program knows what the layout
+ * of it's layers verticies look like.
+ */
+void Renderer::Specify_Vertex_Layout_For_Render_Layer(int render_layer)
+{
+
+	oRender_Layers[render_layer]->Specify_Vertex_Layout();
 
 }

@@ -2,6 +2,7 @@ varying vec4 f_colour;
 varying vec2 f_texture_coord;
 
 uniform sampler2D texture_num;
+uniform sampler2D screen_texture_num;
 
 void main()
 {

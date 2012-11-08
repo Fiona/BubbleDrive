@@ -38,6 +38,7 @@ public:
 	~Shader();
 	virtual void Get_Uniform_Locations();
 	virtual void Set_Uniform_Values();
+	virtual void Specify_Vertex_Layout();
 	virtual void Setup();
 	virtual void Cleanup();
 

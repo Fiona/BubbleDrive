@@ -17,6 +17,7 @@
 #endif
 
 // Includes
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include "../utils/RectangleBin.h"
 

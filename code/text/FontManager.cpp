@@ -89,6 +89,53 @@ Glyph* FontManager::Request_Glyph(Font* font, int size, std::string character)
 bool FontManager::Place_Glyph_In_GlyphBin(Glyph* glyph)
 {
 
+	// Can assume that the loaded glyph in the FT2 glyphslot is the last added one
+	// so we will give it's bitmap to the GlyphBin to add it to the texture.
+    FT_Glyph glyphDesc;
+	FT_Get_Glyph(glyph->oFont->oFace->glyph, &glyphDesc);
+
+    FT_Glyph_To_Bitmap(&glyphDesc, FT_RENDER_MODE_NORMAL, 0, 1);
+    FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyphDesc;
+    FT_Bitmap& bitmap = bitmapGlyph->bitmap;
+
+	// MAKES IT BOOOLD
+	//FT_Pos weight = 1 << 6;
+	//FT_Bitmap_Embolden(oFTLib, &bitmap, weight, weight);
+
+	int width = bitmap.width;
+	int height = bitmap.rows;
+	glyph->fWidth = (float)width; glyph->fHeight = (float)height;
+
+	std::vector<unsigned char> pixel_buffer;
+	pixel_buffer.clear();
+	pixel_buffer.resize((int)(width * height * 4), 255);
+	unsigned char* pixels = bitmap.buffer;
+
+    if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
+    {
+		for (int y = 0; y < height; ++y)
+		{
+			for (int x = 0; x < width; ++x)
+            {
+				std::size_t index = (x + y * width) * 4 + 3;
+                pixel_buffer[index] = ((pixels[x / 8]) & (1 << (7 - (x % 8)))) ? 255 : 0;
+            }
+            pixels += bitmap.pitch;
+        }
+    }
+    else
+    {
+		for(int y = 0; y < height; ++y)
+		{	
+			for(int x = 0; x < width; ++x)
+			{
+				std::size_t index = (int)((x + y * width) * 4 + 3);
+				pixel_buffer[index] = pixels[x];
+			}
+			pixels += bitmap.pitch;
+		}
+	}
+
 	// We try to insert the Glyph into every GlyphMap and set
 	// the various settings on the Glyph itself.
 	RectangleBin::Node* new_node = 0;
@@ -125,46 +172,7 @@ bool FontManager::Place_Glyph_In_GlyphBin(Glyph* glyph)
 	if(glyph->fWidth <= 0.0f || glyph->fHeight <= 0.0f)
 		return true;
 
-	// Can assume that the loaded glyph in the FT2 glyphslot is the last added one
-	// so we will give it's bitmap to the GlyphBin to add it to the texture.
-    FT_Glyph glyphDesc;
-	FT_Get_Glyph(glyph->oFont->oFace->glyph, &glyphDesc);
-    FT_Glyph_To_Bitmap(&glyphDesc, FT_RENDER_MODE_NORMAL, 0, 1);
-    FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyphDesc;
-    FT_Bitmap& bitmap = bitmapGlyph->bitmap;
-
-	int width = bitmap.width;
-	int height = bitmap.rows;
-	std::vector<unsigned char> pixel_buffer;
-	pixel_buffer.clear();
-	pixel_buffer.resize((int)(width * height * 4), 255);
-	unsigned char* pixels = bitmap.buffer;
-
-    if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
-    {
-		for (int y = 0; y < height; ++y)
-		{
-			for (int x = 0; x < width; ++x)
-            {
-				std::size_t index = (x + y * width) * 4 + 3;
-                pixel_buffer[index] = ((pixels[x / 8]) & (1 << (7 - (x % 8)))) ? 255 : 0;
-            }
-            pixels += bitmap.pitch;
-        }
-    }
-    else
-    {
-		for(int y = 0; y < height; ++y)
-		{	
-			for(int x = 0; x < width; ++x)
-			{
-				std::size_t index = (int)((x + y * width) * 4 + 3);
-				pixel_buffer[index] = pixels[x];
-			}
-			pixels += bitmap.pitch;
-		}
-	}
-
+	// Finally add it to the glyph map texture
 	oGlyph_Maps[glyphmap_num]->Add_Bitmap(&pixel_buffer[0], new_node);
 	
 	return true;

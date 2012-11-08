@@ -64,6 +64,8 @@ void Ship::Logic()
         Set_Scale(Get_Scale() + .05f);
 
     create_vorticies(200.0f, 200.0f, 1);
+    create_vorticies(300.0f, 300.0f, 1);
+    create_vorticies(600.0f, 450.0f, 1);
     create_vorticies(840.0f, 525.0f, 1);
 
 	std::vector<float> centre = Get_Hotspot_Pos(HOTSPOT_CENTRE);

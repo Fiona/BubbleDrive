@@ -40,6 +40,12 @@ void PrimaryShader::Get_Uniform_Locations()
 			glGetUniformLocation(oShader_Program, "texture_num")
 			)
 		);
+	oUniforms.insert(
+		std::pair<std::string, GLint>(
+			"screen_texture_num",
+			glGetUniformLocation(oShader_Program, "screen_texture_num")
+			)
+		);
 
 	if(!bIs_Screen_Shader)
 	{
@@ -59,6 +65,7 @@ void PrimaryShader::Get_Uniform_Locations()
 		);
 
 	glUniform1i(oUniforms["texture_num"], 0);
+	glUniform1i(oUniforms["screen_texture_num"], 0);
 	float screen_size[2]; screen_size[0] = DEFAULT_SCREEN_WIDTH; screen_size[1] = DEFAULT_SCREEN_HEIGHT;
 	glUniform2fv(oUniforms["screen_size"], 1, screen_size);
 
@@ -93,14 +100,23 @@ void PrimaryShader::Setup()
 	glUseProgram(oShader_Program);
 	Set_Uniform_Values();
 
-	glVertexAttribPointer(oAttribute_Vertex_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), 0);
-	glVertexAttribPointer(oAttribute_Vertex_Colour, 4, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-	glVertexAttribPointer(oAttribute_Texture_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glVertexAttribPointer(oAttribute_Pos_Rotation_Scale, 4, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
+}
+
+
+/**
+ * This is called on the relevant layer after each VBO for a Batch is created.
+ */
+void PrimaryShader::Specify_Vertex_Layout()
+{
+
 	glEnableVertexAttribArray(oAttribute_Vertex_Coord);
+	glVertexAttribPointer(oAttribute_Vertex_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), 0);
 	glEnableVertexAttribArray(oAttribute_Vertex_Colour);
+	glVertexAttribPointer(oAttribute_Vertex_Colour, 4, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(oAttribute_Texture_Coord);
+	glVertexAttribPointer(oAttribute_Texture_Coord, 2, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(oAttribute_Pos_Rotation_Scale);
+	glVertexAttribPointer(oAttribute_Pos_Rotation_Scale, 4, GL_FLOAT, GL_FALSE, NUM_ELEMENTS_PER_VERTEX * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
 
 }
 
@@ -110,11 +126,6 @@ void PrimaryShader::Setup()
  */
 void PrimaryShader::Cleanup()
 {
-
-	glDisableVertexAttribArray(oAttribute_Vertex_Colour);
-	glDisableVertexAttribArray(oAttribute_Vertex_Coord);
-	glDisableVertexAttribArray(oAttribute_Texture_Coord);
-	glDisableVertexAttribArray(oAttribute_Pos_Rotation_Scale);
 
 	glUseProgram(0);
 

@@ -42,10 +42,12 @@ public:
 	void Render();
 	void Set_Current_Render_Layer(int render_layer);
 	void Unbind_Render_Layer(int render_layer);
+	void Specify_Vertex_Layout_For_Render_Layer(int render_layer);
 
 	BatchManager* oBatch_Manager;
 	int iCurrent_Render_Layer;
-	GLuint iFullscreen_FBO_Verticies;
+	GLuint oQuad_VAO;
+	GLuint oQuad_VBO;
 
 private:
 	Game* oGame;

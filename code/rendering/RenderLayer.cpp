@@ -44,11 +44,21 @@ void RenderLayer::Set_As_Active()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, iFrame_Buffer_Num);
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, iTexture_Num);
+	Set_Texture_As_Active(GL_TEXTURE1);
 }
 
+
+/**
+ * Sets the texture as the active texture, you can 
+ * optionally pass in the texture num to make active, otherwise
+ * it will default to GL_TEXTURE0
+ */
+void RenderLayer::Set_Texture_As_Active(GLuint texture_num)
+{
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(texture_num);
+	glBindTexture(GL_TEXTURE_2D, iTexture_Num);
+}
 
 /**
  *
@@ -56,7 +66,15 @@ void RenderLayer::Set_As_Active()
 void RenderLayer::Unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glActiveTexture(GL_TEXTURE1);
+	Unbind_Texture(GL_TEXTURE1);
+}
+
+/**
+*
+ */
+void RenderLayer::Unbind_Texture(GLuint texture_num)
+{
+	glActiveTexture(texture_num);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -76,4 +94,13 @@ void RenderLayer::Enable_Primary_Shader()
 void RenderLayer::Disable_Primary_Shader()
 {
 	oPrimary_Shader->Cleanup();
+}
+
+
+/**
+ * Passes on to the primary shader.
+ */
+void RenderLayer::Specify_Vertex_Layout()
+{
+	oPrimary_Shader->Specify_Vertex_Layout();
 }
