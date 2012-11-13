@@ -16,6 +16,8 @@
 #include "Renderer.h"
 #include "PrimaryShader.h"
 #include "RenderLayerShader.h"
+#include "PostShader.h"
+#include "PostShaderBlur.h"
 
 
 /**
@@ -37,18 +39,21 @@ Renderer::Renderer()
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_SCREEN, new PrimaryShader("screen", true)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_WORLD, new PrimaryShader("world", false)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_RENDER_LAYER, new RenderLayerShader("renderlayer")));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_GREYSCALE, new PostShader("greyscale")));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR, new PostShaderBlur("blur")));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR2, new PostShaderBlur("blur2")));
 
 	// Create render layers
 	oRender_Layers.insert(
 		std::pair<int, RenderLayer*>(
-			RENDER_LAYER_WORLD,
+			RENDER_LAYER_WORLD_LIT,
 			new RenderLayer(oShaders[SHADER_PRIMARY_WORLD])
 			)
 		);
-
+	
 	oRender_Layers.insert(
 		std::pair<int, RenderLayer*>(
-			RENDER_LAYER_WORLD_LIT,
+			RENDER_LAYER_WORLD,
 			new RenderLayer(oShaders[SHADER_PRIMARY_WORLD])
 			)
 		);
@@ -59,6 +64,11 @@ Renderer::Renderer()
 			new RenderLayer(oShaders[SHADER_PRIMARY_SCREEN])
 			)
 		);
+	
+	// Add basic per-layer post processing to each render layer where appropriate
+	//oRender_Layers[RENDER_LAYER_WORLD]->Add_Post_Processer_Shader(oShaders[SHADER_POST_GREYSCALE]);
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
 
 	// We create a VAO containing a quad for use by full-screen layer drawing
 	glGenVertexArrays( 1, &oQuad_VAO);
@@ -165,24 +175,40 @@ void Renderer::Render()
     {
         it->second->Set_As_Active();
 	    glClear(GL_COLOR_BUFFER_BIT);
-	    it->second->Unbind();
     }
 	
+	// When rendering to the frame buffers we need to make sure we're not
+	// taking the destination colour into account otherwise we will blend with the
+	// transparent black pixels that it's cleared too. Yeah, I know, right?
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
 	// Tell BatchManager to Update and draw
 	// batches to their RenderLayer textures
 	oBatch_Manager->Update_And_Render_Batches();
 
-	// Now we have drawn each entity to their relevant RenderLayer
-	// and their frame buffer objects we interate through 
-	// each RenderLayer and apply post-processing shaders while
-	// drawing each one to the screen texture
+	// We have to put the blend function back to something a little more sane
+	// for collating the FBOs together.
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Bind the screen texture
+	// Now we have drawn each entity to their relevant RenderLayer
+	// and their frame buffer objects. We interate through 
+	// each RenderLayer and apply post-processing shaders while
+	// drawing each one to a temporary buffer that will finally
+	// be rendered to the screen.
+
+	// Bind a single quad, this will be our "fake" screen
+	glBindVertexArray(oQuad_VAO);
+
+	// Make sure all the post processing that needs doing to individual render layers happens
+    for(std::map<int, RenderLayer* >::iterator it = oRender_Layers.begin(); it != oRender_Layers.end(); ++it)
+		it->second->Do_Post_Processing();
+
+	// Bind the temporary draw buffer and clear the drawing that was
+	// done on it the previous frame.
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, iScreen_Frame_Buffer_Num);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-	// Enable drawing a quad to the screen using the default shader
-	glBindVertexArray(oQuad_VAO);
+	
+	// Setup the default shader for simple full-screen single-quad drawing.
 	oShaders[SHADER_RENDER_LAYER]->Setup();
 
 	// With each RenderLayer, draw them as a screen-sized quad
@@ -190,10 +216,9 @@ void Renderer::Render()
     {
 		it->second->Set_Texture_As_Active();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-		it->second->Unbind_Texture();
     }
 
-	// Draw screen texture to screen
+	// Draw collated texture to the screen
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, iScreen_Texture_Num);
 	glDrawArrays(GL_TRIANGLES, 0, 6);

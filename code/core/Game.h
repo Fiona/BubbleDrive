@@ -86,6 +86,8 @@ public:
 	float aCamera_Position[4];
 	Renderer* oRenderer;
 
+	float fScreen_Blur_Amount;
+
     Game();
     static Game* Instance();
     int Start();

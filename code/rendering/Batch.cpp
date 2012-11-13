@@ -245,6 +245,7 @@ void Batch::Draw()
 {
 
 	glDrawArrays(GL_TRIANGLES, 0, (iLargest_Object_Index + 1) * NUM_VERTEX_IN_OBJECT);
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 

@@ -14,10 +14,13 @@
 
 // Includes
 #include <iostream>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 #include "../core/Game.h"
 #include "Ship.h"
 #include "Shot.h"
 
+boost::random::mt19937 gen;
 
 /**
  * Constructor
@@ -63,10 +66,34 @@ void Ship::Logic()
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Num4))
         Set_Scale(Get_Scale() + .05f);
 
-    create_vorticies(200.0f, 200.0f, 1);
-    create_vorticies(300.0f, 300.0f, 1);
-    create_vorticies(600.0f, 450.0f, 1);
-    create_vorticies(840.0f, 525.0f, 1);
+    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num5))
+		oGame->fScreen_Blur_Amount = 1.0f;
+
+    if(oGame->fScreen_Blur_Amount > 0.0f)
+		oGame->fScreen_Blur_Amount -= 0.1f;
+	else
+		oGame->fScreen_Blur_Amount = 0.0f;
+
+	current_rotation += 90;
+	if(current_rotation > 360)
+		current_rotation = 0;
+
+	for(int i = 0; i < 1; i++)
+	{
+		boost::random::uniform_int_distribution<> dist(0, 500);
+	    int x = dist(gen);
+		int y = dist(gen);
+
+		boost::random::uniform_int_distribution<> dist2(0, 90);
+	    int angle = dist(gen);
+
+		new Shot((float)x, (float)y, angle);
+
+	}
+    //create_vorticies(200.0f, 200.0f, 1);
+    //create_vorticies(300.0f, 300.0f, 1);
+    //create_vorticies(600.0f, 450.0f, 1);
+    //create_vorticies(840.0f, 525.0f, 1);
 
 	std::vector<float> centre = Get_Hotspot_Pos(HOTSPOT_CENTRE);
 	oGame->aCamera_Position[0] = centre[0];
@@ -83,29 +110,18 @@ void Ship::create_vorticies(float x, float y, int type)
 
     //if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
     //{
-        range = 10;
-        amount = 10;
+		range = 0;
+        amount = 32;
     //}
 
     for(int c = 0; c <= range; c++)
     {
-        if(type == 1)
-            current_rotation_2 -= amount;
-        else
-            current_rotation += amount;
+	    current_rotation += amount;
 
-        if(type == 1)
-        {
-            if(current_rotation_2 < -360)
-                current_rotation_2 = 0;
-        }
-        else
-        {
-            if(current_rotation > 360)
-                current_rotation = 0;
-        }
+        if(current_rotation > 360)
+	        current_rotation = 0;
 
-        new Shot(x, y, (type == 1 ? current_rotation_2 : current_rotation));        
+        new Shot(x, y, current_rotation);
     }
 
 }

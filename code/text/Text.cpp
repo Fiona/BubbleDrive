@@ -105,12 +105,20 @@ void Text::Ready_For_Rendering()
 	iNum_Objects = 0;
 	oText_Characters.clear();
 
+	float w_adjust = 1.0f;
+	float h_adjust = 1.0f;
+	if(Get_Render_Layer() == RENDER_LAYER_SCREEN)
+	{
+		w_adjust = (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
+		h_adjust = (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
+	}
+
 	for(int i = 0; i < (int)sText.length(); i++)
 	{
 
 		if(sText.substr(i, 1) == "\n")
 		{
-			ver_draw_position += tallest_glyph + fLine_Height_Padding;
+			ver_draw_position += (tallest_glyph / h_adjust) + (fLine_Height_Padding / h_adjust);
 			hor_draw_position = 0.0f;
 			continue;
 		}
@@ -129,7 +137,7 @@ void Text::Ready_For_Rendering()
 		}
 
 		if(previous_glyph && use_kerning)
-			hor_draw_position += current_glyph->Get_Kerning(previous_glyph);
+			hor_draw_position += current_glyph->Get_Kerning(previous_glyph) / w_adjust;
 		previous_glyph = current_glyph;
 
 		if(current_glyph->fY_Bearing > fTallest_Y_Bearing)
@@ -140,7 +148,7 @@ void Text::Ready_For_Rendering()
 
 		if(current_glyph->fWidth <= 0.0f || current_glyph->fHeight <= 0.0f)
 		{
-			hor_draw_position += current_glyph->fAdvance;
+			hor_draw_position += current_glyph->fAdvance / w_adjust;
 			continue;
 		}
 
@@ -150,14 +158,14 @@ void Text::Ready_For_Rendering()
 			new TextCharacter(current_glyph, hor_draw_position, ver_draw_position, oGame->oFont_Manager->oGlyph_Maps[current_glyph->iGlyph_Map])
 			);
 
-		hor_draw_position += current_glyph->fAdvance;
+		hor_draw_position += current_glyph->fAdvance / w_adjust;
 
 	}
 
     BOOST_FOREACH(TextCharacter* character, oText_Characters)
     {
 
-		character->fY_Pos += tallest_glyph;
+		character->fY_Pos += tallest_glyph / h_adjust;
 
     }
 
@@ -194,11 +202,19 @@ void Text::Get_Object_Index_Data(int object_index, GLfloat* vbo_data, int entity
 	// *******
 	// Width / Height
 	// *******
+	float w_adjust = 1.0f;
+	float h_adjust = 1.0f;
+	if(Get_Render_Layer() == RENDER_LAYER_SCREEN)
+	{
+		w_adjust = (float)((float)OPTIMAL_SCREEN_WIDTH / (float)DEFAULT_SCREEN_WIDTH);
+		h_adjust = (float)((float)OPTIMAL_SCREEN_HEIGHT / (float)DEFAULT_SCREEN_HEIGHT);
+	}
+
 	float ch_x, ch_y, w, h;
 	ch_x = character->fX_Pos;
-	w = character->oGlyph->fWidth;
-	ch_y = character->fY_Pos - character->oGlyph->fY_Bearing;
-	h = character->oGlyph->fHeight;
+	w = character->oGlyph->fWidth / w_adjust;
+	ch_y = character->fY_Pos - (character->oGlyph->fY_Bearing / h_adjust);
+	h = character->oGlyph->fHeight / h_adjust;
 
 	// *******
 	// Texture pos

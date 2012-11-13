@@ -4,8 +4,8 @@ attribute vec2 texture_coord;
 varying vec2 f_texture_coord;
 
 uniform sampler2D texture_num;
-uniform sampler2D screen_texture_num;
 uniform vec2 screen_size;
+uniform float blur_amount;
 
 void main()
 {
@@ -13,5 +13,4 @@ void main()
 	f_texture_coord = texture_coord;
 	gl_Position =  vec4(vertex_coord.x, vertex_coord.y, 0.0, 1.0);
 	
-
 }

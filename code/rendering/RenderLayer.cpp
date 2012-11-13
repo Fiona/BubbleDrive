@@ -14,6 +14,7 @@
 
 // Includes
 #include "RenderLayer.h"
+#include "PostShader.h"
 
 
 /**
@@ -23,7 +24,11 @@ RenderLayer::RenderLayer(Shader* primary_shader)
 {
 	oPrimary_Shader = primary_shader;
 	oGame = Game::Instance();
-	oGame->oRenderer->Create_Screen_Sized_FBO(&iTexture_Num, &iFrame_Buffer_Num);
+	aTexture_Num.resize(2, 0);
+	aFrame_Buffer_Num.resize(2, 0);
+	iCurrent_FBO = 0;
+	oGame->oRenderer->Create_Screen_Sized_FBO(&aTexture_Num[0], &aFrame_Buffer_Num[0]);
+	oGame->oRenderer->Create_Screen_Sized_FBO(&aTexture_Num[1], &aFrame_Buffer_Num[1]);
 }
 
 
@@ -31,7 +36,7 @@ RenderLayer::RenderLayer(Shader* primary_shader)
  * Adds a shader that is applied to the rendering layer after
  * all entities are drawn to it.
  */
-void RenderLayer::Add_Post_Processer_Shader(Shader* post_shader)
+void RenderLayer::Add_Post_Processer_Shader(PostShader* post_shader)
 {
 	aPost_Processing_Shaders.push_back(post_shader);
 }
@@ -42,22 +47,17 @@ void RenderLayer::Add_Post_Processer_Shader(Shader* post_shader)
  */
 void RenderLayer::Set_As_Active()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, iFrame_Buffer_Num);
-	glDrawBuffer(GL_COLOR_ATTACHMENT0);
-	Set_Texture_As_Active(GL_TEXTURE1);
+	glBindFramebuffer(GL_FRAMEBUFFER, aFrame_Buffer_Num[iCurrent_FBO]);
 }
 
 
 /**
- * Sets the texture as the active texture, you can 
- * optionally pass in the texture num to make active, otherwise
- * it will default to GL_TEXTURE0
+ * Sets the FBO texture as the active texture
  */
-void RenderLayer::Set_Texture_As_Active(GLuint texture_num)
+void RenderLayer::Set_Texture_As_Active()
 {
 	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(texture_num);
-	glBindTexture(GL_TEXTURE_2D, iTexture_Num);
+	glBindTexture(GL_TEXTURE_2D, aTexture_Num[iCurrent_FBO]);
 }
 
 /**
@@ -66,15 +66,13 @@ void RenderLayer::Set_Texture_As_Active(GLuint texture_num)
 void RenderLayer::Unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	Unbind_Texture(GL_TEXTURE1);
 }
 
 /**
 *
  */
-void RenderLayer::Unbind_Texture(GLuint texture_num)
+void RenderLayer::Unbind_Texture()
 {
-	glActiveTexture(texture_num);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -103,4 +101,45 @@ void RenderLayer::Disable_Primary_Shader()
 void RenderLayer::Specify_Vertex_Layout()
 {
 	oPrimary_Shader->Specify_Vertex_Layout();
+}
+
+
+/**
+ * Once things have been drawn to the render layer, this will run
+ * post processing shaders that have been assigned to this layer.
+ */
+void RenderLayer::Do_Post_Processing()
+{
+
+	if(aPost_Processing_Shaders.size() == 0)
+		return;
+	
+    for(std::vector<PostShader*>::iterator it = aPost_Processing_Shaders.begin(); it != aPost_Processing_Shaders.end(); ++it)
+	{
+
+		if(!(*it)->Should_Apply())
+			continue;
+
+		// We use a kind of double buffered thing for our FBO so 
+		// we're not writing to the same thing we're reading from, 
+		// flipping between FBOs when we get here.
+		glBindTexture(GL_TEXTURE_2D, aTexture_Num[iCurrent_FBO]);
+
+		if(iCurrent_FBO == 0)
+			iCurrent_FBO = 1;
+		else
+			iCurrent_FBO = 0;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, aFrame_Buffer_Num[iCurrent_FBO]);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		(*it)->Setup();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		(*it)->Cleanup();
+
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
 }

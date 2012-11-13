@@ -22,6 +22,7 @@
 
 // Forward declaration
 class Shader;
+class PostShader;
 
 
 /**
@@ -34,21 +35,23 @@ class RenderLayer
 
 public:
 	RenderLayer(Shader* primary_shader);
-	void Add_Post_Processer_Shader(Shader* post_shader);
+	void Add_Post_Processer_Shader(PostShader* post_shader);
 	void Set_As_Active();
-	void Set_Texture_As_Active(GLuint texture_num = GL_TEXTURE0);
+	void Set_Texture_As_Active();
 	void Unbind();
-	void Unbind_Texture(GLuint texture_num = GL_TEXTURE0);
+	void Unbind_Texture();
 	void Enable_Primary_Shader();
 	void Disable_Primary_Shader();
 	void Specify_Vertex_Layout();
+	void Do_Post_Processing();
 
 private:
 	Game* oGame;
 	Shader* oPrimary_Shader;
-	std::vector<Shader*> aPost_Processing_Shaders;
-	GLuint iTexture_Num;
-	GLuint iFrame_Buffer_Num;
+	std::vector<PostShader*> aPost_Processing_Shaders;
+	std::vector<GLuint> aTexture_Num;
+	std::vector<GLuint> aFrame_Buffer_Num;
+	int iCurrent_FBO;
 
 };
 

@@ -4,22 +4,22 @@
  ***************************************
  ****** By Stompy Blondie Games  *******
  ***************************************
- *** File started Oct 2012 by Fiona ****
+ *** File started Nov 2012 by Fiona ****
  ***************************************/
 
 /**
-   RenderLayerShader object source file.
+   PostShader object source file.
  */
 
 
 // Includes
-#include "RenderLayerShader.h"
+#include "PostShader.h"
 
 
 /**
  * Constructor, pretty much just passes on to the parent.
  */
-RenderLayerShader::RenderLayerShader(std::string shader_file_name) : Shader(shader_file_name)
+PostShader::PostShader(std::string shader_file_name) : Shader(shader_file_name)
 {
 	Get_Uniform_Locations();
 }
@@ -28,7 +28,7 @@ RenderLayerShader::RenderLayerShader(std::string shader_file_name) : Shader(shad
 /**
  * Gets locations of uniforms for shader.
  */
-void RenderLayerShader::Get_Uniform_Locations()
+void PostShader::Get_Uniform_Locations()
 {
 
 	glUseProgram(oShader_Program);
@@ -59,6 +59,8 @@ void RenderLayerShader::Get_Uniform_Locations()
 
 	oAttribute_Vertex_Coord = glGetAttribLocation(oShader_Program, "vertex_coord");
 	oAttribute_Texture_Coord = glGetAttribLocation(oShader_Program, "texture_coord");
+	glEnableVertexAttribArray(oAttribute_Vertex_Coord);
+	glEnableVertexAttribArray(oAttribute_Texture_Coord);
 
 	glUseProgram(0);
 
@@ -68,7 +70,7 @@ void RenderLayerShader::Get_Uniform_Locations()
 /**
  * Used by the render set up to set uniform vals.
  */
-void RenderLayerShader::Set_Uniform_Values()
+void PostShader::Set_Uniform_Values()
 {
 
 }
@@ -77,7 +79,7 @@ void RenderLayerShader::Set_Uniform_Values()
 /**
  * Does everything that is required before rendering.
  */
-void RenderLayerShader::Setup()
+void PostShader::Setup()
 {
 
 	glUseProgram(oShader_Program);
@@ -89,7 +91,7 @@ void RenderLayerShader::Setup()
 /**
  * This is called on the relevant layer after each VBO for a Batch is created.
  */
-void RenderLayerShader::Specify_Vertex_Layout()
+void PostShader::Specify_Vertex_Layout()
 {
 
 	glEnableVertexAttribArray(oAttribute_Vertex_Coord);
@@ -103,9 +105,20 @@ void RenderLayerShader::Specify_Vertex_Layout()
 /**
  * Cleans up, disables GL modes etc
  */
-void RenderLayerShader::Cleanup()
+void PostShader::Cleanup()
 {
 
 	glUseProgram(0);
 
 }
+
+
+/**
+ * Returns a bool on if the shader should be applied or not.
+ * This allows us to skip it if it's unnecessary.
+ */
+bool PostShader::Should_Apply()
+{
+	return true;
+}
+

@@ -37,28 +37,6 @@ mat4 scale_matrix = mat4(
 
 void main()
 {
-/*
-	gl_FrontColor = gl_Color;
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-    
-    mat4 normalise_coordinate = mat4(
-		vec4(1.0 / (screen_size.x * .5), 0.0, 0.0, 0.0), 
-		vec4(0.0, -1.0 / (screen_size.y * .5), 0.0, 0.0), 
-		vec4(0.0, 0.0, 1.0, 0.0),
-		vec4(0.0, 0.0, 0.0, 1.0)
-    );
-        
-    gl_Position =
-      normalise_coordinate * (
-        vec4(
-          position.x - (screen_size.x / 2),
-          position.y - (screen_size.y / 2),
-          0.0,
-          0.0
-        ) + (rotation_matrix * scale_matrix * gl_Vertex)
-      );
-      */
-      //gl_Position = vec4(vertex_coord.x, vertex_coord.y, 0.0, 1.0);      
       
 	f_colour = vertex_colour;
 	f_texture_coord = texture_coord;
@@ -69,7 +47,7 @@ void main()
 		vec4(0.0, 0.0, 1.0, 0.0),
 		vec4(0.0, 0.0, 0.0, 1.0)
     );
-      
+
     gl_Position = normalise_coordinate * 
     (
       vec4(
@@ -78,5 +56,6 @@ void main()
         0.0,
         0.0
       ) + (rotation_matrix * scale_matrix * vec4(vertex_coord.x, vertex_coord.y, 0.0, 1.0))
-    );      
+    );
+      
 }
