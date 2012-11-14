@@ -43,6 +43,17 @@ void RenderLayer::Add_Post_Processer_Shader(PostShader* post_shader)
 
 
 /**
+ * Unlike post processing shaders which are applied on only the render layers
+ * contents, cumilative ones are applied at the point when that render layer
+ * is collated to the screen.
+ */
+void RenderLayer::Add_Cumilative_Post_Processer_Shader(PostShader* post_shader)
+{
+	aCumilative_Post_Processing_Shaders.push_back(post_shader);
+}
+
+
+/**
  * Sets the render layer so it's the one that will be drawn to.
  */
 void RenderLayer::Set_As_Active()
@@ -142,4 +153,46 @@ void RenderLayer::Do_Post_Processing()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
+}
+
+
+/**
+ * Apply cumilative post processing.
+ * Returns true if there was any cumilative post processing to do,
+ * otherwise false.
+ */
+bool RenderLayer::Do_Cumilative_Post_Processing(std::vector<GLuint>* textures, std::vector<GLuint>* frame_buffers, int* current_fbo)
+{
+
+	if(aCumilative_Post_Processing_Shaders.size() == 0)
+		return false;
+	
+	bool have_done = false;
+
+    for(std::vector<PostShader*>::iterator it = aCumilative_Post_Processing_Shaders.begin(); it != aCumilative_Post_Processing_Shaders.end(); ++it)
+	{
+
+		if(!(*it)->Should_Apply())
+			continue;
+
+		have_done = true;
+
+		glBindTexture(GL_TEXTURE_2D, (*textures)[*current_fbo]);
+
+		if(*current_fbo == 0)
+			*current_fbo = 1;
+		else
+			*current_fbo = 0;
+
+		glBindFramebuffer(GL_FRAMEBUFFER, (*frame_buffers)[*current_fbo]);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		(*it)->Setup();
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		(*it)->Cleanup();
+
+	}
+
+	return have_done;
+
 }

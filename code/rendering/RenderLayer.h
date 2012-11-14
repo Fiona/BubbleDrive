@@ -36,6 +36,7 @@ class RenderLayer
 public:
 	RenderLayer(Shader* primary_shader);
 	void Add_Post_Processer_Shader(PostShader* post_shader);
+	void Add_Cumilative_Post_Processer_Shader(PostShader* post_shader);
 	void Set_As_Active();
 	void Set_Texture_As_Active();
 	void Unbind();
@@ -44,11 +45,13 @@ public:
 	void Disable_Primary_Shader();
 	void Specify_Vertex_Layout();
 	void Do_Post_Processing();
+	bool Do_Cumilative_Post_Processing(std::vector<GLuint>* textures, std::vector<GLuint>* frame_buffers, int* current_fbo);
 
 private:
 	Game* oGame;
 	Shader* oPrimary_Shader;
 	std::vector<PostShader*> aPost_Processing_Shaders;
+	std::vector<PostShader*> aCumilative_Post_Processing_Shaders;
 	std::vector<GLuint> aTexture_Num;
 	std::vector<GLuint> aFrame_Buffer_Num;
 	int iCurrent_FBO;

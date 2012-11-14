@@ -33,8 +33,12 @@ Renderer::Renderer()
 	oBatch_Manager = new BatchManager();
 
 	// Create screen sized texture and frame buffer
-	Create_Screen_Sized_FBO(&iScreen_Texture_Num, &iScreen_Frame_Buffer_Num);
-
+	iCurrent_FBO = 0;
+	aScreen_Texture_Num.resize(2, 0);
+	aScreen_Frame_Buffer_Num.resize(2, 0);
+	Create_Screen_Sized_FBO(&aScreen_Texture_Num[0], &aScreen_Frame_Buffer_Num[0]);
+	Create_Screen_Sized_FBO(&aScreen_Texture_Num[1], &aScreen_Frame_Buffer_Num[1]);
+	
 	// Create shader objects
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_SCREEN, new PrimaryShader("screen", true)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_WORLD, new PrimaryShader("world", false)));
@@ -66,9 +70,18 @@ Renderer::Renderer()
 		);
 	
 	// Add basic per-layer post processing to each render layer where appropriate
-	//oRender_Layers[RENDER_LAYER_WORLD]->Add_Post_Processer_Shader(oShaders[SHADER_POST_GREYSCALE]);
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
+	//oRender_Layers[RENDER_LAYER_WORLD]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
+	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
+	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
+	
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
+	//oRender_Layers[RENDER_LAYER_WORLD]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
+
+	// Define what order we draw layers in from back to front
+	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD);
+	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD_LIT);
+	aRender_Layer_Order.push_back(RENDER_LAYER_SCREEN);
 
 	// We create a VAO containing a quad for use by full-screen layer drawing
 	glGenVertexArrays( 1, &oQuad_VAO);
@@ -171,9 +184,9 @@ void Renderer::Render()
 
 	// Clear RenderLayers
 	iCurrent_Render_Layer = -1;
-    for(std::map<int, RenderLayer* >::iterator it = oRender_Layers.begin(); it != oRender_Layers.end(); ++it)
-    {
-        it->second->Set_As_Active();
+    for(std::vector<int>::iterator it = aRender_Layer_Order.begin(); it != aRender_Layer_Order.end(); ++it)
+    {		
+        oRender_Layers[*it]->Set_As_Active();
 	    glClear(GL_COLOR_BUFFER_BIT);
     }
 	
@@ -200,27 +213,33 @@ void Renderer::Render()
 	glBindVertexArray(oQuad_VAO);
 
 	// Make sure all the post processing that needs doing to individual render layers happens
-    for(std::map<int, RenderLayer* >::iterator it = oRender_Layers.begin(); it != oRender_Layers.end(); ++it)
-		it->second->Do_Post_Processing();
+    for(std::vector<int>::iterator it = aRender_Layer_Order.begin(); it != aRender_Layer_Order.end(); ++it)
+        oRender_Layers[*it]->Do_Post_Processing();
 
 	// Bind the temporary draw buffer and clear the drawing that was
 	// done on it the previous frame.
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, iScreen_Frame_Buffer_Num);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, aScreen_Frame_Buffer_Num[iCurrent_FBO]);
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	// Setup the default shader for simple full-screen single-quad drawing.
 	oShaders[SHADER_RENDER_LAYER]->Setup();
 
 	// With each RenderLayer, draw them as a screen-sized quad
-    for(std::map<int, RenderLayer* >::iterator it = oRender_Layers.begin(); it != oRender_Layers.end(); ++it)
+    for(std::vector<int>::iterator it = aRender_Layer_Order.begin(); it != aRender_Layer_Order.end(); ++it)
     {
-		it->second->Set_Texture_As_Active();
+
+		oRender_Layers[*it]->Set_Texture_As_Active();
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// One each one is drawn we make sure that we do any post processing that needs doing to it.
+		if(oRender_Layers[*it]->Do_Cumilative_Post_Processing(&aScreen_Texture_Num, &aScreen_Frame_Buffer_Num, &iCurrent_FBO))
+			oShaders[SHADER_RENDER_LAYER]->Setup();
+
     }
 
 	// Draw collated texture to the screen
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBindTexture(GL_TEXTURE_2D, iScreen_Texture_Num);
+	glBindTexture(GL_TEXTURE_2D, aScreen_Texture_Num[iCurrent_FBO]);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	// Clean clean

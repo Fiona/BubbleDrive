@@ -51,10 +51,12 @@ public:
 
 private:
 	Game* oGame;
-	GLuint iScreen_Texture_Num;
-	GLuint iScreen_Frame_Buffer_Num;
+	std::vector<int> aRender_Layer_Order;
+	std::vector<GLuint> aScreen_Texture_Num;
+	std::vector<GLuint> aScreen_Frame_Buffer_Num;
 	std::map<int, Shader*> oShaders;
 	std::map<int, RenderLayer*> oRender_Layers;
+	int iCurrent_FBO;
 
 };
 
