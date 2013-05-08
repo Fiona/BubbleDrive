@@ -23,7 +23,7 @@
 /**
  *
  */
-class Ship : Entity
+class Ship : public Entity
 {
 
 private:

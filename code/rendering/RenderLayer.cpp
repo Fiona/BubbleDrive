@@ -131,21 +131,14 @@ void RenderLayer::Do_Post_Processing()
 		if(!(*it)->Should_Apply())
 			continue;
 
-		// We use a kind of double buffered thing for our FBO so 
-		// we're not writing to the same thing we're reading from, 
-		// flipping between FBOs when we get here.
-		glBindTexture(GL_TEXTURE_2D, aTexture_Num[iCurrent_FBO]);
-
-		if(iCurrent_FBO == 0)
-			iCurrent_FBO = 1;
+		if((*it)->Num_Passes_Required() > 1)
+		{
+			for(int i = 1; i <= (*it)->Num_Passes_Required(); i++)
+				Do_Post_Processing_Flip_And_Draw(*it, i);
+		}	
 		else
-			iCurrent_FBO = 0;
+			Do_Post_Processing_Flip_And_Draw(*it, 1);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, aFrame_Buffer_Num[iCurrent_FBO]);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		(*it)->Setup();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 		(*it)->Cleanup();
 
 	}
@@ -153,6 +146,32 @@ void RenderLayer::Do_Post_Processing()
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
+}
+
+
+/**
+ * Short-hand function that Do_Post_Processing uses to draw to the 
+ * correct FBO.
+ */
+void RenderLayer::Do_Post_Processing_Flip_And_Draw(PostShader* post_effect, int pass)
+{
+
+	// We use a kind of double buffered thing for our FBO so 
+	// we're not writing to the same thing we're reading from, 
+	// flipping between FBOs when we get here.
+	glBindTexture(GL_TEXTURE_2D, aTexture_Num[iCurrent_FBO]);
+
+	if(iCurrent_FBO == 0)
+		iCurrent_FBO = 1;
+	else
+		iCurrent_FBO = 0;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, aFrame_Buffer_Num[iCurrent_FBO]);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	post_effect->Setup(pass);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
 }
 
 
@@ -177,22 +196,41 @@ bool RenderLayer::Do_Cumilative_Post_Processing(std::vector<GLuint>* textures, s
 
 		have_done = true;
 
-		glBindTexture(GL_TEXTURE_2D, (*textures)[*current_fbo]);
-
-		if(*current_fbo == 0)
-			*current_fbo = 1;
+		if((*it)->Num_Passes_Required() > 1)
+		{
+			for(int i = 1; i <= (*it)->Num_Passes_Required(); i++)
+				Do_Cumilative_Post_Processing_Flip_And_Draw(*it, i, textures, frame_buffers, current_fbo);
+		}	
 		else
-			*current_fbo = 0;
+			Do_Cumilative_Post_Processing_Flip_And_Draw(*it, 1, textures, frame_buffers, current_fbo);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, (*frame_buffers)[*current_fbo]);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		(*it)->Setup();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
 		(*it)->Cleanup();
 
 	}
 
 	return have_done;
+
+}
+
+
+/**
+ * Short-hand function that Do_Cumilative_Post_Processing uses to draw to the 
+ * correct FBO.
+ */
+void RenderLayer::Do_Cumilative_Post_Processing_Flip_And_Draw(PostShader* post_effect, int pass, std::vector<GLuint>* textures, std::vector<GLuint>* frame_buffers, int* current_fbo)
+{
+
+	glBindTexture(GL_TEXTURE_2D, (*textures)[*current_fbo]);
+
+	if(*current_fbo == 0)
+		*current_fbo = 1;
+	else
+		*current_fbo = 0;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, (*frame_buffers)[*current_fbo]);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	post_effect->Setup(pass);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 }

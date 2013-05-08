@@ -69,8 +69,9 @@ void PostShader::Get_Uniform_Locations()
 
 /**
  * Used by the render set up to set uniform vals.
+ * The parameter is which number pass we're about to do. Starting at 1.
  */
-void PostShader::Set_Uniform_Values()
+void PostShader::Set_Uniform_Values(int pass)
 {
 
 }
@@ -78,12 +79,14 @@ void PostShader::Set_Uniform_Values()
 
 /**
  * Does everything that is required before rendering.
+ * The parameter is which number pass we're about to do. Starting at 1.
+ * This is only relevent if the shader does more than one pass.
  */
-void PostShader::Setup()
+void PostShader::Setup(int pass)
 {
 
 	glUseProgram(oShader_Program);
-	Set_Uniform_Values();
+	Set_Uniform_Values(pass);
 
 }
 
@@ -109,6 +112,18 @@ void PostShader::Cleanup()
 {
 
 	glUseProgram(0);
+
+}
+
+
+/**
+ * Returns an int specifying how many times we should apply this
+ * post-processing effect. This is usually 1.
+ */
+int PostShader::Num_Passes_Required()
+{
+
+	return 1;
 
 }
 

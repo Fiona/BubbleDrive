@@ -164,6 +164,7 @@ void BatchManager::Update_And_Render_Batches()
 {
 
 	iCurrently_Bound_VBO = -1;
+	oGame->iCurrent_Bound_Texture = -1;
 
     for(std::vector<Batch*>::iterator batch = oBatches_In_Layer_And_Z_Order.begin(); batch != oBatches_In_Layer_And_Z_Order.end(); ++batch)
     {

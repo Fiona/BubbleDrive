@@ -81,10 +81,12 @@ public:
 	FontManager* oFont_Manager;
     Media* oMedia;
     State* oState;
+	Renderer* oRenderer;
     GLuint iCurrent_Bound_Texture;
     std::vector<float> oDefault_Texture_Coords;
 	float aCamera_Position[4];
-	Renderer* oRenderer;
+	std::vector<float> aMouse_Pos;
+	std::vector<bool> aMouse_Buttons;
 
 	float fScreen_Blur_Amount;
 
@@ -98,6 +100,21 @@ public:
     float Deg_To_Rad(float degrees);
     float Rad_To_Deg(float radians);
 	std::string Load_From_File(std::string file_name);
+	std::vector<float> World_To_Normalised_Screen_Coordinates(float x, float y);
+	std::vector<float> World_To_Screen(float x, float y);
+	std::vector<float> World_To_Real_Screen(float x, float y);
+	std::vector<float> Normalised_Screen_To_World_Coordinates(float x, float y);
+	std::vector<float> Screen_To_World(float x, float y);
+	std::vector<float> Real_Screen_To_World(float x, float y);
+	float World_Length_To_Screen(float len);
+	float World_Length_To_Real_Screen(float len);
+	float Screen_Length_To_World(float len);
+	float Real_Screen_Length_To_World(float len);
+	float Get_Distance_Between_Points(std::vector<float> point1, std::vector<float> point2);
+	float Angle_Between_Points(std::vector<float> point1, std::vector<float> point2);
+	float Normalise_Angle(float angle);
+	float Angle_Difference(float start_angle, float end_angle);
+	float Near_Angle(float curr_angle, float targ_angle, float increment);
 
 };
 

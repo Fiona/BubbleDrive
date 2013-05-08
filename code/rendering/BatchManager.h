@@ -26,11 +26,11 @@ class Batch;
 
 
 /**
- * The core batch manager. A single instance of this will
- * be created in the Game instance.
+ * The core batch manager. A single instance of this is
+ * created in the main Renderer instance.
  * Entities request batch indicies from it using a variety of
  * methods.
- * The main Game instance will call Update_And_Render_Batches once
+ * The main Renderer will call Update_And_Render_Batches once
  * per-frame, which will iterate through all batches, make sure the
  * VBOs are all in line and finally render them all using the
  * relevant RenderMode.

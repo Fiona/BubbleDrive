@@ -36,10 +36,11 @@ class PostShader : public Shader
 public:
 	PostShader(std::string shader_file_name);
 	void Get_Uniform_Locations();
-	void Set_Uniform_Values();
+	void Set_Uniform_Values(int pass);
 	void Specify_Vertex_Layout();
-	void Setup();
+	virtual void Setup(int pass);
 	void Cleanup();
+	virtual int Num_Passes_Required();
 	virtual bool Should_Apply();
 
 private:

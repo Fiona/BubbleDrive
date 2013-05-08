@@ -45,7 +45,9 @@ public:
 	void Disable_Primary_Shader();
 	void Specify_Vertex_Layout();
 	void Do_Post_Processing();
+	void Do_Post_Processing_Flip_And_Draw(PostShader* post_effect, int pass);
 	bool Do_Cumilative_Post_Processing(std::vector<GLuint>* textures, std::vector<GLuint>* frame_buffers, int* current_fbo);
+	void Do_Cumilative_Post_Processing_Flip_And_Draw(PostShader* post_effect, int pass, std::vector<GLuint>* textures, std::vector<GLuint>* frame_buffers, int* current_fbo);
 
 private:
 	Game* oGame;

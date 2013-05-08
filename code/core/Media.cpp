@@ -23,12 +23,11 @@
 Media::Media()
 {
 
-    mImages.insert(std::pair<std::string, Image*>("ship", new Image("gfx" + SEPARATOR + "ship.png", 2)));
-    mImages.insert(std::pair<std::string, Image*>("shot", new Image("gfx" + SEPARATOR + "shot.png", 1)));
+    mImages.insert(std::pair<std::string, Image*>("ship", new Image("gfx" + SEPARATOR + "ships" + SEPARATOR + "ship1.png", 1)));
+    mImages.insert(std::pair<std::string, Image*>("shot", new Image("gfx" + SEPARATOR + "weapons" + SEPARATOR + "laser1.png", 2)));
 
     mFonts.insert(std::pair<std::string, Font*>("test", new Font("fnt" + SEPARATOR + "aurulent.ttf")));
     mFonts.insert(std::pair<std::string, Font*>("boris", new Font("fnt" + SEPARATOR + "borisblackbloxx.ttf")));
-    //mFonts.insert(std::pair<std::string, Font*>("japan", new Font("fnt" + SEPARATOR + "japan.ttf")));
 
 }
 

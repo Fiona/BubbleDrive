@@ -15,6 +15,7 @@
 // Includes
 #include "GlyphMap.h"
 #include "../core/consts.h"
+#include "../core/Game.h"
 
 
 /**
@@ -23,8 +24,11 @@
 GlyphMap::GlyphMap()
 {
 
+	oGame = Game::Instance();
+
     glGenTextures(1, &iTexture);
     glBindTexture(GL_TEXTURE_2D, iTexture);
+	oGame->iCurrent_Bound_Texture = iTexture;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -53,6 +57,7 @@ void GlyphMap::Add_Bitmap(unsigned char* pixels, RectangleBin::Node* node)
 {
 
 	glBindTexture(GL_TEXTURE_2D, iTexture);
+	oGame->iCurrent_Bound_Texture = iTexture;
 	glTexSubImage2D(GL_TEXTURE_2D, 0, node->iX + 1, node->iY + 1,
 		node->iWidth - 2, node->iHeight - 2, GL_RGBA, GL_UNSIGNED_BYTE, pixels); 
 

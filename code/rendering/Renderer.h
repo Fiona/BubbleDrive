@@ -15,10 +15,12 @@
 // Includes
 #include <map>
 #include <GL/glew.h>
+#include <boost/numeric/ublas/matrix.hpp>
 #include "../core/Game.h"
 #include "BatchManager.h"
 #include "Shader.h"
 #include "RenderLayer.h"
+#include "Light.h"
 
 
 // Forward declaration
@@ -43,11 +45,21 @@ public:
 	void Set_Current_Render_Layer(int render_layer);
 	void Unbind_Render_Layer(int render_layer);
 	void Specify_Vertex_Layout_For_Render_Layer(int render_layer);
+	void Register_Light(Light* new_light);
+	void Remove_Light(Light* light);
 
 	BatchManager* oBatch_Manager;
 	int iCurrent_Render_Layer;
 	GLuint oQuad_VAO;
 	GLuint oQuad_VBO;
+	boost::numeric::ublas::matrix<float> oView_Frustrum;
+
+	float a00; float a10; float a20; float a30;
+	float a01; float a11; float a21; float a31;
+	float a02; float a12; float a22; float a32;
+	float a03; float a13; float a23; float a33;
+
+	std::vector<Light*> aLights;
 
 private:
 	Game* oGame;

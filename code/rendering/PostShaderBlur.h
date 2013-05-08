@@ -35,9 +35,9 @@ class PostShaderBlur : public PostShader
 public:
 	PostShaderBlur(std::string shader_file_name);
 	void Get_Uniform_Locations();
-	void Set_Uniform_Values();
+	void Set_Uniform_Values(int pass);
 	void Specify_Vertex_Layout();
-	void Setup();
+	void Setup(int pass);
 	void Cleanup();
 	bool Should_Apply();
 

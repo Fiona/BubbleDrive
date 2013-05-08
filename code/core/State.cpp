@@ -14,7 +14,9 @@
 
 // Includes
 #include "State.h"
+#include "../core/Game.h"
 #include "../game/Ship.h"
+#include "../game/Test.h"
 #include "../text/Text.h"
 
 
@@ -68,7 +70,11 @@ void State::Change_State(Game_State New_State)
     // Create main game
     if(eGame_State == GAME_STATE_IN_GAME)
     {		
-		new Ship();
+		oShip = new Ship();
+		Game* game = Game::Instance();
+		new Test(1);
+		new Test(2);
+		new Test(3);
     }
 
 }

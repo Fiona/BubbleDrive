@@ -17,7 +17,7 @@
 
 
 // Includes
-// . . .
+#include "../game/Ship.h"
 
 
 /**
@@ -44,6 +44,7 @@ private:
     
 public:
     Game_State eGame_State;
+	Ship* oShip;
 
     State();
     ~State();

@@ -18,6 +18,7 @@
 #include "RenderLayerShader.h"
 #include "PostShader.h"
 #include "PostShaderBlur.h"
+#include "PostShaderLights.h"
 
 
 /**
@@ -33,6 +34,9 @@ Renderer::Renderer()
 	oBatch_Manager = new BatchManager();
 
 	// Create screen sized texture and frame buffer
+	// These are used to render vertex batches to or to render post-processing passes to.
+	// Two are required so render passes have access to what is currently drawn to the screen to
+	// that point. The active buffer is switched between passes like a double-buffer.
 	iCurrent_FBO = 0;
 	aScreen_Texture_Num.resize(2, 0);
 	aScreen_Frame_Buffer_Num.resize(2, 0);
@@ -40,14 +44,24 @@ Renderer::Renderer()
 	Create_Screen_Sized_FBO(&aScreen_Texture_Num[1], &aScreen_Frame_Buffer_Num[1]);
 	
 	// Create shader objects
+	// These load GLSL code and are responsible for passing uniforms etc to the shaders when rendering.
+	// PrimaryShaders are used for rendering entity verticies to render layers. Different GLSL code is used for the nature of 
+	// the entities. When rendering all entities are drawn to each individual layer first, each layer having it's own FBO.
+	// RenderLayerShader is a simple shader that draws a screen-size quad to the screen when collating render layers
+	// together for the final image.
+	// The Post shaders are used for various post-processing effects. They can be applied to individual layers or to the whole 
+	// screen as certain layers are collated.
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_SCREEN, new PrimaryShader("screen", true)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_WORLD, new PrimaryShader("world", false)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_RENDER_LAYER, new RenderLayerShader("renderlayer")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_GREYSCALE, new PostShader("greyscale")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR, new PostShaderBlur("blur")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR2, new PostShaderBlur("blur2")));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_LIGHTS, new PostShaderLights("lights")));
 
 	// Create render layers
+	// These are essentially FBOs that entity batches are drawn to. Different layers are used so certain post-processing
+	// effects will only apply to certain screen layers.
 	oRender_Layers.insert(
 		std::pair<int, RenderLayer*>(
 			RENDER_LAYER_WORLD_LIT,
@@ -73,10 +87,14 @@ Renderer::Renderer()
 	//oRender_Layers[RENDER_LAYER_WORLD]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
 	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
 	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_LIGHTS]));
 	
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
-	//oRender_Layers[RENDER_LAYER_WORLD]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
+	// Cumilative post-processing shaders are be applied to layers as they are added to the final screen buffer. This allows us to have
+	// a shader that affects everything drawn up to a point. For instance, affecting everything execpt on-screen GUI.
+	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
+	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
+	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_LIGHTS]));
+	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
 
 	// Define what order we draw layers in from back to front
 	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD);
@@ -106,6 +124,25 @@ Renderer::Renderer()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	vbo_data.clear();
 
+	// Recreating the view frustrum that our shaders use in code for use various
+	// screen<->world operations.
+	oView_Frustrum = boost::numeric::ublas::matrix<float>(4, 4);
+	float aspect_ratio = (float)DEFAULT_SCREEN_WIDTH / (float)DEFAULT_SCREEN_HEIGHT;
+	float angle_of_view = oGame->Deg_To_Rad(ANGLE_OF_VIEW);
+	float z_near = 0.5f;
+	float z_far = 3001.0f;
+
+	// GLSL matricies are defined as column,row 
+	oView_Frustrum(0,0) = 1.0f / (float)tan(angle_of_view); oView_Frustrum(1,0) = 0.0f; oView_Frustrum(2,0) = 0.0f; oView_Frustrum(3,0) = 0.0f;
+	oView_Frustrum(0,1) = 0.0f; oView_Frustrum(1,1) = (-aspect_ratio) / (float)tan(angle_of_view); oView_Frustrum(2,1) = 0.0f; oView_Frustrum(3,1) = 0.0f;
+	oView_Frustrum(0,2) = 0.0f; oView_Frustrum(1,2) = 0.0f; oView_Frustrum(2,2) = (z_far+z_near)/(z_far-z_near); oView_Frustrum(3,2) = 1.0f;
+	oView_Frustrum(0,3) = 0.0f; oView_Frustrum(1,3) = 0.0f; oView_Frustrum(2,3) = -2.0f * z_far * z_near / (z_far - z_near); oView_Frustrum(3,3) = 0.0f;
+
+	a00 = oView_Frustrum(0,0); a10 = oView_Frustrum(1,0); a20 = oView_Frustrum(2,0); a30 = oView_Frustrum(3,0);
+	a01 = oView_Frustrum(0,1); a11 = oView_Frustrum(1,1); a21 = oView_Frustrum(2,1); a31 = oView_Frustrum(3,1);
+	a02 = oView_Frustrum(0,2); a12 = oView_Frustrum(1,2); a22 = oView_Frustrum(2,2); a32 = oView_Frustrum(3,2);
+	a03 = oView_Frustrum(0,3); a13 = oView_Frustrum(1,3); a23 = oView_Frustrum(2,3); a33 = oView_Frustrum(3,3);
+
 }
 
 
@@ -130,6 +167,9 @@ Renderer::~Renderer()
             continue;
 		delete(it->second);
     }
+
+	while(!aLights.empty()) delete aLights.back(), aLights.pop_back();
+	aLights.clear();
 
 	glDeleteBuffers(1, &oQuad_VBO);
 	glDeleteVertexArrays(1, &oQuad_VAO);
@@ -291,4 +331,31 @@ void Renderer::Specify_Vertex_Layout_For_Render_Layer(int render_layer)
 
 	oRender_Layers[render_layer]->Specify_Vertex_Layout();
 
+}
+
+
+/**
+ * Essentially just adds a Light object to the Renderer's list of lights.
+ * These objects are used by PostShaderLights to do lighting effects.
+ */
+void Renderer::Register_Light(Light* new_light)
+{
+
+	aLights.push_back(new_light);
+
+}
+
+
+/**
+ * This removes Light objects from the light list.
+ */
+void Renderer::Remove_Light(Light* light)
+{
+    std::vector<Light*>::iterator it;
+    it = std::find(aLights.begin(), aLights.end(), light);
+    if(it != aLights.end())
+	{
+		delete(*it);
+        it = aLights.erase(it);
+	}
 }

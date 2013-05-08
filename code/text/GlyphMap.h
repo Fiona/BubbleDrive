@@ -22,6 +22,10 @@
 #include "../utils/RectangleBin.h"
 
 
+// Forward declaration
+class Game;
+
+
 /**
  * GlyphMaps hold pointers to their relevant 
  * rectangle bins and textures that Text objects
@@ -39,6 +43,7 @@ public:
 	GLuint iTexture;
 
 private:
+	Game* oGame;
 	RectangleBin* oBin;
 
 };

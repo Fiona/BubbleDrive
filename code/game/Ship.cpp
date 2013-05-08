@@ -56,15 +56,22 @@ void Ship::Logic()
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Down))
         Set_Y(Get_Y() + 10.0f);
 
-    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num1))
-        Set_Rotation(Get_Rotation() - 2.0f);
-    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num2))
-        Set_Rotation(Get_Rotation() + 2.0f);
+	std::vector<float> mouse_position_in_world = oGame->Real_Screen_To_World(oGame->aMouse_Pos[0], oGame->aMouse_Pos[1]);
+	std::vector<float> ship_pos; ship_pos.push_back(Get_X()); ship_pos.push_back(Get_Y());
+	float distance_between_mouse_and_ship = oGame->Get_Distance_Between_Points(mouse_position_in_world, ship_pos);
 
-    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num3))
-        Set_Scale(Get_Scale() - .05f);
-    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num4))
-        Set_Scale(Get_Scale() + .05f);
+	if(distance_between_mouse_and_ship > 32.0f)
+	{
+
+		float rotation_towards_mouse = oGame->Angle_Between_Points(ship_pos, mouse_position_in_world);
+		Set_Rotation(
+				oGame->Near_Angle(
+					Get_Rotation(),
+					rotation_towards_mouse,
+					5.0f
+				)	
+			);
+	}
 
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Num5))
 		oGame->fScreen_Blur_Amount = 1.0f;
@@ -74,22 +81,36 @@ void Ship::Logic()
 	else
 		oGame->fScreen_Blur_Amount = 0.0f;
 
-	current_rotation += 90;
-	if(current_rotation > 360)
-		current_rotation = 0;
-
-	for(int i = 0; i < 1; i++)
+	if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
 	{
-		boost::random::uniform_int_distribution<> dist(0, 500);
-	    int x = dist(gen);
-		int y = dist(gen);
 
-		boost::random::uniform_int_distribution<> dist2(0, 90);
-	    int angle = dist(gen);
+		for(int i = 0; i < 5; i++)
+		{
+			boost::random::uniform_int_distribution<> dist(-25, 25);
+		    int x = dist(gen);
+			int y = dist(gen);
 
-		new Shot((float)x, (float)y, angle);
+			boost::random::uniform_int_distribution<> dist2(0, 360);
+			int angle = dist(gen);
+
+			new Shot((float)x, (float)y, angle);
+			/*
+		if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
+	    {
+			new Shot((float)x, (float)y, angle + 45);
+			new Shot((float)x, (float)y, angle + 90);
+			new Shot((float)x, (float)y, angle + 135);
+			new Shot((float)x, (float)y, angle + 180);
+			new Shot((float)x, (float)y, angle + 225);
+			new Shot((float)x, (float)y, angle + 270);
+			new Shot((float)x, (float)y, angle + 315);
+			new Shot((float)x, (float)y, angle + 360);
+		}*/
+
+		}
 
 	}
+
     //create_vorticies(200.0f, 200.0f, 1);
     //create_vorticies(300.0f, 300.0f, 1);
     //create_vorticies(600.0f, 450.0f, 1);
@@ -108,11 +129,11 @@ void Ship::create_vorticies(float x, float y, int type)
     int range = 0;
     int amount = 45;
 
-    //if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
-    //{
-		range = 0;
-        amount = 32;
-    //}
+    if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
+    {
+		range = 10;
+        amount = 8;
+    }
 
     for(int c = 0; c <= range; c++)
     {

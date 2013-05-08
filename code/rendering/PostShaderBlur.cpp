@@ -49,7 +49,7 @@ void PostShaderBlur::Get_Uniform_Locations()
 /**
  * Used by the render set up to set uniform vals.
  */
-void PostShaderBlur::Set_Uniform_Values()
+void PostShaderBlur::Set_Uniform_Values(int pass)
 {
 	glUniform1f(oUniforms["blur_amount"], oGame->fScreen_Blur_Amount);
 }
@@ -70,6 +70,6 @@ bool PostShaderBlur::Should_Apply()
 /**
  * Virtual definitons
  */
-void PostShaderBlur::Setup(){ PostShader::Setup(); }
+void PostShaderBlur::Setup(int pass){ PostShader::Setup(pass); }
 void PostShaderBlur::Specify_Vertex_Layout(){ PostShader::Specify_Vertex_Layout(); }
 void PostShaderBlur::Cleanup(){ PostShader::Cleanup(); }
