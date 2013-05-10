@@ -8,7 +8,7 @@ uniform float blur_amount;
 void main()
 {
 
-	float blur_size = blur_amount / (float)screen_size.y;
+	float blur_size = blur_amount / float(screen_size.y);
 
     vec4 sum = vec4(0.0);
  

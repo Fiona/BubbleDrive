@@ -23,7 +23,6 @@ mat4 rotation_matrix = mat4(
         vec4(0.0, 0.0, 0.0, 1.0)
 );
 
-
 /*
  * Responsible for scaling the object.
  */
@@ -33,7 +32,6 @@ mat4 scale_matrix = mat4(
         vec4(0.0, 0.0, 1.0, 0.0),
         vec4(0.0, 0.0, 0.0, 1.0)
 );
-
 
 void main()
 {
@@ -51,11 +49,13 @@ void main()
     gl_Position = normalise_coordinate * 
     (
       vec4(
-        pos_rotation_scale.x - (screen_size.x / 2),
-        pos_rotation_scale.y - (screen_size.y / 2),
+        pos_rotation_scale.x - (screen_size.x / 2.0),
+        pos_rotation_scale.y - (screen_size.y / 2.0),
         0.0,
         0.0
       ) + (rotation_matrix * scale_matrix * vec4(vertex_coord.x, vertex_coord.y, 0.0, 1.0))
     );
-      
+
+	gl_Position =  vec4(vertex_coord.x, vertex_coord.y, 0.0, 1.0);
+    
 }

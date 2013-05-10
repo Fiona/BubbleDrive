@@ -27,6 +27,7 @@ Shader::Shader(std::string shader_file_name)
 	oShader_Program = 0;
 	oFragment_Shader_Program = 0;
 	oVertex_Shader_Program = 0;
+    GLint compile_status;
 
 	oGame = Game::Instance();
 
@@ -44,6 +45,22 @@ Shader::Shader(std::string shader_file_name)
     oVertex_Shader_Program = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(oVertex_Shader_Program, 1, (const GLchar**)&vertex_shader_code, 0);
     glCompileShader(oVertex_Shader_Program);
+    glGetShaderiv(oVertex_Shader_Program, GL_COMPILE_STATUS, &compile_status);
+
+    if(!compile_status)
+    {
+        fprintf(stderr, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str());
+
+        int info_log_length = 0;
+        int max_length;
+		glGetShaderiv(oVertex_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
+        char info_log[max_length];
+		glGetShaderInfoLog(oVertex_Shader_Program, max_length, &info_log_length, info_log);
+        if(info_log_length > 0)
+            printf("%s\n", info_log);
+
+        return;
+    }
 
 	// Load fragment shader code
 	std::string frag_shader = oGame->Load_From_File(
@@ -59,12 +76,37 @@ Shader::Shader(std::string shader_file_name)
     oFragment_Shader_Program = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(oFragment_Shader_Program, 1, (const GLchar**)&fragment_shader_code, 0);
     glCompileShader(oFragment_Shader_Program);
+    glGetShaderiv(oFragment_Shader_Program, GL_COMPILE_STATUS, &compile_status);
+
+    if(!compile_status)
+    {
+        fprintf(stderr, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str());
+
+        int info_log_length = 0;
+        int max_length;
+		glGetShaderiv(oFragment_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
+        char info_log[max_length];
+		glGetShaderInfoLog(oFragment_Shader_Program, max_length, &info_log_length, info_log);
+        if(info_log_length > 0)
+            printf("%s\n", info_log);
+
+        return;
+    }
 
 	// Create and link shader program, and get shader uniform locations
     oShader_Program = glCreateProgram();
     glAttachShader(oShader_Program, oVertex_Shader_Program);
     glAttachShader(oShader_Program, oFragment_Shader_Program);
     glLinkProgram(oShader_Program);
+
+    int info_log_length = 0;
+    int max_length;
+    glGetProgramiv(oShader_Program, GL_INFO_LOG_LENGTH, &max_length); 
+    char info_log[max_length];
+    glGetProgramInfoLog(oShader_Program, max_length, &info_log_length, info_log);
+    if(info_log_length > 0)
+        printf("Info log for %s: %s\n", shader_file_name.c_str(), info_log);
+
 	Get_Uniform_Locations();
 
 }
