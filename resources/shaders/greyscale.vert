@@ -5,6 +5,7 @@ varying vec2 f_texture_coord;
 
 uniform sampler2D texture_num;
 uniform vec2 screen_size;
+uniform float saturation_amount; 
 
 void main()
 {

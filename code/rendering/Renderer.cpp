@@ -19,6 +19,7 @@
 #include "PostShader.h"
 #include "PostShaderBlur.h"
 #include "PostShaderLights.h"
+#include "PostShaderSaturation.h"
 
 
 /**
@@ -54,7 +55,7 @@ Renderer::Renderer()
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_SCREEN, new PrimaryShader("screen", true)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_PRIMARY_WORLD, new PrimaryShader("world", false)));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_RENDER_LAYER, new RenderLayerShader("renderlayer")));
-	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_GREYSCALE, new PostShader("greyscale")));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_GREYSCALE, new PostShaderSaturation("greyscale")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR, new PostShaderBlur("blur")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR2, new PostShaderBlur("blur2")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_LIGHTS, new PostShaderLights("lights")));
@@ -91,10 +92,10 @@ Renderer::Renderer()
 	
 	// Cumilative post-processing shaders are be applied to layers as they are added to the final screen buffer. This allows us to have
 	// a shader that affects everything drawn up to a point. For instance, affecting everything execpt on-screen GUI.
-	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
-	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
 	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_LIGHTS]));
-	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
 
 	// Define what order we draw layers in from back to front
 	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD);

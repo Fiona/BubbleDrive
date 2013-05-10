@@ -89,6 +89,7 @@ public:
 	std::vector<bool> aMouse_Buttons;
 
 	float fScreen_Blur_Amount;
+	float fSaturation_Amount;
 
     Game();
     static Game* Instance();

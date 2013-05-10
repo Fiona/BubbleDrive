@@ -32,11 +32,7 @@ Ship::Ship() : Entity()
     Set_X(0.0f);
     Set_Y(0.0f);
 	Set_Z(.5f);
-    Set_Image_Frame(1);
     Set_Image(oGame->oMedia->mImages["ship"]);
-
-    current_rotation = 0;
-    current_rotation_2 = 0;
 
 }
 
@@ -71,9 +67,20 @@ void Ship::Logic()
 					5.0f
 				)	
 			);
+
 	}
 
-    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num5))
+    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num1))
+		oGame->fSaturation_Amount -= .05f;
+	else
+		oGame->fSaturation_Amount += .05f;
+
+    if(oGame->fSaturation_Amount > 1.0f)
+		oGame->fSaturation_Amount = 1.0f;
+    if(oGame->fSaturation_Amount < 0.0f)
+		oGame->fSaturation_Amount = 0.0f;
+
+    if(oGame->Keyboard_Key_Down(sf::Keyboard::Num2))
 		oGame->fScreen_Blur_Amount = 1.0f;
 
     if(oGame->fScreen_Blur_Amount > 0.0f)
@@ -91,30 +98,13 @@ void Ship::Logic()
 			int y = dist(gen);
 
 			boost::random::uniform_int_distribution<> dist2(0, 360);
-			int angle = dist(gen);
+			int angle = dist2(gen);
 
 			new Shot((float)x, (float)y, angle);
-			/*
-		if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
-	    {
-			new Shot((float)x, (float)y, angle + 45);
-			new Shot((float)x, (float)y, angle + 90);
-			new Shot((float)x, (float)y, angle + 135);
-			new Shot((float)x, (float)y, angle + 180);
-			new Shot((float)x, (float)y, angle + 225);
-			new Shot((float)x, (float)y, angle + 270);
-			new Shot((float)x, (float)y, angle + 315);
-			new Shot((float)x, (float)y, angle + 360);
-		}*/
 
 		}
 
 	}
-
-    //create_vorticies(200.0f, 200.0f, 1);
-    //create_vorticies(300.0f, 300.0f, 1);
-    //create_vorticies(600.0f, 450.0f, 1);
-    //create_vorticies(840.0f, 525.0f, 1);
 
 	std::vector<float> centre = Get_Hotspot_Pos(HOTSPOT_CENTRE);
 	oGame->aCamera_Position[0] = centre[0];
@@ -122,27 +112,3 @@ void Ship::Logic()
 
 }
 
-
-void Ship::create_vorticies(float x, float y, int type)
-{
-
-    int range = 0;
-    int amount = 45;
-
-    if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
-    {
-		range = 10;
-        amount = 8;
-    }
-
-    for(int c = 0; c <= range; c++)
-    {
-	    current_rotation += amount;
-
-        if(current_rotation > 360)
-	        current_rotation = 0;
-
-        new Shot(x, y, current_rotation);
-    }
-
-}

@@ -32,9 +32,6 @@ public:
 
     Ship();
     void Logic();
-    void create_vorticies(float x, float y, int type);
-    int current_rotation;
-    int current_rotation_2;
 
 };
 
