@@ -47,19 +47,19 @@ void PostShaderLights::Get_Uniform_Locations()
 			)
 		);
 	oUniforms.insert(
-		std::pair<std::string, GLfloat>(
+		std::pair<std::string, GLint>(
 			"light_coordinate",
 			glGetUniformLocation(oShader_Program, "light_coordinate")
 			)
 		);
 	oUniforms.insert(
-		std::pair<std::string, GLfloat>(
+		std::pair<std::string, GLint>(
 			"light_size",
 			glGetUniformLocation(oShader_Program, "light_size")
 			)
 		);
 	oUniforms.insert(
-		std::pair<std::string, GLfloat>(
+		std::pair<std::string, GLint>(
 			"light_colour",
 			glGetUniformLocation(oShader_Program, "light_colour")
 			)
