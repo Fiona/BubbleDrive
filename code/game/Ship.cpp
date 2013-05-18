@@ -52,7 +52,7 @@ void Ship::Logic()
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Down))
         Set_Y(Get_Y() + 10.0f);
 
-	std::vector<float> mouse_position_in_world = oGame->Real_Screen_To_World(oGame->aMouse_Pos[0], oGame->aMouse_Pos[1]);
+	std::vector<float> mouse_position_in_world = oGame->Screen_To_World(oGame->aMouse_Pos[0], oGame->aMouse_Pos[1]);	
 	std::vector<float> ship_pos; ship_pos.push_back(Get_X()); ship_pos.push_back(Get_Y());
 	float distance_between_mouse_and_ship = oGame->Get_Distance_Between_Points(mouse_position_in_world, ship_pos);
 
