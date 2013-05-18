@@ -14,7 +14,7 @@
 
 // Includes
 #include "Shader.h"
-
+#include <windows.h>
 
 /**
  * Constructor for the Shaders. The shader filename sans extension must
@@ -39,6 +39,7 @@ Shader::Shader(std::string shader_file_name)
 	if(vertex_shader_code == 0)
 	{
 		fprintf(stderr, "Error loading vertex shader file.\n");
+		MessageBox(NULL, "error loading vertext shader file", "error", MB_ICONSTOP|MB_SETFOREGROUND);
 		return;
 	}
 
@@ -50,14 +51,15 @@ Shader::Shader(std::string shader_file_name)
     if(!compile_status)
     {
         fprintf(stderr, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str());
+		MessageBox(NULL, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
 
         int info_log_length = 0;
         int max_length;
 		glGetShaderiv(oVertex_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
-        char info_log[max_length];
-		glGetShaderInfoLog(oVertex_Shader_Program, max_length, &info_log_length, info_log);
+		std::string info_log(max_length, ' ');
+		glGetShaderInfoLog(oVertex_Shader_Program, max_length, &info_log_length, &info_log[0]);
         if(info_log_length > 0)
-            printf("%s\n", info_log);
+			printf("%s\n", info_log.c_str());
 
         return;
     }
@@ -70,6 +72,8 @@ Shader::Shader(std::string shader_file_name)
 	if(fragment_shader_code == 0)
 	{
 		fprintf(stderr, "Error loading fragment shader file.\n");
+		MessageBox(NULL, "Error loading fragment shader", "error", MB_ICONSTOP|MB_SETFOREGROUND);
+
 		return;
 	}
 
@@ -81,14 +85,15 @@ Shader::Shader(std::string shader_file_name)
     if(!compile_status)
     {
         fprintf(stderr, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str());
+		MessageBox(NULL, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
 
         int info_log_length = 0;
         int max_length;
 		glGetShaderiv(oFragment_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
-        char info_log[max_length];
-		glGetShaderInfoLog(oFragment_Shader_Program, max_length, &info_log_length, info_log);
+		std::string info_log(max_length, ' ');
+		glGetShaderInfoLog(oFragment_Shader_Program, max_length, &info_log_length, &info_log[0]);
         if(info_log_length > 0)
-            printf("%s\n", info_log);
+            printf("%s\n", info_log.c_str());
 
         return;
     }
@@ -102,10 +107,13 @@ Shader::Shader(std::string shader_file_name)
     int info_log_length = 0;
     int max_length;
     glGetProgramiv(oShader_Program, GL_INFO_LOG_LENGTH, &max_length); 
-    char info_log[max_length];
-    glGetProgramInfoLog(oShader_Program, max_length, &info_log_length, info_log);
+	std::string info_log(max_length, ' ');
+    glGetProgramInfoLog(oShader_Program, max_length, &info_log_length, &info_log[0]);
     if(info_log_length > 0)
-        printf("Info log for %s: %s\n", shader_file_name.c_str(), info_log);
+	{
+		printf("Info log for %s: %s\n", shader_file_name.c_str(), info_log.c_str());
+		MessageBox(NULL, ("Error linking program - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
+	}
 
 	Get_Uniform_Locations();
 

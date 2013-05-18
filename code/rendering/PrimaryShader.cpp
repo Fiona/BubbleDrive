@@ -22,6 +22,10 @@
 PrimaryShader::PrimaryShader(std::string shader_file_name, bool is_screen_shader) : Shader(shader_file_name)
 {
 	bIs_Screen_Shader = is_screen_shader;
+	oAttribute_Pos_Rotation_Scale = -1;
+	oAttribute_Vertex_Coord = -1;
+	oAttribute_Vertex_Colour = -1;
+	oAttribute_Texture_Coord = -1;
 	Get_Uniform_Locations();
 }
 
@@ -69,10 +73,10 @@ void PrimaryShader::Get_Uniform_Locations()
 	float screen_size[2]; screen_size[0] = DEFAULT_SCREEN_WIDTH; screen_size[1] = DEFAULT_SCREEN_HEIGHT;
 	glUniform2fv(oUniforms["screen_size"], 1, screen_size);
 
+	oAttribute_Pos_Rotation_Scale = glGetAttribLocation(oShader_Program, "pos_rot_scale");
 	oAttribute_Vertex_Coord = glGetAttribLocation(oShader_Program, "vertex_coord");
 	oAttribute_Vertex_Colour = glGetAttribLocation(oShader_Program, "vertex_colour");
 	oAttribute_Texture_Coord = glGetAttribLocation(oShader_Program, "texture_coord");
-	oAttribute_Pos_Rotation_Scale = glGetAttribLocation(oShader_Program, "pos_rotation_scale");
 
 	glUseProgram(0);
 
