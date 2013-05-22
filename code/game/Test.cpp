@@ -28,7 +28,7 @@ Test::Test(int type) : Entity()
 
 	Set_Render_Layer(RENDER_LAYER_WORLD_LIT);
 	Set_Z(.5f);
-    Set_Image(oGame->oMedia->mImages["shot"]);
+    Set_Image(oGame->oMedia->mImages["stresseffect"]);
 	Set_Scale(.1);
 
 	oMy_Light = new Light();

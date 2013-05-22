@@ -20,6 +20,7 @@
 #include "PostShaderBlur.h"
 #include "PostShaderLights.h"
 #include "PostShaderSaturation.h"
+#include "PostShaderRipple.h"
 
 
 /**
@@ -59,6 +60,7 @@ Renderer::Renderer()
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR, new PostShaderBlur("blur")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_BLUR2, new PostShaderBlur("blur2")));
 	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_LIGHTS, new PostShaderLights("lights")));
+	oShaders.insert(std::pair<int, Shader*>(SHADER_POST_RIPPLE, new PostShaderRipple("ripple")));
 
 	// Create render layers
 	// These are essentially FBOs that entity batches are drawn to. Different layers are used so certain post-processing
@@ -96,6 +98,7 @@ Renderer::Renderer()
 	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
 	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_LIGHTS]));
 	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
+	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_RIPPLE]));
 
 	// Define what order we draw layers in from back to front
 	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD);

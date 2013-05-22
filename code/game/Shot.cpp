@@ -3,12 +3,10 @@
  **       2D space action RPG         **
  ***************************************
  ****** By Stompy Blondie Games  *******
- ***************************************
- *** File started Feb 2012 by Fiona ****
  ***************************************/
 
 /**
- * Shot object source file.
+ * Stress effect object source file.
  */
 
 
@@ -20,16 +18,23 @@
 /**
  * Constructor
  */
-Shot::Shot(float x, float y, int rot) : Entity()
+Shot::Shot(float x, float y, int rot, std::vector<float> mount_point) : Entity()
 {
 
 	Set_Render_Layer(RENDER_LAYER_WORLD);
     Set_X(x);
     Set_Y(y);
 	Set_Z(0.0f);
-    Set_Image(oGame->oMedia->mImages["shot"]);
+	Set_Rotation(rot);
+    Set_Image(oGame->oMedia->mImages["laser1"]);
+	Set_Image_Frame(0);
+	Set_Colour(.5f, 0.0f, .5f);
+	Life = 0;
 
-    iRotation_To = rot;
+	// Adjust pos based on mount point
+	std::vector<float> adjust_pos = oGame->Rotate_Point(mount_point[0], mount_point[1], rot);
+	Set_X(Get_X() + adjust_pos[0]);
+	Set_Y(Get_Y() + adjust_pos[1]);
 
 }
 
@@ -40,9 +45,13 @@ Shot::Shot(float x, float y, int rot) : Entity()
 void Shot::Logic()
 {
 
-    Advance_Towards(3.0f, iRotation_To);
+    Advance_Towards(12.0f, Get_Rotation());
+	Life += 1;
 
-    if(Get_X() < -1680.0f || Get_X() > 1680.0f || Get_Y() < -1050.0f || Get_Y() > 1050.0f)
+	if(Life > 100)
+		Set_Alpha(Get_Alpha() - .05f);
+
+    if(Get_Alpha() < 0.0f)
         Kill();
 
 }

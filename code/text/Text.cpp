@@ -32,6 +32,15 @@ Text::Text() : Entity()
 }
 
 
+/**
+ * Empty deconstructor to satisfy virtual table
+ */
+Text::~Text()
+{
+
+}
+
+
 /*
  * Setting colour
  */

@@ -37,6 +37,7 @@ Game::Game()
     iLoops_This_Frame = 0;
     iFrames_This_Second = 0;
     iCurrent_FPS = 0;
+	iRender_Frame_Time = 0;
     oState = NULL;
 	aMouse_Pos.resize(2);
 	aMouse_Buttons.resize(5);
@@ -99,13 +100,24 @@ int Game::Start()
 	oFPS_Text->Set_Z(-10.0f);
 	oFPS_Text->Ready_For_Rendering();
 
+	oRender_Frame_Time_Text = new Text();
+	oRender_Frame_Time_Text->Set_Render_Layer(RENDER_LAYER_SCREEN);
+	oRender_Frame_Time_Text->Set_Text("Time to render: 0ms");
+	oRender_Frame_Time_Text->Set_Font(Game::Instance()->oMedia->mFonts["test"]);
+	oRender_Frame_Time_Text->Set_Size(30);
+	oRender_Frame_Time_Text->Set_X(0.0f);
+	oRender_Frame_Time_Text->Set_Y(30.0f);
+	oRender_Frame_Time_Text->Set_Z(-10.0f);
+	oRender_Frame_Time_Text->Ready_For_Rendering();
+
+
 	oObj_Count_Text = new Text();
 	oObj_Count_Text->Set_Render_Layer(RENDER_LAYER_SCREEN);
 	oObj_Count_Text->Set_Text("Num objs: 0");
 	oObj_Count_Text->Set_Font(Game::Instance()->oMedia->mFonts["test"]);
 	oObj_Count_Text->Set_Size(20);
 	oObj_Count_Text->Set_X(0.0f);
-	oObj_Count_Text->Set_Y(30.0f);
+	oObj_Count_Text->Set_Y(60.0f);
 	oObj_Count_Text->Set_Z(-10.0f);
 	oObj_Count_Text->Ready_For_Rendering();
 
@@ -121,6 +133,7 @@ int Game::Start()
 	blah->Ready_For_Rendering();
 
     bRunning = true;
+	sf::Clock* Frame_Render_Time = new sf::Clock;
 
     while(bRunning)
     {
@@ -151,12 +164,18 @@ int Game::Start()
 			oFPS_Text->Set_Text("fps: " + boost::lexical_cast<std::string>(iCurrent_FPS));
 			oFPS_Text->Ready_For_Rendering();
 
+			oRender_Frame_Time_Text->Set_Text("Time to render: " + boost::lexical_cast<std::string>(iRender_Frame_Time) + "ms");
+			oRender_Frame_Time_Text->Ready_For_Rendering();
+
 			oObj_Count_Text->Set_Text("Obj count: " + boost::lexical_cast<std::string>(Registered_Entities.size()));
 			oObj_Count_Text->Ready_For_Rendering();
 
         }		
 
+		Frame_Render_Time->restart();
         Render();
+		iRender_Frame_Time = Frame_Render_Time->getElapsedTime().asMilliseconds();
+
 		Cleanup_Deleted_Entities();
 
     }
@@ -225,8 +244,9 @@ void Game::Load_Media()
 void Game::Update_Events()
 {
 
-	// Handle keyboard events
+	// Handle keyboard and mouse wheel events
     aKeys_Released.clear();
+	Mouse_Wheel_Delta = 0;
 
     sf::Event Event;
     while(oWindow->pollEvent(Event))
@@ -234,24 +254,10 @@ void Game::Update_Events()
 
         if(Event.type == sf::Event::KeyReleased)
             aKeys_Released.push_back(Event.key.code);
+        if(Event.type == sf::Event::MouseWheelMoved)		
+			Mouse_Wheel_Delta += Event.mouseWheel.delta;
 
     }
-
-	// TODO get rid
-	if(Keyboard_Key_Down(sf::Keyboard::LControl))
-		aCamera_Position[2] -= 20.0f;
-	if(Keyboard_Key_Down(sf::Keyboard::LShift))
-		aCamera_Position[2] += 20.0f;
-
-	if(Keyboard_Key_Down(sf::Keyboard::Comma))
-		aCamera_Position[1] += 5.0f;
-	if(Keyboard_Key_Down(sf::Keyboard::O))
-		aCamera_Position[1] -= 5.0f;
-
-	if(Keyboard_Key_Down(sf::Keyboard::E))
-		aCamera_Position[0] -= 5.0f;
-	if(Keyboard_Key_Down(sf::Keyboard::A))
-		aCamera_Position[0] += 5.0f;
 
 	// Handle mouse position
 	sf::Vector2i pos = sf::Mouse::getPosition(*oWindow);
@@ -713,6 +719,37 @@ float Game::Near_Angle(float curr_angle, float targ_angle, float increment)
 		return targ_angle;
 	else
 		return curr_angle + (increment * (difference / std::fabs(difference)));
+
+}
+
+
+/**
+ * Does an in-place point rotation.
+ */
+std::vector<float> Game::Rotate_Point(float x, float y, float rotation)
+{
+
+	rotation = Deg_To_Rad(rotation);
+	std::vector<float> return_vec;
+	return_vec.push_back(std::cos(rotation) * x - std::sin(rotation) * y);
+	return_vec.push_back(std::sin(rotation) * x - std::cos(rotation) * y);
+
+    return return_vec;
+
+}
+
+
+/**
+ * Does a point rotation around another reference point.
+ */
+std::vector<float> Game::Rotate_Point_About_Point(float x, float y, float rotation, float rotate_about_x, float rotate_about_y)
+{
+
+    std::vector<float> return_vec = Rotate_Point(x - rotate_about_x, y - rotate_about_y, rotation);
+	return_vec[0] = return_vec[0] + rotate_about_x;
+	return_vec[1] = return_vec[1] + rotate_about_y;
+
+    return return_vec;
 
 }
 

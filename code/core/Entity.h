@@ -57,7 +57,7 @@ public:
     std::vector<float> aColour;
 	
     Entity();
-    ~Entity();
+    virtual ~Entity();
     virtual void Logic();
     virtual void Kill();
     virtual void Set_X(float X);

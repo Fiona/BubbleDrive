@@ -55,7 +55,6 @@ class Game
 
 private:
     static Game* oInst;
-    sf::Clock* oGame_Time;
     sf::Time* oNext_Game_Tick;
     sf::Time* oFrame_Count_Time;
     int iLoops_This_Frame;
@@ -65,6 +64,7 @@ private:
     std::vector<Entity*> Entities_To_Delete;
 	Text* oFPS_Text;
 	Text* oObj_Count_Text;
+	Text* oRender_Frame_Time_Text;
 
     bool Initialise_Graphics();
     void Load_Media();
@@ -77,7 +77,9 @@ private:
 public:
     sf::Window* oWindow;
     bool bRunning;
+    sf::Clock* oGame_Time;
     int iCurrent_FPS;
+	int iRender_Frame_Time;
 	FontManager* oFont_Manager;
     Media* oMedia;
     State* oState;
@@ -87,6 +89,7 @@ public:
 	float aCamera_Position[4];
 	std::vector<float> aMouse_Pos;
 	std::vector<bool> aMouse_Buttons;
+	int Mouse_Wheel_Delta;
 
 	float fScreen_Blur_Amount;
 	float fSaturation_Amount;
@@ -116,6 +119,8 @@ public:
 	float Normalise_Angle(float angle);
 	float Angle_Difference(float start_angle, float end_angle);
 	float Near_Angle(float curr_angle, float targ_angle, float increment);
+	std::vector<float> Rotate_Point(float x, float y, float rotation);
+	std::vector<float> Rotate_Point_About_Point(float x, float y, float rotation, float rotate_about_x, float rotate_about_y);
 
 };
 

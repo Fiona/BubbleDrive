@@ -3,14 +3,16 @@
  **       2D space action RPG         **
  ***************************************
  ****** By Stompy Blondie Games  *******
+ ***************************************
+ *** File started Feb 2012 by Fiona ****
  ***************************************/
 
 #pragma once
-#ifndef _SHOT_H_
-#define _SHOT_H_
+#ifndef _STRESSEFFECT_H_
+#define _STRESSEFFECT_H_
 
 /**
- * Shot object header
+ * Stress effect object header
  */
 
 
@@ -21,16 +23,17 @@
 /**
  *
  */
-class Shot : Entity
+class StressEffect : Entity
 {
 
 private:
     
 public:
 
-	int Life;
-    Shot(float x, float y, int rot, std::vector<float> mount_point);
+    int iRotation_To;
+    StressEffect(float x, float y, int rot);
     void Logic();
+	void Kill();
 
 };
 

@@ -17,7 +17,9 @@
 
 
 // Includes
+#include <map>
 #include "../core/Entity.h"
+#include "../utils/Vector2D.h"
 
 
 /**
@@ -27,6 +29,15 @@ class Ship : public Entity
 {
 
 private:
+
+    Vector2D* Velocity;
+	float Max_Velocity;
+	float Velocity_Friction;
+	float Acceleration;
+	float Max_Acceleration;
+	float Turn_Rate;
+	std::map<char, float>* Thrusters;
+	int Reload_Time;
     
 public:
 
