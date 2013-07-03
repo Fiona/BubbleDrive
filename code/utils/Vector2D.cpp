@@ -12,7 +12,7 @@
 
 // Includes
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "Vector2D.h"
 
 

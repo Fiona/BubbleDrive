@@ -14,7 +14,10 @@
 
 // Includes
 #include "Shader.h"
-#include <windows.h>
+
+#if _WIN32
+  #include <windows.h>
+#endif
 
 /**
  * Constructor for the Shaders. The shader filename sans extension must
@@ -39,7 +42,9 @@ Shader::Shader(std::string shader_file_name)
 	if(vertex_shader_code == 0)
 	{
 		fprintf(stderr, "Error loading vertex shader file.\n");
+#if _WIN32
 		MessageBox(NULL, "error loading vertext shader file", "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#endif
 		return;
 	}
 
@@ -50,8 +55,11 @@ Shader::Shader(std::string shader_file_name)
 
     if(!compile_status)
     {
+
         fprintf(stderr, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str());
-		MessageBox(NULL, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#if _WIN32
+	MessageBox(NULL, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#endif
 
         int info_log_length = 0;
         int max_length;
@@ -62,6 +70,7 @@ Shader::Shader(std::string shader_file_name)
 			printf("%s\n", info_log.c_str());
 
         return;
+
     }
 
 	// Load fragment shader code
@@ -71,34 +80,42 @@ Shader::Shader(std::string shader_file_name)
 	const char* fragment_shader_code = frag_shader.c_str();	
 	if(fragment_shader_code == 0)
 	{
+
 		fprintf(stderr, "Error loading fragment shader file.\n");
+
+#if _WIN32
 		MessageBox(NULL, "Error loading fragment shader", "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#endif
 
 		return;
+
 	}
 
     oFragment_Shader_Program = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(oFragment_Shader_Program, 1, (const GLchar**)&fragment_shader_code, 0);
+    glShaderSource(oFragment_Shader_Program, 1, (const GLchar**)&fragment_shader_code, 0);
     glCompileShader(oFragment_Shader_Program);
     glGetShaderiv(oFragment_Shader_Program, GL_COMPILE_STATUS, &compile_status);
 
     if(!compile_status)
     {
         fprintf(stderr, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str());
-		MessageBox(NULL, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
+
+#if _WIN32
+	MessageBox(NULL, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#endif
 
         int info_log_length = 0;
         int max_length;
-		glGetShaderiv(oFragment_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
-		std::string info_log(max_length, ' ');
-		glGetShaderInfoLog(oFragment_Shader_Program, max_length, &info_log_length, &info_log[0]);
+	glGetShaderiv(oFragment_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
+	std::string info_log(max_length, ' ');
+	glGetShaderInfoLog(oFragment_Shader_Program, max_length, &info_log_length, &info_log[0]);
         if(info_log_length > 0)
             printf("%s\n", info_log.c_str());
 
         return;
     }
 
-	// Create and link shader program, and get shader uniform locations
+    // Create and link shader program, and get shader uniform locations
     oShader_Program = glCreateProgram();
     glAttachShader(oShader_Program, oVertex_Shader_Program);
     glAttachShader(oShader_Program, oFragment_Shader_Program);
@@ -107,15 +124,21 @@ Shader::Shader(std::string shader_file_name)
     int info_log_length = 0;
     int max_length;
     glGetProgramiv(oShader_Program, GL_INFO_LOG_LENGTH, &max_length); 
-	std::string info_log(max_length, ' ');
+    std::string info_log(max_length, ' ');
     glGetProgramInfoLog(oShader_Program, max_length, &info_log_length, &info_log[0]);
-    if(info_log_length > 0)
-	{
-		printf("Info log for %s: %s\n", shader_file_name.c_str(), info_log.c_str());
-		MessageBox(NULL, ("Error linking program - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
-	}
 
-	Get_Uniform_Locations();
+    if(info_log_length > 0)
+    {
+
+	printf("Info log for %s: %s\n", shader_file_name.c_str(), info_log.c_str());
+
+#if _WIN32
+	MessageBox(NULL, ("Error linking program - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#endif
+
+    }
+
+    Get_Uniform_Locations();
 
 }
 
@@ -128,10 +151,10 @@ Shader::~Shader()
 
 	if(oShader_Program > 0)
 	{
-		glDetachShader(oShader_Program, oFragment_Shader_Program);
+            glDetachShader(oShader_Program, oFragment_Shader_Program);
 	    glDetachShader(oShader_Program, oVertex_Shader_Program);
 	    glDeleteShader(oFragment_Shader_Program);
-		glDeleteShader(oVertex_Shader_Program);
+	    glDeleteShader(oVertex_Shader_Program);
 	    glDeleteProgram(oShader_Program);
 	}
 
