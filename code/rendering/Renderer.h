@@ -21,6 +21,7 @@
 #include "Shader.h"
 #include "RenderLayer.h"
 #include "Light.h"
+#include "Shockwave.h"
 
 
 // Forward declaration
@@ -47,6 +48,8 @@ public:
 	void Specify_Vertex_Layout_For_Render_Layer(int render_layer);
 	void Register_Light(Light* new_light);
 	void Remove_Light(Light* light);
+	void Register_Shockwave(Shockwave* new_shockwave);
+	void Remove_Shockwave(Shockwave* shockwave);
 
 	BatchManager* oBatch_Manager;
 	int iCurrent_Render_Layer;
@@ -60,6 +63,7 @@ public:
 	float a03; float a13; float a23; float a33;
 
 	std::vector<Light*> aLights;
+	std::vector<Shockwave*> aShockwaves;
 
 private:
 	Game* oGame;

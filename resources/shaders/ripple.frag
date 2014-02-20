@@ -1,26 +1,48 @@
 varying vec2 f_texture_coord;
+varying vec2 shockwave_pos;
 
-uniform sampler2D screen_texture_num;
 uniform vec2 screen_size;
 uniform sampler2D texture_num;
-uniform float game_time; 
+uniform sampler2D shockwave_texture_num;
+uniform float shockwave_size;
+uniform float shockwave_alpha;
+
+float shockwave_intensity = 50.0;
 
 void main()
 {
 
-	float t = clamp(game_time / 6., 0., 1.);
- 
-vec2 coords = f_texture_coord.xy;
-vec2 dir = coords - vec2(.5);
-float dist = distance(coords, vec2(.5));
-vec2 offset = (dir * (sin(dist * 50. ) + .5) / 30.) * .8;
- 
-vec2 texCoord = coords + offset;
-vec4 diffuse = texture2D(texture_num, texCoord);
- 
-gl_FragColor = diffuse;
+    vec4 diffuse = texture2D(texture_num, f_texture_coord.xy);
+    gl_FragColor = diffuse;
 
-	//gl_FragColor = texture2D(texture_num, f_texture_coord.xy);
+    vec2 frag_pos_in_pixels = vec2(f_texture_coord.x * screen_size.x, (1.0 - f_texture_coord.y) * screen_size.y);
 
+    if(frag_pos_in_pixels.x >= (shockwave_pos.x - shockwave_size) && 
+       frag_pos_in_pixels.x <= (shockwave_pos.x + shockwave_size) && 
+       frag_pos_in_pixels.y >= (shockwave_pos.y - shockwave_size) && 
+       frag_pos_in_pixels.y <= (shockwave_pos.y + shockwave_size))
+    {
+/*
+        float scale = (shockwave_size / screen_size.x);
+
+        vec2 ripple_tex_pos = vec2(
+          f_texture_coord.x - ((shockwave_pos.x / screen_size.x) * scale),
+          f_texture_coord.y - ((shockwave_pos.y / screen_size.y) * scale)
+        );
+*/
+        vec2 adjusted_shockwave_frag_pos = ((((frag_pos_in_pixels - shockwave_pos) / shockwave_size) / 2.0) + vec2(.5, .5));
+        vec4 shockwave_frag = texture2D(shockwave_texture_num, adjusted_shockwave_frag_pos.xy);
+        float displacement = (shockwave_frag.r * -shockwave_intensity) * shockwave_alpha;
+
+        vec2 direction_and_offset = normalize(frag_pos_in_pixels - shockwave_pos) * displacement;
+
+        vec2 frag_pos_to_read = vec2(
+            (frag_pos_in_pixels.x + direction_and_offset.x) / screen_size.x, 
+            -((frag_pos_in_pixels.y + direction_and_offset.y) / screen_size.y)
+        );
+
+        gl_FragColor = texture2D(texture_num, frag_pos_to_read);
+
+	}
 
 }

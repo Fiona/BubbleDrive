@@ -26,6 +26,8 @@ Media::Media()
     mImages.insert(std::pair<std::string, Image*>("ship", new Image("gfx" + SEPARATOR + "ships" + SEPARATOR + "ship1.png", 1)));
     mImages.insert(std::pair<std::string, Image*>("stresseffect", new Image("gfx" + SEPARATOR + "stresseffect.png", 1)));
     mImages.insert(std::pair<std::string, Image*>("laser1", new Image("gfx" + SEPARATOR + "weapons" + SEPARATOR + "laser1.png", 2)));
+    mImages.insert(std::pair<std::string, Image*>("shader_shockwave", new Image("gfx" + SEPARATOR + "shader" + SEPARATOR + "shockwave.png", 1)));
+    mImages.insert(std::pair<std::string, Image*>("empty", new Image("gfx" + SEPARATOR + "empty.png", 1)));
 
     mFonts.insert(std::pair<std::string, Font*>("test", new Font("fnt" + SEPARATOR + "aurulent.ttf")));
     mFonts.insert(std::pair<std::string, Font*>("boris", new Font("fnt" + SEPARATOR + "borisblackbloxx.ttf")));

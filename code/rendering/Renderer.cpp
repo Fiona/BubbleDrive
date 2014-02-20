@@ -175,6 +175,9 @@ Renderer::~Renderer()
 	while(!aLights.empty()) delete aLights.back(), aLights.pop_back();
 	aLights.clear();
 
+	while(!aShockwaves.empty()) delete aShockwaves.back(), aShockwaves.pop_back();
+	aShockwaves.clear();
+
 	glDeleteBuffers(1, &oQuad_VBO);
 	glDeleteVertexArrays(1, &oQuad_VAO);
 
@@ -361,5 +364,32 @@ void Renderer::Remove_Light(Light* light)
 	{
 		delete(*it);
         it = aLights.erase(it);
+	}
+}
+
+
+/**
+ * Adds shockwave ripple objects, similar to lights.
+ * These objects are used by PostShaderRipple.
+ */
+void Renderer::Register_Shockwave(Shockwave* new_shockwave)
+{
+
+	aShockwaves.push_back(new_shockwave);
+
+}
+
+
+/**
+ * This removes Shockwave objects from the shockwave list.
+ */
+void Renderer::Remove_Shockwave(Shockwave* shockwave)
+{
+    std::vector<Shockwave*>::iterator it;
+    it = std::find(aShockwaves.begin(), aShockwaves.end(), shockwave);
+    if(it != aShockwaves.end())
+	{
+		delete(*it);
+        it = aShockwaves.erase(it);
 	}
 }

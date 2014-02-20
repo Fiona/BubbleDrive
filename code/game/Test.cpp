@@ -49,7 +49,7 @@ Test::Test(int type) : Entity()
 	}
 	if(iType == 3)
 	{
-		oMy_Light->Set_Colour(0.3, 0.3, 1.0);
+		oMy_Light->Set_Colour(1.0, 0.0, 1.0);
 		life = 150;
 	}
 

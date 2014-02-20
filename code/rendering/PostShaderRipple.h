@@ -16,6 +16,7 @@
 
 // Includes
 #include <string>
+#include <GL/glew.h>
 #include "PostShader.h"
 
 
@@ -37,6 +38,7 @@ public:
 	void Specify_Vertex_Layout();
 	void Setup(int pass);
 	void Cleanup();
+	int Num_Passes_Required();
 	bool Should_Apply();
 
 };

@@ -19,6 +19,7 @@
 #include "../core/Game.h"
 #include "Ship.h"
 #include "StressEffect.h"
+#include "ShockwaveEffect.h"
 #include "Shot.h"
 
 boost::random::mt19937 gen;
@@ -158,6 +159,12 @@ void Ship::Logic()
 
 		Reload_Time = 0;
 
+	}
+
+	if(Reload_Time >= 10 && oGame->aMouse_Buttons[MOUSE_RIGHT])
+	{
+        new ShockwaveEffect(mouse_position_in_world[0], mouse_position_in_world[1], 0.01f, 5);
+		Reload_Time = 0;
 	}
 
 	if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
