@@ -1,6 +1,6 @@
 # Setup
 import os
-env = Environment()
+env = Environment(CXXFLAGS="-std=c++0x")
 
 # Tools
 def walk_subdirs(path_dir) :  
