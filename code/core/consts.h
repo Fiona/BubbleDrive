@@ -62,7 +62,8 @@
 
 #define RENDER_LAYER_WORLD 1
 #define RENDER_LAYER_WORLD_LIT 2
-#define RENDER_LAYER_SCREEN 3
+#define RENDER_LAYER_WORLD_ABOVE_LIT 3
+#define RENDER_LAYER_SCREEN 4
 
 #define PATH_RESOURCES "resources"
 #define PATH_SHADERS "shaders"

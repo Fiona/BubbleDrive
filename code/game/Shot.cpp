@@ -6,7 +6,7 @@
  ***************************************/
 
 /**
- * Stress effect object source file.
+ * Shot object source file.
  */
 
 

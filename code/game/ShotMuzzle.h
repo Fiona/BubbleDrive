@@ -3,37 +3,40 @@
  **       2D space action RPG         **
  ***************************************
  ****** By Stompy Blondie Games  *******
- ***************************************
- *** File started Nov 2012 by Fiona ****
  ***************************************/
 
 #pragma once
-#ifndef _TEST_H_
-#define _TEST_H_
+#ifndef _SHOTMUZZLE_H_
+#define _SHOTMUZZLE_H_
 
 /**
- * Test object header
+ * Shot muzzle object header
  */
 
 
 // Includes
+#include <memory>
 #include "../core/Entity.h"
 
 
 /**
  *
  */
-class Test : public Entity
+class ShotMuzzle : Entity
 {
 
 private:
-    int iType;
-	Light oMy_Light;
-	int life;
 
+	int Life;
+    Light Muzzle_Light;
+    Ship* Parent;
+    int Mount_Point_Num;
+
+    void Update_Pos();
+    
 public:
 
-    Test(int type);
+    ShotMuzzle(Ship* parent_ship, int mount_point_num, int rot);
     void Logic();
 
 };

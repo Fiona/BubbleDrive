@@ -22,6 +22,7 @@
 #include "StressEffect.h"
 #include "ShockwaveEffect.h"
 #include "Shot.h"
+#include "ShotMuzzle.h"
 
 boost::random::mt19937 gen;
 
@@ -49,7 +50,7 @@ Ship::Ship() : Entity()
 	Set_Render_Layer(RENDER_LAYER_WORLD_LIT);
     Set_X(0.0f);
     Set_Y(0.0f);
-	Set_Z(.5f);
+	Set_Z(5.0f);
     Set_Image(oGame->oMedia->mImages["ship"]);
 
 }
@@ -149,16 +150,16 @@ void Ship::Logic()
 	if(Reload_Time < 20)
 		Reload_Time += 1;
 
-	if(Reload_Time >= 4 && oGame->aMouse_Buttons[MOUSE_LEFT])
+	if(Reload_Time >= 15 && oGame->aMouse_Buttons[MOUSE_LEFT])
 	{
 
-        std::vector<float> mount_point;
-
-        mount_point = oGame->Rotate_Point_About_Point(Get_X() + 6, Get_Y() + 13, Get_Rotation(), Get_X(), Get_Y());
+        std::vector<float> mount_point = Get_Mount_Point_Location(1);
         new Shot(mount_point[0], mount_point[1], Get_Rotation());
+        new ShotMuzzle(this, 1, Get_Rotation());
 
-        mount_point = oGame->Rotate_Point_About_Point(Get_X() + 6, Get_Y() - 13, Get_Rotation(), Get_X(), Get_Y());
+        mount_point = Get_Mount_Point_Location(2);
         new Shot(mount_point[0], mount_point[1], Get_Rotation());
+        new ShotMuzzle(this, 2, Get_Rotation());
 
 		Reload_Time = 0;
 
@@ -195,3 +196,16 @@ void Ship::Logic()
 
 }
 
+
+/**
+ *
+ */
+std::vector<float> Ship::Get_Mount_Point_Location(int mount_point_num)
+{
+
+    if(mount_point_num == 1)
+        return oGame->Rotate_Point_About_Point(Get_X() + 18, Get_Y() + 15, Get_Rotation(), Get_X(), Get_Y());
+    if(mount_point_num == 2)
+        return oGame->Rotate_Point_About_Point(Get_X() + 18, Get_Y() - 15, Get_Rotation(), Get_X(), Get_Y());
+
+}

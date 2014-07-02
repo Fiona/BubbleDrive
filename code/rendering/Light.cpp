@@ -39,6 +39,7 @@ Light::Light()
  */
 Light::~Light()
 {
+    oGame->oRenderer->Remove_Light(this);
 }
 
 

@@ -36,6 +36,7 @@ Shockwave::Shockwave()
  */
 Shockwave::~Shockwave()
 {
+    oGame->oRenderer->Remove_Shockwave(this);
 }
 
 

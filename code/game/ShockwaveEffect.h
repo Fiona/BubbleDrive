@@ -31,13 +31,12 @@ private:
     float fSpeed;
     int iSize;
     int iCurrent_Size;
-	Shockwave* oMy_Shockwave;
+	Shockwave oMy_Shockwave;
 
 public:
 
     ShockwaveEffect(float x, float y, float speed, int size);
     void Logic();
-	void Kill();
 
 	void Update_My_Shockwave();
 

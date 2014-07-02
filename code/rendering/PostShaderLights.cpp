@@ -96,7 +96,7 @@ void PostShaderLights::Set_Uniform_Values(int pass)
 bool PostShaderLights::Should_Apply()
 {
 
-	return true;
+	return oGame->oRenderer->aLights.size() > 0;
 
 }
 

@@ -67,6 +67,13 @@ Renderer::Renderer()
 	// effects will only apply to certain screen layers.
 	oRender_Layers.insert(
 		std::pair<int, RenderLayer*>(
+			RENDER_LAYER_WORLD_ABOVE_LIT,
+			new RenderLayer(oShaders[SHADER_PRIMARY_WORLD])
+			)
+		);
+
+	oRender_Layers.insert(
+		std::pair<int, RenderLayer*>(
 			RENDER_LAYER_WORLD_LIT,
 			new RenderLayer(oShaders[SHADER_PRIMARY_WORLD])
 			)
@@ -94,15 +101,16 @@ Renderer::Renderer()
 	
 	// Cumilative post-processing shaders are be applied to layers as they are added to the final screen buffer. This allows us to have
 	// a shader that affects everything drawn up to a point. For instance, affecting everything execpt on-screen GUI.
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
+	oRender_Layers[RENDER_LAYER_WORLD_ABOVE_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR]));
+	oRender_Layers[RENDER_LAYER_WORLD_ABOVE_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_BLUR2]));
 	//oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_LIGHTS]));
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
-	oRender_Layers[RENDER_LAYER_WORLD_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_RIPPLE]));
+	oRender_Layers[RENDER_LAYER_WORLD_ABOVE_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_GREYSCALE]));
+	oRender_Layers[RENDER_LAYER_WORLD_ABOVE_LIT]->Add_Cumilative_Post_Processer_Shader(dynamic_cast<PostShader*>(oShaders[SHADER_POST_RIPPLE]));
 
 	// Define what order we draw layers in from back to front
 	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD);
 	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD_LIT);
+	aRender_Layer_Order.push_back(RENDER_LAYER_WORLD_ABOVE_LIT);
 	aRender_Layer_Order.push_back(RENDER_LAYER_SCREEN);
 
 	// We create a VAO containing a quad for use by full-screen layer drawing
@@ -172,10 +180,7 @@ Renderer::~Renderer()
 		delete(it->second);
     }
 
-	while(!aLights.empty()) delete aLights.back(), aLights.pop_back();
 	aLights.clear();
-
-	while(!aShockwaves.empty()) delete aShockwaves.back(), aShockwaves.pop_back();
 	aShockwaves.clear();
 
 	glDeleteBuffers(1, &oQuad_VBO);
@@ -361,10 +366,7 @@ void Renderer::Remove_Light(Light* light)
     std::vector<Light*>::iterator it;
     it = std::find(aLights.begin(), aLights.end(), light);
     if(it != aLights.end())
-	{
-		delete(*it);
         it = aLights.erase(it);
-	}
 }
 
 
@@ -388,8 +390,5 @@ void Renderer::Remove_Shockwave(Shockwave* shockwave)
     std::vector<Shockwave*>::iterator it;
     it = std::find(aShockwaves.begin(), aShockwaves.end(), shockwave);
     if(it != aShockwaves.end())
-	{
-		delete(*it);
         it = aShockwaves.erase(it);
-	}
 }

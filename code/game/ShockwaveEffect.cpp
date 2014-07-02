@@ -33,8 +33,6 @@ ShockwaveEffect::ShockwaveEffect(float x, float y, float speed, int size) : Enti
     iSize = size;
     iCurrent_Size = 0;
 
-	oMy_Shockwave = new Shockwave();
-
     Update_My_Shockwave();
 
 }
@@ -46,22 +44,10 @@ ShockwaveEffect::ShockwaveEffect(float x, float y, float speed, int size) : Enti
 void ShockwaveEffect::Update_My_Shockwave()
 {
 
-	oMy_Shockwave->Set_X(Get_X());
-	oMy_Shockwave->Set_Y(Get_Y());
-	oMy_Shockwave->Set_Size(iCurrent_Size);
-	oMy_Shockwave->Set_Alpha(Get_Alpha());
-
-}
-
-
-/**
- * 
- */
-void ShockwaveEffect::Kill()
-{
-
-    oGame->oRenderer->Remove_Shockwave(oMy_Shockwave);
-	Entity::Kill();
+	oMy_Shockwave.Set_X(Get_X());
+	oMy_Shockwave.Set_Y(Get_Y());
+	oMy_Shockwave.Set_Size(iCurrent_Size);
+	oMy_Shockwave.Set_Alpha(Get_Alpha());
 
 }
 

@@ -44,6 +44,8 @@ public:
     Ship();
     void Logic();
 
+    std::vector<float> Get_Mount_Point_Location(int mount_point_num);
+
 };
 
 #endif

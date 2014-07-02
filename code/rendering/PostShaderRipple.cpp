@@ -82,7 +82,6 @@ void PostShaderRipple::Set_Uniform_Values(int pass)
 	glUniform2fv(oUniforms["shockwave_coordinate"], 1, &shock_pos[0]);
 
 	glUniform1f(oUniforms["shockwave_size"], oGame->World_Length_To_Real_Screen((float)oGame->oRenderer->aShockwaves[pass-1]->Get_Size()));
-    std::cout << oGame->World_Length_To_Real_Screen((float)oGame->oRenderer->aShockwaves[pass-1]->Get_Size()) << std::endl;
 	glUniform1f(oUniforms["shockwave_alpha"], oGame->oRenderer->aShockwaves[pass-1]->Get_Alpha());
 
 }
