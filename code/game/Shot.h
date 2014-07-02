@@ -29,7 +29,7 @@ private:
 public:
 
 	int Life;
-    Shot(float x, float y, int rot, std::vector<float> mount_point);
+    Shot(float x, float y, int rot);
     void Logic();
 
 };

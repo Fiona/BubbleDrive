@@ -16,6 +16,7 @@
 #include <iostream>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 #include "../core/Game.h"
 #include "Ship.h"
 #include "StressEffect.h"
@@ -148,14 +149,16 @@ void Ship::Logic()
 	if(Reload_Time < 20)
 		Reload_Time += 1;
 
-	if(Reload_Time >= 20 && oGame->aMouse_Buttons[MOUSE_LEFT])
+	if(Reload_Time >= 4 && oGame->aMouse_Buttons[MOUSE_LEFT])
 	{
 
-		std::vector<float> mount_point; mount_point.push_back(6); mount_point.push_back(9);
-		new Shot(Get_X(), Get_Y(), Get_Rotation(), mount_point);
+        std::vector<float> mount_point;
 
-		mount_point[1] = -9;
-		new Shot(Get_X(), Get_Y(), Get_Rotation(), mount_point);
+        mount_point = oGame->Rotate_Point_About_Point(Get_X() + 6, Get_Y() + 13, Get_Rotation(), Get_X(), Get_Y());
+        new Shot(mount_point[0], mount_point[1], Get_Rotation());
+
+        mount_point = oGame->Rotate_Point_About_Point(Get_X() + 6, Get_Y() - 13, Get_Rotation(), Get_X(), Get_Y());
+        new Shot(mount_point[0], mount_point[1], Get_Rotation());
 
 		Reload_Time = 0;
 

@@ -732,7 +732,7 @@ std::vector<float> Game::Rotate_Point(float x, float y, float rotation)
 	rotation = Deg_To_Rad(rotation);
 	std::vector<float> return_vec;
 	return_vec.push_back(std::cos(rotation) * x - std::sin(rotation) * y);
-	return_vec.push_back(std::sin(rotation) * x - std::cos(rotation) * y);
+	return_vec.push_back(std::sin(rotation) * x + std::cos(rotation) * y);
 
     return return_vec;
 
