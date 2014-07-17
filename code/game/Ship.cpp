@@ -33,10 +33,10 @@ Ship::Ship() : Entity()
 {
 
     Velocity = new Vector2D(0.0f, 0.0f);
-	Max_Velocity = 3.0f;
-	Velocity_Friction = 0.999f;
-	Acceleration = 0.010f;
-	Max_Acceleration = 0.2f;		
+	Max_Velocity = 5.0f;
+	Velocity_Friction = 0.99f;
+	Acceleration = 0.1f;
+	Max_Acceleration = 0.5f;		
 	Turn_Rate = 6.0f;
 
 	Thrusters = new std::map<char, float>;
