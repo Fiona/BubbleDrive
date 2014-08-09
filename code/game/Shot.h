@@ -16,6 +16,7 @@
 
 // Includes
 #include "../core/Entity.h"
+#include "../utils/Vector2D.h"
 
 
 /**
@@ -26,10 +27,13 @@ class Shot : Entity
 
 private:
     
+    Ship* Parent;
+    Vector2D Velocity;
+
 public:
 
 	int Life;
-    Shot(float x, float y, int rot);
+    Shot(float x, float y, int rot, Ship* parent);
     void Logic();
 
 };

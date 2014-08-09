@@ -32,18 +32,18 @@ boost::random::mt19937 gen;
 Ship::Ship() : Entity()
 {
 
-    Velocity = new Vector2D(0.0f, 0.0f);
-	Max_Velocity = 3.0f;
+    Velocity = Vector2D(0.0f, 0.0f);
+	Max_Velocity = 7.0f;
 	Velocity_Friction = 0.999f;
-	Acceleration = 0.010f;
+	Acceleration = 0.050f;
 	Max_Acceleration = 0.2f;		
 	Turn_Rate = 6.0f;
 
-	Thrusters = new std::map<char, float>;
-	(*Thrusters)['f'] = 0.0f;
-	(*Thrusters)['b'] = 0.0f;
-	(*Thrusters)['l'] = 0.0f;
-	(*Thrusters)['r'] = 0.0f;
+	//Thrusters = new std::map<char, float>;
+	Thrusters['f'] = 0.0f;
+	Thrusters['b'] = 0.0f;
+	Thrusters['l'] = 0.0f;
+	Thrusters['r'] = 0.0f;
 	
 	Reload_Time = 60;
 
@@ -64,47 +64,47 @@ void Ship::Logic()
 
 	// Basic movement input
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Left) || oGame->Keyboard_Key_Down(sf::Keyboard::A))
-		(*Thrusters)['l'] += Acceleration;
+		Thrusters['l'] += Acceleration;
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Right) || oGame->Keyboard_Key_Down(sf::Keyboard::E) || oGame->Keyboard_Key_Down(sf::Keyboard::D))
-		(*Thrusters)['r'] += Acceleration;
+		Thrusters['r'] += Acceleration;
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Up) || oGame->Keyboard_Key_Down(sf::Keyboard::Comma) || oGame->Keyboard_Key_Down(sf::Keyboard::W))
-		(*Thrusters)['f'] += Acceleration;
+		Thrusters['f'] += Acceleration;
     if(oGame->Keyboard_Key_Down(sf::Keyboard::Down) || oGame->Keyboard_Key_Down(sf::Keyboard::O) | oGame->Keyboard_Key_Down(sf::Keyboard::S))
-		(*Thrusters)['b'] += Acceleration;
+		Thrusters['b'] += Acceleration;
 
 	// Cap acceleration on thrusters
-	for(std::map<char, float>::iterator it = Thrusters->begin(); it != Thrusters->end(); ++it)
-	{
+    for(auto& thruster : Thrusters)
+    {
 
-		if(it->second > Max_Acceleration)
-			(*Thrusters)[it->first] = Max_Acceleration;
-		if(it->second < -Max_Acceleration)
-			(*Thrusters)[it->first] = -Max_Acceleration;
+		if(thruster.second > Max_Acceleration)
+			thruster.second = Max_Acceleration;
+		if(thruster.second < -Max_Acceleration)
+			thruster.second = -Max_Acceleration;
 
-		(*Thrusters)[it->first] *= 0.95;
+		thruster.second *= 0.95;
 
-	}
+    }
 
 	// Increase velocity via thrusters
-	*Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation()), (*Thrusters)['f'], true);
-	*Velocity -= Vector2D(oGame->Deg_To_Rad(Get_Rotation()), (*Thrusters)['b'], true);
-	*Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() - 90.0f), (*Thrusters)['l'], true);
-	*Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() + 90.0f), (*Thrusters)['r'], true);
+	Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation()), Thrusters['f'], true);
+	Velocity -= Vector2D(oGame->Deg_To_Rad(Get_Rotation()), Thrusters['b'], true);
+	Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() - 90.0f), Thrusters['l'], true);
+	Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() + 90.0f), Thrusters['r'], true);
 
 	// Update position vector
-	*Velocity *= Velocity_Friction;
-	Set_X(Get_X() + Velocity->xCom);
-	Set_Y(Get_Y() + Velocity->yCom);
+	Velocity *= Velocity_Friction;
+	Set_X(Get_X() + Velocity.xCom);
+	Set_Y(Get_Y() + Velocity.yCom);
 
 	// Cap velocity
-	if(Velocity->xCom < -Max_Velocity)
-		Velocity->xCom = -Max_Velocity;
-	if(Velocity->xCom > Max_Velocity)
-		Velocity->xCom = Max_Velocity;
-	if(Velocity->yCom < -Max_Velocity)
-		Velocity->yCom = -Max_Velocity;
-	if(Velocity->yCom > Max_Velocity)
-		Velocity->yCom = Max_Velocity;
+	if(Velocity.xCom < -Max_Velocity)
+		Velocity.xCom = -Max_Velocity;
+	if(Velocity.xCom > Max_Velocity)
+		Velocity.xCom = Max_Velocity;
+	if(Velocity.yCom < -Max_Velocity)
+		Velocity.yCom = -Max_Velocity;
+	if(Velocity.yCom > Max_Velocity)
+		Velocity.yCom = Max_Velocity;
 
 	// Rotate mouse towards the cursor
 	std::vector<float> mouse_position_in_world = oGame->Screen_To_World(oGame->aMouse_Pos[0], oGame->aMouse_Pos[1]);	
@@ -150,15 +150,15 @@ void Ship::Logic()
 	if(Reload_Time < 20)
 		Reload_Time += 1;
 
-	if(Reload_Time >= 15 && oGame->aMouse_Buttons[MOUSE_LEFT])
+	if(Reload_Time >= 10 && oGame->aMouse_Buttons[MOUSE_LEFT])
 	{
 
         std::vector<float> mount_point = Get_Mount_Point_Location(1);
-        new Shot(mount_point[0], mount_point[1], Get_Rotation());
+        new Shot(mount_point[0], mount_point[1], Get_Rotation(), this);
         new ShotMuzzle(this, 1, Get_Rotation());
 
         mount_point = Get_Mount_Point_Location(2);
-        new Shot(mount_point[0], mount_point[1], Get_Rotation());
+        new Shot(mount_point[0], mount_point[1], Get_Rotation(), this);
         new ShotMuzzle(this, 2, Get_Rotation());
 
 		Reload_Time = 0;
@@ -174,7 +174,7 @@ void Ship::Logic()
 	if(oGame->Keyboard_Key_Down(sf::Keyboard::Space))
 	{
 
-		for(int i = 0; i < 5; i++)
+		for(int i = 0; i < 10; i++)
 		{
 			boost::random::uniform_int_distribution<> dist(-25, 25);
 		    int x = dist(gen);
@@ -204,8 +204,8 @@ std::vector<float> Ship::Get_Mount_Point_Location(int mount_point_num)
 {
 
     if(mount_point_num == 1)
-        return oGame->Rotate_Point_About_Point(Get_X() + 18, Get_Y() + 15, Get_Rotation(), Get_X(), Get_Y());
+        return oGame->Rotate_Point_About_Point(Get_X() + 13, Get_Y() + 15, Get_Rotation(), Get_X(), Get_Y());
     if(mount_point_num == 2)
-        return oGame->Rotate_Point_About_Point(Get_X() + 18, Get_Y() - 15, Get_Rotation(), Get_X(), Get_Y());
+        return oGame->Rotate_Point_About_Point(Get_X() + 13, Get_Y() - 15, Get_Rotation(), Get_X(), Get_Y());
 
 }

@@ -18,9 +18,15 @@
 /**
  * Constructor
  */
-Shot::Shot(float x, float y, int rot) : Entity()
+Shot::Shot(float x, float y, int rot, Ship* parent) : Entity()
 {
+    
+    // Move it
+    Parent = parent;
+    Velocity += parent->Velocity;
+    Velocity += Vector2D(oGame->Deg_To_Rad(rot), 20.0f, true);
 
+    // Display everything
 	Set_Render_Layer(RENDER_LAYER_WORLD);
     Set_X(x);
     Set_Y(y);
@@ -40,12 +46,14 @@ Shot::Shot(float x, float y, int rot) : Entity()
 void Shot::Logic()
 {
 
-    Advance_Towards(12.0f, Get_Rotation());
-	Life += 1;
+    // Pew pew
+	Set_X(Get_X() + Velocity.xCom);
+	Set_Y(Get_Y() + Velocity.yCom);
 
+    // Go life die etc
+	Life += 1;
 	if(Life > 100)
 		Set_Alpha(Get_Alpha() - .05f);
-
     if(Get_Alpha() < 0.0f)
         Kill();
 
