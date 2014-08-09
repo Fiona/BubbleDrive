@@ -1,14 +1,15 @@
-attribute vec2 vertex_coord;
-attribute vec4 vertex_colour;
-attribute vec2 texture_coord;
-attribute vec4 pos_rot_scale;
+#version 410
 
-varying vec4 f_colour;
-varying vec2 f_texture_coord;
+in vec2 vertex_coord;
+in vec4 vertex_colour;
+in vec2 texture_coord;
+in vec4 pos_rot_scale;
+
+out vec4 v_vertex_colour;
+out vec2 v_texture_coord;
 
 uniform sampler2D texture_num;
 uniform sampler2D screen_texture_num;
-
 uniform vec4 camera_position;
 uniform vec2 screen_size;
 
@@ -53,9 +54,9 @@ mat4 scale_matrix = mat4(
 void main()
 {
       
-	f_colour = vertex_colour;
-	f_texture_coord = texture_coord;
-      
+	v_vertex_colour = vertex_colour;
+    v_texture_coord = texture_coord;
+     
     gl_Position = frustrum_matrix * 
     (
       vec4(
