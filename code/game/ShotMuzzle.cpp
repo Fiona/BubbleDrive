@@ -65,7 +65,7 @@ void ShotMuzzle::Logic()
 void ShotMuzzle::Update_Pos()
 {
 
-    std::vector<float> mount_point_loc = Parent->Get_Mount_Point_Location(Mount_Point_Num);
+    auto mount_point_loc = Parent->Get_Mount_Point_Location(Mount_Point_Num);
 
     Set_X(mount_point_loc[0]);
     Set_Y(mount_point_loc[1]);
