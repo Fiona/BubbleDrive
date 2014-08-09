@@ -21,6 +21,7 @@ class Shader;
 // Includes
 #include <map>
 #include <string>
+#include <GL/glew.h>
 #include "../core/Game.h"
 #include "../core/consts.h"
 
@@ -34,6 +35,10 @@ class Shader
 {
 
 public:
+	Game* oGame;
+	GLuint oShader_Program;
+	std::map<std::string, GLint> oUniforms;
+
 	Shader(std::string shader_file_name);
 	~Shader();
 	virtual void Get_Uniform_Locations();
@@ -42,13 +47,13 @@ public:
 	virtual void Setup();
 	virtual void Cleanup();
 
-	Game* oGame;
-	GLuint oShader_Program;
-	std::map<std::string, GLint> oUniforms;
-
 private:
+
+	GLuint oGeometry_Shader_Program;
 	GLuint oVertex_Shader_Program;
 	GLuint oFragment_Shader_Program;
+
+    bool load_from_file(GLenum shader_type, std::string shader_source_file, GLuint &shader_program);
 
 };
 

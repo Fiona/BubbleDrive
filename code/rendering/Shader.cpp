@@ -14,6 +14,7 @@
 
 // Includes
 #include "Shader.h"
+#include <boost/filesystem.hpp>
 
 #if _WIN32
   #include <windows.h>
@@ -34,90 +35,44 @@ Shader::Shader(std::string shader_file_name)
 
 	oGame = Game::Instance();
 
-	// Load Vertex shader code
-	std::string vert_shader = oGame->Load_From_File(
-		PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".vert"
-		);
-	const char* vertex_shader_code = vert_shader.c_str();
-	if(vertex_shader_code == 0)
-	{
-		fprintf(stderr, "Error loading vertex shader file.\n");
-#if _WIN32
-		MessageBox(NULL, "error loading vertext shader file", "error", MB_ICONSTOP|MB_SETFOREGROUND);
-#endif
-		return;
-	}
-
-    oVertex_Shader_Program = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(oVertex_Shader_Program, 1, (const GLchar**)&vertex_shader_code, 0);
-    glCompileShader(oVertex_Shader_Program);
-    glGetShaderiv(oVertex_Shader_Program, GL_COMPILE_STATUS, &compile_status);
-
-    if(!compile_status)
-    {
-
-        fprintf(stderr, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str());
-#if _WIN32
-	MessageBox(NULL, ("Error compiling vertex shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
-#endif
-
-        int info_log_length = 0;
-        int max_length;
-		glGetShaderiv(oVertex_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
-		std::string info_log(max_length, ' ');
-		glGetShaderInfoLog(oVertex_Shader_Program, max_length, &info_log_length, &info_log[0]);
-        if(info_log_length > 0)
-			printf("%s\n", info_log.c_str());
-
+    bool success_vertex = load_from_file(
+        GL_VERTEX_SHADER,
+        PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".vert",
+        oVertex_Shader_Program
+        );
+    if(!success_vertex)
         return;
 
-    }
-
-	// Load fragment shader code
-	std::string frag_shader = oGame->Load_From_File(
-		PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".frag"
-		);
-	const char* fragment_shader_code = frag_shader.c_str();	
-	if(fragment_shader_code == 0)
-	{
-
-		fprintf(stderr, "Error loading fragment shader file.\n");
-
-#if _WIN32
-		MessageBox(NULL, "Error loading fragment shader", "error", MB_ICONSTOP|MB_SETFOREGROUND);
-#endif
-
-		return;
-
-	}
-
-    oFragment_Shader_Program = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(oFragment_Shader_Program, 1, (const GLchar**)&fragment_shader_code, 0);
-    glCompileShader(oFragment_Shader_Program);
-    glGetShaderiv(oFragment_Shader_Program, GL_COMPILE_STATUS, &compile_status);
-
-    if(!compile_status)
-    {
-        fprintf(stderr, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str());
-
-#if _WIN32
-	MessageBox(NULL, ("Error compiling fragment shader - " + shader_file_name + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
-#endif
-
-        int info_log_length = 0;
-        int max_length;
-	glGetShaderiv(oFragment_Shader_Program, GL_INFO_LOG_LENGTH, &max_length); 
-	std::string info_log(max_length, ' ');
-	glGetShaderInfoLog(oFragment_Shader_Program, max_length, &info_log_length, &info_log[0]);
-        if(info_log_length > 0)
-            printf("%s\n", info_log.c_str());
-
+    bool success_fragment = load_from_file(
+        GL_FRAGMENT_SHADER,
+        PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".frag",
+        oFragment_Shader_Program
+        );
+    if(!success_fragment)
         return;
+
+    // Load geometry shader if it exists
+    bool have_geometry_shader = false;
+    if(boost::filesystem::exists(PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".geom"))
+    {
+
+        bool success_geometry = load_from_file(
+            GL_GEOMETRY_SHADER,
+            PATH_RESOURCES + SEPARATOR + PATH_SHADERS + SEPARATOR + shader_file_name + ".geom",
+            oGeometry_Shader_Program
+            );
+        if(!success_geometry)
+            return;
+
+        have_geometry_shader = true;
+
     }
 
     // Create and link shader program, and get shader uniform locations
     oShader_Program = glCreateProgram();
     glAttachShader(oShader_Program, oVertex_Shader_Program);
+    if(have_geometry_shader)
+        glAttachShader(oShader_Program, oGeometry_Shader_Program);
     glAttachShader(oShader_Program, oFragment_Shader_Program);
     glLinkProgram(oShader_Program);
 
@@ -139,6 +94,55 @@ Shader::Shader(std::string shader_file_name)
     }
 
     Get_Uniform_Locations();
+
+}
+
+
+/**
+ * Loads a shader from a text file.
+ * @param
+ */
+bool Shader::load_from_file(GLenum shader_type, std::string shader_source_file, GLuint &shader_program)
+{
+
+	std::string shader_text = oGame->Load_From_File(shader_source_file);
+	const char* shader_code = shader_text.c_str();
+	if(shader_code == 0)
+	{
+		fprintf(stderr, "Error loading shader file.\n");
+#if _WIN32
+		MessageBox(NULL, "error loading shader file", "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#endif
+		return false;
+	}
+
+    GLint compile_status;
+    shader_program = glCreateShader(shader_type);
+    glShaderSource(shader_program, 1, (const GLchar**)&shader_code, 0);
+    glCompileShader(shader_program);
+    glGetShaderiv(shader_program, GL_COMPILE_STATUS, &compile_status);
+
+    if(!compile_status)
+    {
+
+        fprintf(stderr, ("Error compiling shader - " + shader_source_file + "\n").c_str());
+#if _WIN32
+	MessageBox(NULL, ("Error compiling shader - " + shader_source_file + "\n").c_str(), "error", MB_ICONSTOP|MB_SETFOREGROUND);
+#endif
+
+        int info_log_length = 0;
+        int max_length;
+		glGetShaderiv(shader_program, GL_INFO_LOG_LENGTH, &max_length); 
+		std::string info_log(max_length, ' ');
+		glGetShaderInfoLog(shader_program, max_length, &info_log_length, &info_log[0]);
+        if(info_log_length > 0)
+			printf("%s\n", info_log.c_str());
+
+        return false;
+
+    }
+    
+    return true;
 
 }
 
