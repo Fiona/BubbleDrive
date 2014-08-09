@@ -4,7 +4,12 @@ Import('DEBUG')
 
 # Libraries
 env.Append(CPPPATH = ['/usr/include/freetype2/'])
-env.Append(LIBS = ['GL', 'GLU', 'GLEW', 'sfml-system', 'sfml-window', 'sfml-graphics', 'sfml-audio', 'freetype'])
+env.Append(
+  LIBS = [
+      'GL', 'GLU', 'GLEW', 'sfml-system', 'sfml-window', 'sfml-graphics', 'sfml-audio', 'freetype',
+      File('/usr/lib/libboost_filesystem.a'), File('/usr/lib/libboost_system.a'),    
+    ]
+  )
 
 # List of sources
 sources = ['main.cpp']
