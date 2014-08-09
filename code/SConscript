@@ -1,0 +1,26 @@
+import os
+env = Environment(CXXFLAGS="-std=c++0x")
+Import('DEBUG')
+
+# Libraries
+env.Append(CPPPATH = ['/usr/include/freetype2/'])
+env.Append(LIBS = ['GL', 'GLU', 'GLEW', 'sfml-system', 'sfml-window', 'sfml-graphics', 'sfml-audio', 'freetype'])
+
+# List of sources
+sources = ['main.cpp']
+sub_dirs = ['core', 'game', 'rendering', 'text', 'utils']
+for dir in sub_dirs:
+  sources += Glob(os.path.join(dir, '*.cpp'))
+
+# Switch to debug
+if DEBUG:
+   env.Append(CCFLAGS = '-g')
+else:
+   env.Append(CCFLAGS = '-O')
+
+# Build executable
+object_list = env.Object(source = sources)
+main_executable = env.Program(target = 'bubbledrive', source = object_list)
+
+Default(main_executable)
+
