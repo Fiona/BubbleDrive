@@ -13,6 +13,7 @@
 
 
 // Includes
+#include "consts.h"
 #include "Image.h"
 
 

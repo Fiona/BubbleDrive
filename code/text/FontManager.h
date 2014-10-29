@@ -23,10 +23,12 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/foreach.hpp>
-#include "GlyphMap.h"
-#include "Font.h"
-#include "Glyph.h"
 
+
+// forward decl
+class GlyphMap;
+class Glyph;
+class Font;
 
 // Short hand for the keys for the map of Glyphs
 typedef boost::tuple<Font*, int, std::string> GlyphKey;

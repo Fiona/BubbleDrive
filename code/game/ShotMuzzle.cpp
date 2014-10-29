@@ -11,6 +11,7 @@
 
 
 // Includes
+#include "../core/consts.h"
 #include "../core/Game.h"
 #include "../core/Media.h"
 #include "../rendering/Light.h"

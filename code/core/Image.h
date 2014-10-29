@@ -27,7 +27,6 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <SFML/Graphics/Image.hpp>
-#include "consts.h"
 
 
 /**

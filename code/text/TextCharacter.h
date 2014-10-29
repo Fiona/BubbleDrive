@@ -13,9 +13,11 @@
 
 
 // Includes
-#include "Glyph.h"
-#include "GlyphMap.h"
+// ...
 
+// forward decl
+class Glyph;
+class GlyphMap;
 
 /**
  * Text objects keep track of the characters that 

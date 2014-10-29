@@ -13,9 +13,14 @@
 
 
 // Includes
+#include "../core/consts.h"
 #include "../core/Game.h"
 #include "Text.h"
 #include "FontManager.h"
+#include "Glyph.h"
+#include "GlyphMap.h"
+#include "Font.h"
+#include "TextCharacter.h"
 
 
 /**

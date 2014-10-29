@@ -17,16 +17,14 @@
 #include <map>
 #include <string>
 #include <boost/foreach.hpp>
-#include "../core/consts.h"
 #include "../core/Entity.h"
-#include "GlyphMap.h"
-#include "Font.h"
-#include "TextCharacter.h"
 
 
 // Forward declaration
 class Entity;
-
+class GlyphMap;
+class Font;
+class TextCharacter;
 
 /**
  * Text objects will draw texts to the screen. If settings

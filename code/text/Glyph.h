@@ -16,9 +16,10 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
-#include "Font.h"
 #include "../utils/RectangleBin.h"
 
+// forward decl
+class Font;
 
 /**
  * Glyphs hold the pointer to their relevant Node object

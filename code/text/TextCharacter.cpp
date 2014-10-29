@@ -13,6 +13,8 @@
 
 // Includes
 #include "TextCharacter.h"
+#include "Glyph.h"
+#include "GlyphMap.h"
 
 
 /**

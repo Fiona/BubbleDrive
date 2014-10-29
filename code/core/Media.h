@@ -19,9 +19,10 @@
 // Includes
 #include <string>
 #include <map>
-#include "Image.h"
-#include "../text/Font.h"
 
+// forward decl
+class Image;
+class Font;
 
 /**
  * Main media object, is responsible for loading/handling 

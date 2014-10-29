@@ -12,7 +12,8 @@
 #define _RECTANGLEBIN_H_
 
 // Includes
-#include <boost/smart_ptr.hpp>
+#include <memory>
+//#include <boost/smart_ptr.hpp>
 
 /**
  * Rectangle bins are an abstract way to keep atlas like structures.
@@ -39,8 +40,8 @@ public:
 	{
 		// Left and right child. We don't really distinguish which is which, so these could
 		// as well be child1 and child2.
-		boost::shared_ptr<Node> pLeft;
-		boost::shared_ptr<Node> pRight;
+		std::shared_ptr<Node> pLeft;
+		std::shared_ptr<Node> pRight;
 
 		// The top-left coordinate of the rectangle.
 		int iX;

@@ -14,6 +14,9 @@
 
 // Includes
 #include "FontManager.h"
+#include "GlyphMap.h"
+#include "Font.h"
+#include "Glyph.h"
 
 
 /**

@@ -15,6 +15,8 @@
 // Includes
 #include "Media.h"
 #include "consts.h"
+#include "Image.h"
+#include "../text/Font.h"
 
 
 /**

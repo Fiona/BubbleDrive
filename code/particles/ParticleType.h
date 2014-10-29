@@ -19,7 +19,6 @@
 
 // Includes
 #include "../core/Entity.h"
-#include "../rendering/ParticleBatch.h"
 
 /**
  *

@@ -27,7 +27,7 @@ RectangleBin::RectangleBin(int width, int height)
 
 	iBin_Width = width;
 	iBin_Height = height;
-	root.pLeft = root.pRight = boost::shared_ptr<Node>();
+	root.pLeft = root.pRight = std::shared_ptr<Node>();
 	root.iX = root.iY = 0;
 	root.iWidth = width;
 	root.iHeight = height;
@@ -118,8 +118,8 @@ RectangleBin::Node *RectangleBin::Insert(RectangleBin::Node *node, int width, in
 	// that is probably more optimal.
 	int w = node->iWidth - width;
 	int h = node->iHeight - height;
-	node->pLeft = boost::shared_ptr<Node>(new Node);
-	node->pRight = boost::shared_ptr<Node>(new Node);
+	node->pLeft.reset(new Node);
+    node->pRight.reset(new Node);
 
 	// Split the remaining space in horizontal direction.
 	if(w <= h)

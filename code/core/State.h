@@ -17,8 +17,10 @@
 
 
 // Includes
-#include "../game/Ship.h"
+// ...
 
+// forward decl
+class Ship;
 
 /**
  * Acceptable states are defined here

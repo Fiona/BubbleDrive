@@ -11,8 +11,10 @@
 
 
 // Includes
+#include "../core/consts.h"
 #include "../core/Game.h"
 #include "../core/Media.h"
+#include "../core/Image.h"
 #include "../rendering/Shockwave.h"
 #include "ShockwaveEffect.h"
 
