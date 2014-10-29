@@ -363,10 +363,12 @@ void Renderer::Register_Light(Light* new_light)
  */
 void Renderer::Remove_Light(Light* light)
 {
+
     std::vector<Light*>::iterator it;
     it = std::find(aLights.begin(), aLights.end(), light);
     if(it != aLights.end())
         it = aLights.erase(it);
+
 }
 
 

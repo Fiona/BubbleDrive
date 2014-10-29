@@ -19,8 +19,9 @@
 #include <GL/glu.h>
 #include "BatchOperation.h"
 #include "../core/Entity.h"
-#include "../core/Game.h"
 
+// Forward decl
+class Game;
 
 /**
  * A Batch object is responsible for a VBO that corresponds
@@ -36,8 +37,10 @@
 class Batch
 {
 
-private:
+protected:
 	Game* oGame;
+
+private:
     GLuint oVBO;
 	GLuint oVAO;
 	int iLargest_Object_Index;
@@ -51,8 +54,9 @@ public:
     int iRender_Layer;
     GLuint oTexture;
 
-	Batch(float z, int render_layer, GLuint texture);
+	Batch();
     ~Batch();
+    void init(float z, int render_layer, GLuint texture);
     int Request_Object_Index();
     void New_Update_Batch_Operation(Entity* entity, int object_index, int entity_object_number);
     void New_Remove_Batch_Operation(int object_index, bool update_dupes);

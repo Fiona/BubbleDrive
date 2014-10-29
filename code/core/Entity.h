@@ -18,11 +18,13 @@
 
 // Includes
 #include <vector>
-#include "Image.h"
+#include <GL/glew.h>
+#include <GL/glu.h>
 
 
 // Forward declaration
 class Game;
+class Image;
 
 
 /**
@@ -49,7 +51,7 @@ private:
     bool bIs_Updating_Batches;
 
 protected:
-	void Update_Batches_And_Object_Indicies(bool remove_current);
+	virtual void Update_Batches_And_Object_Indicies(bool remove_current);
 
 public:
     Game* oGame;

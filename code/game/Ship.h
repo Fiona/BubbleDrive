@@ -18,9 +18,11 @@
 
 // Includes
 #include <map>
+#include <memory>
 #include "../core/Entity.h"
-#include "../utils/Vector2D.h"
 
+// forward decl
+class Vector2D;
 
 /**
  *
@@ -44,7 +46,7 @@ public:
     void Logic();
     std::vector<float> Get_Mount_Point_Location(int mount_point_num);
 
-    Vector2D Velocity;
+    std::unique_ptr<Vector2D> Velocity;
 
 };
 

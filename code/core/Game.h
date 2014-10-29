@@ -22,6 +22,7 @@
 
 // Includes
 #include <iostream>
+#include <memory>
 #include <cstddef>
 #include <vector>
 #include <map>
@@ -29,18 +30,15 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <SFML/Window.hpp>
-#include "Media.h"
-#include "State.h"
-#include "Entity.h"
-#include "../text/FontManager.h"
-#include "../text/Text.h"
-#include "../rendering/Shader.h"
-#include "../rendering/Renderer.h"
 
 // Forward declaration
+class Media;
+class State;
+class FontManager;
 class Entity;
 class Text;
 class Renderer;
+class ParticleSystem;
 
 
 /**
@@ -84,6 +82,7 @@ public:
     Media* oMedia;
     State* oState;
 	Renderer* oRenderer;
+    std::unique_ptr<ParticleSystem> Particle_System;
     GLuint iCurrent_Bound_Texture;
     std::vector<float> oDefault_Texture_Coords;
 	float aCamera_Position[4];

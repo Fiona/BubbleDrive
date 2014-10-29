@@ -12,6 +12,7 @@
 
 // Includes
 #include "../core/Game.h"
+#include "../core/Media.h"
 #include "../rendering/Shockwave.h"
 #include "ShockwaveEffect.h"
 
@@ -29,6 +30,8 @@ ShockwaveEffect::ShockwaveEffect(float x, float y, float speed, int size) : Enti
     Set_Y(y);
     Set_Scale(0.0f);
 
+    oMy_Shockwave = std::make_shared<Shockwave>();
+
     fSpeed = speed;
     iSize = size;
     iCurrent_Size = 0;
@@ -44,10 +47,10 @@ ShockwaveEffect::ShockwaveEffect(float x, float y, float speed, int size) : Enti
 void ShockwaveEffect::Update_My_Shockwave()
 {
 
-	oMy_Shockwave.Set_X(Get_X());
-	oMy_Shockwave.Set_Y(Get_Y());
-	oMy_Shockwave.Set_Size(iCurrent_Size);
-	oMy_Shockwave.Set_Alpha(Get_Alpha());
+	oMy_Shockwave->Set_X(Get_X());
+	oMy_Shockwave->Set_Y(Get_Y());
+	oMy_Shockwave->Set_Size(iCurrent_Size);
+	oMy_Shockwave->Set_Alpha(Get_Alpha());
 
 }
 

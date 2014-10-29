@@ -13,7 +13,7 @@ env.Append(
 
 # List of sources
 sources = ['main.cpp']
-sub_dirs = ['core', 'game', 'rendering', 'text', 'utils']
+sub_dirs = ['core', 'game', 'rendering', 'text', 'utils', 'particles']
 for dir in sub_dirs:
   sources += Glob(os.path.join(dir, '*.cpp'))
 

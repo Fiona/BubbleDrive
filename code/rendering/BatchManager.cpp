@@ -186,7 +186,8 @@ void BatchManager::Update_And_Render_Batches()
 int BatchManager::Create_New_Batch(float z, GLuint texture, int render_layer)
 {
 
-	Batch* new_batch = new Batch(z, render_layer, texture);
+	Batch* new_batch = new Batch();
+    new_batch->init(z, render_layer, texture);
 
 	oBatches.push_back(new_batch);
 	oBatches_In_Layer_And_Z_Order.push_back(new_batch);

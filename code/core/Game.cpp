@@ -18,7 +18,14 @@
 #include <boost/numeric/ublas/operation.hpp>
 #include "consts.h"
 #include "Game.h"
+#include "Entity.h"
+#include "Media.h"
+#include "State.h"
+#include "../rendering/Renderer.h"
 #include "../rendering/PrimaryShader.h"
+#include "../text/FontManager.h"
+#include "../text/Text.h"
+#include "../particles/ParticleSystem.h"
 
 
 /**
@@ -88,6 +95,8 @@ int Game::Start()
 
     Load_Media();
     oState = new State;
+
+    Particle_System.reset(new ParticleSystem());
 	
 	/**/
 	oFPS_Text = new Text();

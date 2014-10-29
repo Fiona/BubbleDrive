@@ -14,19 +14,24 @@
 // Includes
 #include "../core/consts.h"
 #include "Batch.h"
+#include "../core/Game.h"
+#include "Renderer.h"
 
 
 /**
  * Constructor. Will create the VBO to default values.
  */
-Batch::Batch(float z, int render_layer, GLuint texture)
+Batch::Batch()
+{
+	oGame = Game::Instance();
+}
+
+void Batch::init(float z, int render_layer, GLuint texture)
 {
 
 	iZ = z;
     iRender_Layer = render_layer;
     oTexture = texture;	
-
-	oGame = Game::Instance();
 
 	// Create VAO 
 	glGenVertexArrays( 1, &oVAO);

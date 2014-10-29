@@ -17,8 +17,11 @@
 
 
 // Includes
+#include <memory>
 #include "../core/Entity.h"
 
+// Forward decl
+class Shockwave;
 
 /**
  *
@@ -31,7 +34,7 @@ private:
     float fSpeed;
     int iSize;
     int iCurrent_Size;
-	Shockwave oMy_Shockwave;
+    std::shared_ptr<Shockwave> oMy_Shockwave;
 
 public:
 

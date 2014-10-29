@@ -23,6 +23,8 @@
 #include <GL/glu.h>
 #include "Entity.h"
 #include "Game.h"
+#include "Image.h"
+#include "../rendering/Renderer.h"
 
 
 

@@ -4,40 +4,33 @@
  ***************************************
  ****** By Stompy Blondie Games  *******
  ***************************************
- *** File started Nov 2012 by Fiona ****
+ *** File started Oct 2014 by Fiona ****
  ***************************************/
 
 #pragma once
-#ifndef _TEST_H_
-#define _TEST_H_
+#ifndef _PARTICLEBATCH_H_
+#define _PARTICLEBATCH_H_
 
 /**
- * Test object header
+ * Special batch type for particles
  */
 
 
 // Includes
-#include <memory>
-#include "../core/Entity.h"
+#include "../rendering/Batch.h"
 
-// Forward decl
-class Light;
+// Forward dcl
+
 
 /**
  *
  */
-class Test : public Entity
+class ParticleBatch : public Batch
 {
 
-private:
-    int iType;
-	int life;
-    std::shared_ptr<Light> oMy_Light;
-
 public:
-
-    Test(int type);
-    void Logic();
+    ParticleBatch();
+    void init(float z, int render_layer, GLuint texture);
 
 };
 

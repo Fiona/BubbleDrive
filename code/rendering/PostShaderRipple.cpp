@@ -11,7 +11,9 @@
 
 
 // Includes
+#include "../core/Media.h"
 #include "PostShaderRipple.h"
+#include "Renderer.h"
 
 
 /**

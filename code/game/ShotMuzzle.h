@@ -18,6 +18,9 @@
 #include <memory>
 #include "../core/Entity.h"
 
+// Forward decl
+class Light;
+class Ship;
 
 /**
  *
@@ -28,7 +31,7 @@ class ShotMuzzle : Entity
 private:
 
 	int Life;
-    Light Muzzle_Light;
+    std::shared_ptr<Light> Muzzle_Light;
     Ship* Parent;
     int Mount_Point_Num;
 

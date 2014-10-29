@@ -12,8 +12,10 @@
 
 // Includes
 #include "../core/Game.h"
+#include "../core/Media.h"
+#include "../rendering/Light.h"
 #include "ShotMuzzle.h"
-
+#include "Ship.h"
 
 /**
  * Constructor
@@ -32,8 +34,9 @@ ShotMuzzle::ShotMuzzle(Ship* parent_ship, int mount_point_num, int rot) : Entity
 	Set_Colour(0.6f, 1.0f, 0.6f);
 	Life = 0;
 
-	Muzzle_Light.Set_Size(35);
-	Muzzle_Light.Set_Alpha(.4f);
+    Muzzle_Light = std::make_shared<Light>();
+	Muzzle_Light->Set_Size(35);
+	Muzzle_Light->Set_Alpha(.4f);
 
     Update_Pos();
 
@@ -53,10 +56,10 @@ void ShotMuzzle::Logic()
 	if(Life > 4)
     {
 		Set_Alpha(Get_Alpha() - .05f);
-        Muzzle_Light.Set_Alpha(Muzzle_Light.Get_Alpha() - .02);
+        Muzzle_Light->Set_Alpha(Muzzle_Light->Get_Alpha() - .02);
     }
 
-    if(Muzzle_Light.Get_Alpha() < 0.0f)
+    if(Muzzle_Light->Get_Alpha() < 0.0f)
         Kill();
 
 }
@@ -70,7 +73,7 @@ void ShotMuzzle::Update_Pos()
     Set_X(mount_point_loc[0]);
     Set_Y(mount_point_loc[1]);
 
-	Muzzle_Light.Set_X(Get_X());
-	Muzzle_Light.Set_Y(Get_Y());
+	Muzzle_Light->Set_X(Get_X());
+	Muzzle_Light->Set_Y(Get_Y());
 
 }

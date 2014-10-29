@@ -15,6 +15,7 @@
 // Includes
 #include "RenderLayer.h"
 #include "PostShader.h"
+#include "Renderer.h"
 
 
 /**

@@ -18,6 +18,9 @@
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include "../core/Game.h"
+#include "../core/consts.h"
+#include "../core/Media.h"
+#include "../utils/Vector2D.h"
 #include "Ship.h"
 #include "StressEffect.h"
 #include "ShockwaveEffect.h"
@@ -33,7 +36,7 @@ Ship::Ship() : Entity()
 {
 
 
-    Velocity = Vector2D(0.0f, 0.0f);
+    Velocity.reset(new Vector2D(0.0f, 0.0f));
 	Max_Velocity = 7.0f;
 	Velocity_Friction = 0.999f;
 	Acceleration = 0.050f;
@@ -87,25 +90,25 @@ void Ship::Logic()
     }
 
 	// Increase velocity via thrusters
-	Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation()), Thrusters['f'], true);
-	Velocity -= Vector2D(oGame->Deg_To_Rad(Get_Rotation()), Thrusters['b'], true);
-	Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() - 90.0f), Thrusters['l'], true);
-	Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() + 90.0f), Thrusters['r'], true);
+	*Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation()), Thrusters['f'], true);
+	*Velocity -= Vector2D(oGame->Deg_To_Rad(Get_Rotation()), Thrusters['b'], true);
+	*Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() - 90.0f), Thrusters['l'], true);
+	*Velocity += Vector2D(oGame->Deg_To_Rad(Get_Rotation() + 90.0f), Thrusters['r'], true);
 
 	// Update position vector
-	Velocity *= Velocity_Friction;
-	Set_X(Get_X() + Velocity.xCom);
-	Set_Y(Get_Y() + Velocity.yCom);
+	*Velocity *= Velocity_Friction;
+	Set_X(Get_X() + Velocity->xCom);
+	Set_Y(Get_Y() + Velocity->yCom);
 
 	// Cap velocity
-	if(Velocity.xCom < -Max_Velocity)
-		Velocity.xCom = -Max_Velocity;
-	if(Velocity.xCom > Max_Velocity)
-		Velocity.xCom = Max_Velocity;
-	if(Velocity.yCom < -Max_Velocity)
-		Velocity.yCom = -Max_Velocity;
-	if(Velocity.yCom > Max_Velocity)
-		Velocity.yCom = Max_Velocity;
+	if(Velocity->xCom < -Max_Velocity)
+		Velocity->xCom = -Max_Velocity;
+	if(Velocity->xCom > Max_Velocity)
+		Velocity->xCom = Max_Velocity;
+	if(Velocity->yCom < -Max_Velocity)
+		Velocity->yCom = -Max_Velocity;
+	if(Velocity->yCom > Max_Velocity)
+		Velocity->yCom = Max_Velocity;
 
 	// Rotate mouse towards the cursor
 	std::vector<float> mouse_position_in_world = oGame->Screen_To_World(oGame->aMouse_Pos[0], oGame->aMouse_Pos[1]);	

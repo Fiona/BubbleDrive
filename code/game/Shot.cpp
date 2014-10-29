@@ -11,8 +11,12 @@
 
 
 // Includes
+#include "../core/consts.h"
 #include "../core/Game.h"
+#include "../core/Media.h"
+#include "../utils/Vector2D.h"
 #include "Shot.h"
+#include "Ship.h"
 
 
 /**
@@ -23,8 +27,9 @@ Shot::Shot(float x, float y, int rot, Ship* parent) : Entity()
     
     // Move it
     Parent = parent;
-    Velocity += parent->Velocity;
-    Velocity += Vector2D(oGame->Deg_To_Rad(rot), 20.0f, true);
+    Velocity.reset(new Vector2D());
+    *Velocity += *parent->Velocity;
+    *Velocity += Vector2D(oGame->Deg_To_Rad(rot), 20.0f, true);
 
     // Display everything
 	Set_Render_Layer(RENDER_LAYER_WORLD);
@@ -47,8 +52,8 @@ void Shot::Logic()
 {
 
     // Pew pew
-	Set_X(Get_X() + Velocity.xCom);
-	Set_Y(Get_Y() + Velocity.yCom);
+	Set_X(Get_X() + Velocity->xCom);
+	Set_Y(Get_Y() + Velocity->yCom);
 
     // Go life die etc
 	Life += 1;

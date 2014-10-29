@@ -15,6 +15,7 @@
 // Includes
 #include "../core/Game.h"
 #include "Text.h"
+#include "FontManager.h"
 
 
 /**

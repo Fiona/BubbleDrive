@@ -12,6 +12,7 @@
 // Includes
 #include "Shockwave.h"
 #include "../core/Game.h"
+#include "Renderer.h"
 
 
 

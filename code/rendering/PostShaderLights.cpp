@@ -14,6 +14,7 @@
 
 // Includes
 #include "PostShaderLights.h"
+#include "Renderer.h"
 
 
 /**
