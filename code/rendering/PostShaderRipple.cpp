@@ -15,6 +15,7 @@
 #include "../core/Image.h"
 #include "PostShaderRipple.h"
 #include "Renderer.h"
+#include "Shockwave.h"
 
 
 /**

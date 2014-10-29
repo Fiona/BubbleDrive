@@ -13,7 +13,11 @@
 
 // Includes
 #include "../core/consts.h"
+#include "../core/Game.h"
+#include "BatchManager.h"
+#include "Shader.h"
 #include "Renderer.h"
+#include "RenderLayer.h"
 #include "PrimaryShader.h"
 #include "RenderLayerShader.h"
 #include "PostShader.h"
@@ -21,7 +25,8 @@
 #include "PostShaderLights.h"
 #include "PostShaderSaturation.h"
 #include "PostShaderRipple.h"
-
+#include "Shockwave.h"
+#include "Light.h"
 
 /**
  * Constructor. Creates BatchManager, Shaders and 

@@ -16,12 +16,12 @@
 #include <vector>
 #include <GL/glew.h>
 #include <GL/glu.h>
-#include "../core/Game.h"
-#include "Batch.h"
 #include "../core/Entity.h"
 
 
 // Forward declaration
+class Batch;
+class Game;
 class Batch;
 
 

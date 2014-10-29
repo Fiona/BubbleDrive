@@ -13,9 +13,10 @@
 
 // Includes
 #include "../core/consts.h"
-#include "Batch.h"
 #include "../core/Game.h"
+#include "Batch.h"
 #include "Renderer.h"
+#include "BatchOperation.h"
 
 
 /**

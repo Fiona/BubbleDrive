@@ -15,7 +15,7 @@
 // Includes
 #include "PostShaderLights.h"
 #include "Renderer.h"
-
+#include "Light.h"
 
 /**
  * Constructor, pretty much just passes on to the parent.

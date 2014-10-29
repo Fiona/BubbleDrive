@@ -21,10 +21,12 @@
 #include <math.h>
 #include <GL/glew.h>
 #include <GL/glu.h>
+#include "../core/consts.h"
 #include "Entity.h"
 #include "Game.h"
 #include "Image.h"
 #include "../rendering/Renderer.h"
+#include "../rendering/BatchManager.h"
 
 
 

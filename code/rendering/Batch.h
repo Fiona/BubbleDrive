@@ -17,11 +17,11 @@
 #include <set>
 #include <GL/glew.h>
 #include <GL/glu.h>
-#include "BatchOperation.h"
 #include "../core/Entity.h"
 
 // Forward decl
 class Game;
+class BatchOperation;
 
 /**
  * A Batch object is responsible for a VBO that corresponds

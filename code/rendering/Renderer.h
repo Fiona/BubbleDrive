@@ -16,18 +16,14 @@
 #include <map>
 #include <GL/glew.h>
 #include <boost/numeric/ublas/matrix.hpp>
-#include "../core/Game.h"
-#include "BatchManager.h"
-#include "Shader.h"
-#include "RenderLayer.h"
-#include "Light.h"
-#include "Shockwave.h"
-
 
 // Forward declaration
+class Game;
+class Shader;
 class RenderLayer;
 class BatchManager;
-
+class Shockwave;
+class Light;
 
 /**
  * Core Renderer class. It has one core method (Render) that the game object

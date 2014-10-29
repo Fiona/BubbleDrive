@@ -13,7 +13,9 @@
 
 // Includes
 #include <algorithm>
+#include "../core/Game.h"
 #include "BatchManager.h"
+#include "Batch.h"
 
 
 /**
